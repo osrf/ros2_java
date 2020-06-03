@@ -244,6 +244,7 @@ foreach(_generated_cpp_file ${_generated_extension_files})
   target_link_libraries(
     ${_library_name}
     ${PROJECT_NAME}__${_typesupport_impl}
+    ${rosidl_generate_interfaces_TARGET}__rosidl_generator_c
     ${_extension_link_flags}
   )
   rosidl_target_interfaces(${_library_name}

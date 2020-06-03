@@ -24,7 +24,7 @@
 
   <exec_depend>rmw_implementation</exec_depend>
   <exec_depend>rmw_implementation_cmake</exec_depend>
-  <exec_depend>rosidl_generator_c</exec_depend>
+  <exec_depend>rosidl_runtime_c</exec_depend>
   <exec_depend>rosidl_parser</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
@@ -33,7 +33,11 @@
 
   <test_depend>rmw_implementation</test_depend>
   <test_depend>rmw_implementation_cmake</test_depend>
-  <test_depend>rosidl_generator_c</test_depend>
+  <!-- It's not clear why we need to depend on rosidl_generator_cpp, but without it
+       the tests will not compile.
+       See https://github.com/ros2/rosidl_python/pull/100#issuecomment-608558735 -->
+  <test_depend>rosidl_generator_cpp</test_depend>
+  <test_depend>rosidl_runtime_c</test_depend>
 
   <test_depend>rosidl_cmake</test_depend>
   <test_depend>rosidl_parser</test_depend>

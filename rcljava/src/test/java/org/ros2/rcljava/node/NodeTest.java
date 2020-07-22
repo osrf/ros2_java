@@ -85,8 +85,10 @@ public class NodeTest {
 
   @BeforeClass
   public static void setupOnce() throws Exception {
-    RCLJava.rclJavaInit();
+    // Just to quiet down warnings
     org.apache.log4j.BasicConfigurator.configure();
+
+    RCLJava.rclJavaInit();
   }
 
   public class TestConsumer<T> implements Consumer<T> {

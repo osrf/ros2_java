@@ -11,6 +11,7 @@ find_package(rcl_interfaces REQUIRED)
 find_package(rcljava_common REQUIRED)
 find_package(rmw REQUIRED)
 find_package(rmw_implementation_cmake REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
 
 include(CrossCompilingExtra)
 
@@ -97,6 +98,7 @@ foreach(_jni_source ${${PROJECT_NAME}_jni_sources})
     "rcljava_common"
     "builtin_interfaces"
     "rcl_interfaces"
+    "rosgraph_msgs"
   )
 
   target_include_directories(${_target_name}
@@ -163,6 +165,7 @@ set(${PROJECT_NAME}_sources
   "src/main/java/org/ros2/rcljava/subscription/SubscriptionImpl.java"
   "src/main/java/org/ros2/rcljava/time/Clock.java"
   "src/main/java/org/ros2/rcljava/time/ClockType.java"
+  "src/main/java/org/ros2/rcljava/time/TimeSource.java"
   "src/main/java/org/ros2/rcljava/timer/Timer.java"
   "src/main/java/org/ros2/rcljava/timer/WallTimer.java"
   "src/main/java/org/ros2/rcljava/timer/WallTimerImpl.java"
@@ -176,6 +179,7 @@ add_jar("${PROJECT_NAME}_jar"
   ${rcljava_common_JARS}
   ${builtin_interfaces_JARS}
   ${rcl_interfaces_JARS}
+  ${rosgraph_msgs_JARS}
 )
 
 install_jar("${PROJECT_NAME}_jar" "share/${PROJECT_NAME}/java")
@@ -213,6 +217,7 @@ if(BUILD_TESTING)
     DEPENDENCIES
     builtin_interfaces
     rcl_interfaces
+    rosgraph_msgs
     ${_java_type_supports}
     SKIP_INSTALL
   )
@@ -293,6 +298,15 @@ if(BUILD_TESTING)
     list_append_unique(_deps_library_dirs ${_dep_dir})
   endforeach()
 
+  foreach(_dep_lib ${rosgraph_msgs_interfaces_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+  foreach(_dep_lib ${rosgraph_msgs_JNI_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+
   list_append_unique(_deps_library_dirs ${CMAKE_CURRENT_BINARY_DIR})
   list_append_unique(_deps_library_dirs ${CMAKE_CURRENT_BINARY_DIR}/rcljava)
   list_append_unique(_deps_library_dirs ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_java/rcljava/msg/)
@@ -313,6 +327,7 @@ if(BUILD_TESTING)
       "${std_msgs_JARS}"
       "${builtin_interfaces_JARS}"
       "${rcl_interfaces_JARS}"
+      "${rosgraph_msgs_JARS}"
       "${_${PROJECT_NAME}_jar_file}"
       "${_${PROJECT_NAME}_messages_jar_file}"
       APPEND_LIBRARY_DIRS

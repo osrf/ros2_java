@@ -15,12 +15,13 @@
 
 package org.ros2.rcljava.time;
 
-import org.ros2.rcljava.common.JNIUtils;
-
-import org.ros2.rcljava.interfaces.Disposable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.ros2.rcljava.common.JNIUtils;
+import org.ros2.rcljava.interfaces.Disposable;
+import org.ros2.rcljava.Time;
 
 public class Clock implements Disposable {
   private static final Logger logger = LoggerFactory.getLogger(Clock.class);
@@ -52,6 +53,10 @@ public class Clock implements Disposable {
    */
   private static native long nativeCreateClockHandle(ClockType clockType);
 
+  public Clock() {
+    this(ClockType.SYSTEM_TIME);
+  }
+
   /**
    * Constructor.
    *
@@ -62,12 +67,41 @@ public class Clock implements Disposable {
     this.handle = Clock.nativeCreateClockHandle(clockType);
   }
 
+  public Time now() {
+    long nanos = nativeGetNow(this.handle);
+    return new Time(0, nanos, this.clockType);
+  }
+
+  public boolean getRosTimeIsActive() {
+    return nativeRosTimeOverrideEnabled(this.handle);
+  }
+
+  public void setRosTimeIsActive(boolean enabled) {
+    nativeSetRosTimeOverrideEnabled(this.handle, enabled);
+  }
+
+  public void setRosTimeOverride(Time time) {
+    nativeSetRosTimeOverride(this.handle, time.nanoseconds());
+  }
+
   /**
    * @return The clock type.
    */
   public ClockType getClockType() {
     return clockType;
   }
+
+  // TODO(clalancette): The rclcpp and rclpy implementations of the Clock class
+  // both have the ability to register "time jump" callbacks with rcl.  That is
+  // only used with tf2, so we don't need it in rcljava until we have tf2 support.
+
+  private static native long nativeGetNow(long handle);
+
+  private static native boolean nativeRosTimeOverrideEnabled(long handle);
+
+  private static native void nativeSetRosTimeOverrideEnabled(long handle, boolean enabled);
+
+  private static native void nativeSetRosTimeOverride(long handle, long nanos);
 
   /**
    * Destroy an RCL clock (rcl_clock_t).

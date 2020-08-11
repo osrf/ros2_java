@@ -21,14 +21,14 @@ import org.ros2.rcljava.events.EventStatus;
 
 /**
  * This class serves as a bridge between a rcl_event_t and RCLJava.
- * An Event must be created via
- * @{link Publisher#createEvent(Class&lt;T&gt;, Consumer&lt;T&gt;)}
- * @{link Subscription#createEvent(Class&lt;T&gt;, Consumer&lt;T&gt;)}
+ * An EventHandler must be created via
+ * @{link Publisher#createEventHandler(Class&lt;T&gt;, Consumer&lt;T&gt;)}
+ * @{link Subscription#createEventHandler(Class&lt;T&gt;, Consumer&lt;T&gt;)}
  *
- * @param <T> The status event type.
+ * @param <T> The event status type.
  * @param <ParentT> The parent class type.
  */
-public interface Event<T extends EventStatus, ParentT extends Disposable> extends Disposable {
+public interface EventHandler<T extends EventStatus, ParentT extends Disposable> extends Disposable {
   /**
    * @return The event status type.
    */

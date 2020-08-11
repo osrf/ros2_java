@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.consumers.Consumer;
-import org.ros2.rcljava.events.Event;
+import org.ros2.rcljava.events.EventHandler;
 import org.ros2.rcljava.events.EventStatus;
 import org.ros2.rcljava.interfaces.Disposable;
 
@@ -28,22 +28,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class serves as a bridge between a rcl_event_t and RCLJava.
- * An Event must be created via
- * @{link Publisher#createEvent(Class&lt;T&gt;, Consumer&lt;T&gt;)}
- * @{link Subscription#createEvent(Class&lt;T&gt;, Consumer&lt;T&gt;)}
+ * An EventHandler must be created via
+ * @{link Publisher#createEventHandler(Class&lt;T&gt;, Consumer&lt;T&gt;)}
+ * @{link Subscription#createEventHandler(Class&lt;T&gt;, Consumer&lt;T&gt;)}
  *
  * @param <T> The status event type.
  * @param <ParentT> The parent class type.
  */
-public class EventImpl<
+public class EventHandlerImpl<
     T extends EventStatus,
     ParentT extends Disposable>
-implements Event<T, ParentT> {
-  private static final Logger logger = LoggerFactory.getLogger(EventImpl.class);
+implements EventHandler<T, ParentT> {
+  private static final Logger logger = LoggerFactory.getLogger(EventHandlerImpl.class);
 
   static {
     try {
-      JNIUtils.loadImplementation(EventImpl.class);
+      JNIUtils.loadImplementation(EventHandlerImpl.class);
     } catch (UnsatisfiedLinkError ule) {
       logger.error("Native code library failed to load.\n" + ule);
       System.exit(1);
@@ -58,7 +58,7 @@ implements Event<T, ParentT> {
    *    @{link org.ros2.rcljava.Subscription} class.
    * @param parentReference A {@link java.lang.ref.WeakReference} to the
    *     @{link org.ros2.rcljava.Publisher} or @{link org.ros2.rcljava.Subscription}
-   *     that created this event.
+   *     that created this event handler.
    * @param handle A pointer to the underlying ROS 2 event structure, as an integer.
    *     Must not be zero.
    * @param eventStatusType The <code>Class</code> of the messages that this
@@ -68,7 +68,7 @@ implements Event<T, ParentT> {
    * @param callback The callback function that will be called when the event
    *     is triggered.
    */
-  public EventImpl(
+  public EventHandlerImpl(
       final Class<ParentT> parentType,
       final WeakReference<ParentT> parentReference,
       final long handle,

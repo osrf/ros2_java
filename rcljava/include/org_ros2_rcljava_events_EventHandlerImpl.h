@@ -13,32 +13,32 @@
 // limitations under the License.
 
 #include <jni.h>
-/* Header for class org_ros2_rcljava_events_EventsImpl */
+/* Header for class org_ros2_rcljava_events_EventHandlerImpl */
 
-#ifndef ORG_ROS2_RCLJAVA_EVENTS_WALLTIMERIMPL_H_
-#define ORG_ROS2_RCLJAVA_EVENTS_WALLTIMERIMPL_H_
+#ifndef ORG_ROS2_RCLJAVA_EVENTS_EVENTHANDLERIMPL_H_
+#define ORG_ROS2_RCLJAVA_EVENTS_EVENTHANDLERIMPL_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*
- * Class:     org_ros2_rcljava_events_EventsImpl
+ * Class:     org_ros2_rcljava_events_EventHandlerImpl
  * Method:    nativeDispose
  * Signature: (J)V
  */
 JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_events_EventsImpl_nativeDispose(JNIEnv *, jclass, jlong event_handle);
+JNICALL Java_org_ros2_rcljava_events_EventHandlerImpl_nativeDispose(JNIEnv *, jclass, jlong event_handle);
 
 /*
- * Class:     org_ros2_rcljava_events_EventsImpl
+ * Class:     org_ros2_rcljava_events_EventHandlerImpl
  * Method:    nativeTake
  * Signature: (JJ)V
  */
 JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_events_EventsImpl_nativeTake(
+JNICALL Java_org_ros2_rcljava_events_EventHandlerImpl_nativeTake(
   JNIEnv *, jclass, jlong event_handle, jlong event_status_handle);
 
 #ifdef __cplusplus
 }
 #endif
-#endif  // ORG_ROS2_RCLJAVA_EVENTS_WALLTIMERIMPL_H_
+#endif  // ORG_ROS2_RCLJAVA_EVENTS_EVENTHANDLERIMPL_H_

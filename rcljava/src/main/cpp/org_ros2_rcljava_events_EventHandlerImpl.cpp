@@ -21,13 +21,13 @@
 
 #include "rcljava_common/exceptions.hpp"
 
-#include "org_ros2_rcljava_events_EventImpl.h"
+#include "org_ros2_rcljava_events_EventHandlerImpl.h"
 
 using rcljava_common::exceptions::rcljava_throw_exception;
 using rcljava_common::exceptions::rcljava_throw_rclexception;
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_events_EventImpl_nativeDispose(
+Java_org_ros2_rcljava_events_EventHandlerImpl_nativeDispose(
   JNIEnv * env, jclass, jlong event_handle)
 {
   if (event_handle == 0) {
@@ -47,7 +47,7 @@ Java_org_ros2_rcljava_events_EventImpl_nativeDispose(
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_events_EventsImpl_nativeTake(JNIEnv *env, jclass, jlong event_handle, jlong event_status_handle)
+Java_org_ros2_rcljava_events_EventHandlerImpl_nativeTake(JNIEnv *env, jclass, jlong event_handle, jlong event_status_handle)
 {
   auto * event = reinterpret_cast<rcl_event_t *>(event_handle);
   if (!event) {

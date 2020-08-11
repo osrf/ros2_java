@@ -84,7 +84,7 @@ implements Event<T, ParentT> {
   /**
    * {@inheritDoc}
    */
-  public final Class<T> getStatusEventType() {
+  public final Class<T> getEventStatusType() {
     return this.eventStatusType;
   }
 

@@ -154,6 +154,7 @@ implements Event<T, ParentT> {
     nativeTake(this.handle, nativeEventStatusHandle);
     eventStatus.fromRCLEvent(nativeEventStatusHandle);
     eventStatus.deallocateRCLStatusEvent(nativeEventStatusHandle);
+    callback.accept(eventStatus);
   }
 
   private final Class<T> eventStatusType;

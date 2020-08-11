@@ -61,7 +61,7 @@ implements Event<T, ParentT> {
    *     that created this event.
    * @param handle A pointer to the underlying ROS 2 event structure, as an integer.
    *     Must not be zero.
-   * @param messageType The <code>Class</code> of the messages that this
+   * @param eventStatusType The <code>Class</code> of the messages that this
    *     subscription will receive. We need this because of Java's type erasure,
    *     which doesn't allow us to use the generic parameter of
    *     @{link org.ros2.rcljava.Subscription} directly.

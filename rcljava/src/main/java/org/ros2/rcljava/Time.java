@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.time.ClockType;
 
-public class Time {
+public final class Time {
   private static final Logger logger = LoggerFactory.getLogger(Time.class);
 
   static {

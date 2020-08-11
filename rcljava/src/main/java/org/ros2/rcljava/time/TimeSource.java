@@ -25,13 +25,15 @@ import org.ros2.rcljava.time.Clock;
 import org.ros2.rcljava.time.ClockType;
 import org.ros2.rcljava.Time;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TimeSource {
   private Node node;
   private boolean rosTimeIsActive;
-  private ArrayList<Clock> associatedClocks;
+  private final Collection<Clock> associatedClocks;
   private Subscription<rosgraph_msgs.msg.Clock> clockSub;
   private Time lastTimeSet;
   private ParameterCallback simTimeCB;
@@ -42,7 +44,7 @@ public class TimeSource {
 
   public TimeSource(Node node) {
     this.rosTimeIsActive = false;
-    this.associatedClocks = new ArrayList<Clock>();
+    this.associatedClocks = new LinkedBlockingQueue<Clock>();
     this.clockSub = null;
     this.lastTimeSet = new Time(0, 0, ClockType.ROS_TIME);
     if (node != null) {
@@ -157,5 +159,9 @@ public class TimeSource {
     clock.setRosTimeOverride(this.lastTimeSet);
     clock.setRosTimeIsActive(this.rosTimeIsActive);
     this.associatedClocks.add(clock);
+  }
+
+  public void detachClock(Clock clock) {
+    this.associatedClocks.remove(clock);
   }
 }

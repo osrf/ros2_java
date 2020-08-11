@@ -45,6 +45,8 @@ public class Clock implements Disposable {
    */
   private final ClockType clockType;
 
+  private Object clockHandleMutex;
+
   /**
    * Create an RCL clock (rcl_clock_t).
    *
@@ -65,23 +67,31 @@ public class Clock implements Disposable {
   public Clock(ClockType clockType) {
     this.clockType = clockType;
     this.handle = Clock.nativeCreateClockHandle(clockType);
+    this.clockHandleMutex = new Object();
   }
 
   public Time now() {
-    long nanos = nativeGetNow(this.handle);
-    return new Time(0, nanos, this.clockType);
+    synchronized(this.clockHandleMutex) {
+      return new Time(0, nativeGetNow(this.handle), this.clockType);
+    }
   }
 
   public boolean getRosTimeIsActive() {
-    return nativeRosTimeOverrideEnabled(this.handle);
+    synchronized(this.clockHandleMutex) {
+      return nativeRosTimeOverrideEnabled(this.handle);
+    }
   }
 
   public void setRosTimeIsActive(boolean enabled) {
-    nativeSetRosTimeOverrideEnabled(this.handle, enabled);
+    synchronized(this.clockHandleMutex) {
+      nativeSetRosTimeOverrideEnabled(this.handle, enabled);
+    }
   }
 
   public void setRosTimeOverride(Time time) {
-    nativeSetRosTimeOverride(this.handle, time.nanoseconds());
+    synchronized(this.clockHandleMutex) {
+      nativeSetRosTimeOverride(this.handle, time.nanoseconds());
+    }
   }
 
   /**
@@ -114,7 +124,9 @@ public class Clock implements Disposable {
    * {@inheritDoc}
    */
   public final void dispose() {
-    Clock.nativeDispose(this.handle);
+    synchronized(this.clockHandleMutex) {
+      nativeDispose(this.handle);
+    }
     this.handle = 0;
   }
 

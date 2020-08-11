@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class serves as a bridge between ROS2's rcl_event_t and RCLJava.
+ * This class serves as a bridge between a rcl_event_t and RCLJava.
  * An Event must be created via
  * @{link Publisher#createEvent(Class&lt;T&gt;, Consumer&lt;T&gt;)}
  * @{link Subscription#createEvent(Class&lt;T&gt;, Consumer&lt;T&gt;)}

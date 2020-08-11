@@ -25,18 +25,23 @@ import org.ros2.rcljava.time.Clock;
 import org.ros2.rcljava.time.ClockType;
 import org.ros2.rcljava.Time;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.List;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class TimeSource {
+public final class TimeSource {
   private Node node;
   private boolean rosTimeIsActive;
   private final Collection<Clock> associatedClocks;
   private Subscription<rosgraph_msgs.msg.Clock> clockSub;
   private Time lastTimeSet;
   private ParameterCallback simTimeCB;
+
+  private static final Logger logger = LoggerFactory.getLogger(TimeSource.class);
 
   public TimeSource() {
     this(null);
@@ -108,8 +113,9 @@ public class TimeSource {
     if (useSimTimeType != ParameterType.PARAMETER_NOT_SET) {
       if (useSimTimeType == ParameterType.PARAMETER_BOOL) {
         this.rosTimeIsActive = useSimTime.asBool();
+      } else {
+        logger.warn("The 'use_sim_time' parameter must be a boolean");
       }
-      // TODO(clalancette): what to do if it is the wrong type?
     }
 
     class SimTimeCB implements ParameterCallback {

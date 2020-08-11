@@ -140,7 +140,7 @@ implements Event<T, ParentT> {
   public final void executeCallback() {
     EventStatus eventStatus = null;
     try {
-        eventStatus = eventStatusType.getDeclaredConstructor().newInstance();
+        eventStatus = this.eventStatusType.getDeclaredConstructor().newInstance();
     } catch (NoSuchMethodException nme) {
         nme.printStackTrace();
     } catch (InvocationTargetException ite) {

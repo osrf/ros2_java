@@ -30,9 +30,9 @@ import org.ros2.rcljava.events.EventStatus;
  */
 public interface Event<T extends EventStatus, ParentT extends Disposable> extends Disposable {
   /**
-   * @return The status event type.
+   * @return The event status type.
    */
-  Class<T> getStatusEventType();
+  Class<T> getEventStatusType();
 
   /**
    * @return The parent entity type.

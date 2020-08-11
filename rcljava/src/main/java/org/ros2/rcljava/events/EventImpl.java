@@ -138,7 +138,7 @@ implements Event<T, ParentT> {
    * {@inheritDoc}
    */
   public final void executeCallback() {
-    EventStatus eventStatus = null;
+    T eventStatus = null;
     try {
         eventStatus = this.eventStatusType.getDeclaredConstructor().newInstance();
     } catch (NoSuchMethodException nme) {

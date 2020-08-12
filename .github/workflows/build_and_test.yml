@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Install Java
       run: |
@@ -12,9 +12,9 @@ jobs:
         sudo apt install -y default-jdk
     - uses: ros-tooling/setup-ros@0.0.14
       with:
-        required-ros-distributions: dashing
+        required-ros-distributions: foxy
     - uses: ros-tooling/action-ros-ci@8d58122
       with:
         package-name: rosidl_generator_java rcljava_common rcljava
-        source-ros-binary-installation: dashing
-        vcs-repo-file-url: https://raw.githubusercontent.com/ros2-java/ros2_java/dashing/ros2_java_desktop.repos
+        source-ros-binary-installation: foxy
+        vcs-repo-file-url: ${{ github.workspace }}/ros2_java_desktop.repos

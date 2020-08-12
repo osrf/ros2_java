@@ -6,23 +6,23 @@ repositories:
   ros2/common_interfaces:
     type: git
     url: https://github.com/ros2/common_interfaces
-    version: dashing
+    version: master
   ros2/rcl_interfaces:
     type: git
     url: https://github.com/ros2/rcl_interfaces.git
-    version: dashing
+    version: master
   ros2/rosidl_defaults:
     type: git
     url: https://github.com/ros2/rosidl_defaults
-    version: dashing
+    version: master
   ros2/unique_identifier_msgs:
     type: git
     url: https://github.com/ros2/unique_identifier_msgs
-    version: dashing
+    version: master
   ros2_java/ros2_java:
     type: git
-    url: https://github.com/ros2-java/ros2_java.git
-    version: dashing
+    url: https://github.com/osrf/ros2_java.git
+    version: foxy-devel
   ros2_java/ros2_java_examples:
     type: git
     url: https://github.com/ros2-java/ros2_java_examples.git

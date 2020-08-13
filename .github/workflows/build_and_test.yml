@@ -1,0 +1,21 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Install Java
+      run: |
+        sudo apt update -qq
+        sudo apt install -y default-jdk
+    - uses: actions/checkout@v2
+    - uses: ros-tooling/setup-ros@0.0.25
+      with:
+        required-ros-distributions: foxy
+    - uses: ros-tooling/action-ros-ci@0.0.17
+      with:
+        package-name: rosidl_generator_java rcljava_common rcljava
+        source-ros-binary-installation: foxy
+        vcs-repo-file-url: file://${{ github.workspace }}/ros2_java_desktop.repos

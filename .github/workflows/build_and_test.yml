@@ -14,8 +14,8 @@ jobs:
     - uses: ros-tooling/setup-ros@0.0.25
       with:
         required-ros-distributions: foxy
-    - uses: ros-tooling/action-ros-ci@0.0.17
+    - uses: ros-tooling/action-ros-ci@0.0.19
       with:
         package-name: rosidl_generator_java rcljava_common rcljava
-        source-ros-binary-installation: foxy
-        vcs-repo-file-url: file://${{ github.workspace }}/ros2_java_desktop.repos
+        target-ros2-distro: foxy
+        vcs-repo-file-url: ${{ github.workspace }}/ros2_java_desktop.repos

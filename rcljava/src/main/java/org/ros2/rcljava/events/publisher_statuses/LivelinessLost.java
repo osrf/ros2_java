@@ -39,7 +39,6 @@ public class LivelinessLost implements PublisherEventStatus {
     nativeFromRCLEvent(handle);
   }
   public final int getPublisherEventType() {
-    // return 0;
     return nativeGetPublisherEventType();
   }
   // TODO(ivanpauno): Remove this when -source 8 can be used (method references for the win)

@@ -139,7 +139,10 @@ public class PublisherImpl<T extends MessageDefinition> implements Publisher<T> 
   }
 
   /**
-   * Create a publisher event (rcl_event_t)
+   * Create a publisher event (rcl_event_t).
+   *
+   * The ownership of the created event handle will immediately be transferred to an
+   * @{link EventHandlerImpl}, that will be responsible of disposing it.
    *
    * @param handle A pointer to the underlying ROS2 publisher structure.
    *     Must not be zero.

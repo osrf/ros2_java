@@ -59,6 +59,8 @@ implements EventHandler<T, ParentT> {
    *     that created this event handler.
    * @param handle A pointer to the underlying ROS 2 event structure, as an integer.
    *     Must not be zero.
+   *     Ownership of the passed `handle` is taken, and this object is responsible
+   *     of disposing it. That can be done using @{link EventHandler#dispose()}.
    * @param eventStatusFactory Factory of an event status.
    * @param callback The callback function that will be called when the event
    *     is triggered.

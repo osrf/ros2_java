@@ -47,13 +47,13 @@ public interface Publisher<T extends MessageDefinition> extends Disposable {
   WeakReference<Node> getNodeReference();
 
   /**
-   * Register an event handler.
+   * Create an event handler.
    *
    * @param <T> A publisher event status type.
    * @param factory A factory that can instantiate an event status of type T.
    * @param callback Callback that will be called when the event is triggered.
    */
-  <T extends PublisherEventStatus> EventHandler<T, Publisher> registerEventHandler(
+  <T extends PublisherEventStatus> EventHandler<T, Publisher> createEventHandler(
     Supplier<T> factory, Consumer<T> callback);
 
   /**

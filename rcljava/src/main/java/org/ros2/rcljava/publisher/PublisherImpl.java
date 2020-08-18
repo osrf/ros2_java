@@ -116,7 +116,7 @@ public class PublisherImpl<T extends MessageDefinition> implements Publisher<T> 
    */
   public final
   <T extends PublisherEventStatus> EventHandler<T, Publisher>
-  registerEventHandler(Supplier<T> factory, Consumer<T> callback) {
+  createEventHandler(Supplier<T> factory, Consumer<T> callback) {
     T status = factory.get();
     long eventHandle = nativeCreateEvent(this.handle, status.getPublisherEventType());
     EventHandler<T, Publisher> eventHandler = new EventHandlerImpl(

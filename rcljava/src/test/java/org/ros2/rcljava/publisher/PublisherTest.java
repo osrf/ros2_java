@@ -52,7 +52,7 @@ public class PublisherTest {
     Node node = RCLJava.createNode("test_node");
     Publisher<std_msgs.msg.String> publisher =
         node.<std_msgs.msg.String>createPublisher(std_msgs.msg.String.class, "test_topic");
-    EventHandler eventHandler = publisher.registerEventHandler(
+    EventHandler eventHandler = publisher.createEventHandler(
       LivelinessLost.factory, new Consumer<LivelinessLost>() {
         public void accept(final LivelinessLost status) {}
       }

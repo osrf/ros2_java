@@ -72,7 +72,6 @@ implements EventHandler<T, ParentT> {
     this.handle = handle;
     this.eventStatusFactory = eventStatusFactory;
     this.callback = callback;
-    this.handleMutex = new Object();
   }
 
   /**
@@ -100,13 +99,11 @@ implements EventHandler<T, ParentT> {
   /**
    * {@inheritDoc}
    */
-  public final void dispose() {
-    synchronized(this.handleMutex) {
-      if (this.handle != 0) {
-        nativeDispose(this.handle);
-      }
-      this.handle = 0;
+  public synchronized final void dispose() {
+    if (this.handle != 0) {
+      nativeDispose(this.handle);
     }
+    this.handle = 0;
   }
 
   /**
@@ -121,20 +118,17 @@ implements EventHandler<T, ParentT> {
   /**
    * {@inheritDoc}
    */
-  public final void executeCallback() {
-    synchronized(this.handleMutex) {
-      T eventStatus = eventStatusFactory.get();
-      long nativeEventStatusHandle = eventStatus.allocateRCLStatusEvent();
-      nativeTake(this.handle, nativeEventStatusHandle);
-      eventStatus.fromRCLEvent(nativeEventStatusHandle);
-      eventStatus.deallocateRCLStatusEvent(nativeEventStatusHandle);
-      callback.accept(eventStatus);
-    }
+  public synchronized final void executeCallback() {
+    T eventStatus = eventStatusFactory.get();
+    long nativeEventStatusHandle = eventStatus.allocateRCLStatusEvent();
+    nativeTake(this.handle, nativeEventStatusHandle);
+    eventStatus.fromRCLEvent(nativeEventStatusHandle);
+    eventStatus.deallocateRCLStatusEvent(nativeEventStatusHandle);
+    callback.accept(eventStatus);
   }
 
   private final Supplier<T> eventStatusFactory;
   private final WeakReference<ParentT> parentReference;
-  private final Object handleMutex;
   private long handle;
   private final Consumer<T> callback;
 }

@@ -129,7 +129,7 @@ public class PublisherImpl<T extends MessageDefinition> implements Publisher<T> 
    * {@inheritDoc}
    */
   public final
-  <T extends PublisherEventStatus> void disposeEventHandler(
+  <T extends PublisherEventStatus> void removeEventHandler(
     EventHandler<T, Publisher> eventHandler)
   {
     if (!this.eventHandlers.remove(eventHandler)) {

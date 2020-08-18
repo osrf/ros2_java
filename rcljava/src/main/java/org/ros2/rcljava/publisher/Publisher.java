@@ -62,6 +62,6 @@ public interface Publisher<T extends MessageDefinition> extends Disposable {
    * @param <T> A publisher event status type.
    * @param eventHandler An event handler that was registered previously in this object.
    */
-  <T extends PublisherEventStatus> void disposeEventHandler(
+  <T extends PublisherEventStatus> void removeEventHandler(
     EventHandler<T, Publisher> eventHandler);
 }

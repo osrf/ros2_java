@@ -57,7 +57,7 @@ public interface Publisher<T extends MessageDefinition> extends Disposable {
     Supplier<T> factory, Consumer<T> callback);
 
   /**
-   * Dispose a previously registered event handler.
+   * Remove a previously registered event handler.
    *
    * @param <T> A publisher event status type.
    * @param eventHandler An event handler that was registered previously in this object.

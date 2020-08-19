@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
  * This class serves as a bridge between a rmw_qos_incompatible_event_status_t and RCLJava.
  */
 public class OfferedQosIncompatible implements PublisherEventStatus {
-  int totalCount;
-  int totalCountChange;
-  QoSPolicyKind lastPolicyKind;
+  public int totalCount;
+  public int totalCountChange;
+  public PolicyKind lastPolicyKind;
 
-  public enum QoSPolicyKind {
+  public enum PolicyKind {
     INVALID,
     DURABILITY,
     DEADLINE,

@@ -54,7 +54,7 @@ Java_org_ros2_rcljava_events_publisher_1statuses_OfferedQosIncompatible_nFromRCL
   // TODO(ivanpauno): class and field lookup could be done at startup time
   jclass clazz = env->GetObjectClass(self);
   jclass qos_kind_clazz = env->FindClass(
-    "org/ros2/rcljava/events/publisher_statuses/OfferedQoSIncompatible$QoSPolicyKind");
+    "org/ros2/rcljava/events/publisher_statuses/OfferedQosIncompatible$PolicyKind");
   if (env->ExceptionCheck()) {
     return;
   }
@@ -67,7 +67,7 @@ Java_org_ros2_rcljava_events_publisher_1statuses_OfferedQosIncompatible_nFromRCL
     return;
   }
   const char * enum_class_path =
-    "Lorg/ros2/rcljava/events/publisher_statuses/OfferedQoSIncompatible$QoSPolicyKind;";
+    "Lorg/ros2/rcljava/events/publisher_statuses/OfferedQosIncompatible$PolicyKind;";
   jfieldID policy_kind_fid = env->GetFieldID(clazz, "lastPolicyKind", enum_class_path);
   if (env->ExceptionCheck()) {
     return;

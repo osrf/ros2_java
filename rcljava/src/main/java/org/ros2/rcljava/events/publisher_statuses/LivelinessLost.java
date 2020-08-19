@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
  * This class serves as a bridge between a rmw_liveliness_lost_status_t and RCLJava.
  */
 public class LivelinessLost implements PublisherEventStatus {
-  int total_count;
-  int total_count_change;
+  public int totalCount;
+  public int totalCountChange;
 
   public final long allocateRCLStatusEvent() {
     return nativeAllocateRCLStatusEvent();

@@ -363,7 +363,6 @@ public class SpinTest {
       // OfferedQosIncompatible event not supported in these implementations
       return;
     }
-    System.out.print(identifier);
     final Node node = RCLJava.createNode("test_node_spin_event");
     Publisher<std_msgs.msg.String> publisher = node.<std_msgs.msg.String>createPublisher(
           std_msgs.msg.String.class, "test_topic_spin_event", new QoSProfile(

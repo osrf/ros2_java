@@ -17,6 +17,7 @@
 #include <jni.h>
 #include <stdlib.h>
 
+#include "rmw/incompatible_qos_events_statuses.h"
 #include "rmw/types.h"
 #include "rcl/event.h"
 #include "rcljava_common/exceptions.hpp"

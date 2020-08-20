@@ -72,7 +72,7 @@ public class PublisherTest {
   @Test
   public final void testCreateOfferedQosIncompatibleEvent() {
     String identifier = RCLJava.getRMWIdentifier();
-    if (identifier == "rmw_fastrtps_cpp" || identifier == "rmw_fastrtps_dynamic_cpp") {
+    if (identifier.equals("rmw_fastrtps_cpp") || identifier.equals("rmw_fastrtps_dynamic_cpp")) {
       // event not supported in these implementations
       return;
     }

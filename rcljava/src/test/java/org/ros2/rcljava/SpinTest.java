@@ -359,7 +359,7 @@ public class SpinTest {
   @Test
   public final void testSpinEvent() {
     String identifier = RCLJava.getRMWIdentifier();
-    if (identifier == "rmw_fastrtps_cpp" || identifier == "rmw_fastrtps_dynamic_cpp") {
+    if (identifier.equals("rmw_fastrtps_cpp") || identifier.equals("rmw_fastrtps_dynamic_cpp")) {
       // OfferedQosIncompatible event not supported in these implementations
       return;
     }

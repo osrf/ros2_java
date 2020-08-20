@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.consumers.Consumer;
+import org.ros2.rcljava.consumers.Consumer;
 import org.ros2.rcljava.events.EventHandler;
 import org.ros2.rcljava.events.EventStatus;
 import org.ros2.rcljava.interfaces.Disposable;
@@ -64,16 +65,19 @@ implements EventHandler<T, ParentT> {
    * @param eventStatusFactory Factory of an event status.
    * @param callback The callback function that will be called when the event
    *     is triggered.
+   * @param removeCallback Callback that will be called when this object is being disposed.
    */
   public EventHandlerImpl(
       final WeakReference<ParentT> parentReference,
       final long handle,
       final Supplier<T> eventStatusFactory,
-      final Consumer<T> callback) {
+      final Consumer<T> callback,
+      final Consumer<EventHandler> removeCallback) {
     this.parentReference = parentReference;
     this.handle = handle;
     this.eventStatusFactory = eventStatusFactory;
     this.callback = callback;
+    this.removeCallback = removeCallback;
   }
 
   /**
@@ -102,9 +106,11 @@ implements EventHandler<T, ParentT> {
    * {@inheritDoc}
    */
   public synchronized final void dispose() {
-    if (this.handle != 0) {
-      nativeDispose(this.handle);
+    if (this.handle == 0) {
+      return;
     }
+    this.removeCallback.accept(this);
+    nativeDispose(this.handle);
     this.handle = 0;
   }
 
@@ -126,11 +132,12 @@ implements EventHandler<T, ParentT> {
     nativeTake(this.handle, nativeEventStatusHandle);
     eventStatus.fromRCLEvent(nativeEventStatusHandle);
     eventStatus.deallocateRCLStatusEvent(nativeEventStatusHandle);
-    callback.accept(eventStatus);
+    this.callback.accept(eventStatus);
   }
 
   private final Supplier<T> eventStatusFactory;
   private final WeakReference<ParentT> parentReference;
   private long handle;
   private final Consumer<T> callback;
+  private final Consumer<EventHandler> removeCallback;
 }

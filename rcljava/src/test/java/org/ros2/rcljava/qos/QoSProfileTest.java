@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ros2.rcljava;
+package org.ros2.rcljava.qos;
 
 import static org.junit.Assert.assertEquals;
 

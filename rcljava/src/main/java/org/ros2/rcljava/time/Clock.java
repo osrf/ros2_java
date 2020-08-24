@@ -15,12 +15,13 @@
 
 package org.ros2.rcljava.time;
 
-import org.ros2.rcljava.common.JNIUtils;
-
-import org.ros2.rcljava.interfaces.Disposable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.ros2.rcljava.common.JNIUtils;
+import org.ros2.rcljava.interfaces.Disposable;
+import org.ros2.rcljava.Time;
 
 public class Clock implements Disposable {
   private static final Logger logger = LoggerFactory.getLogger(Clock.class);
@@ -44,6 +45,8 @@ public class Clock implements Disposable {
    */
   private final ClockType clockType;
 
+  private Object clockHandleMutex;
+
   /**
    * Create an RCL clock (rcl_clock_t).
    *
@@ -51,6 +54,10 @@ public class Clock implements Disposable {
    * @return A pointer to the underlying clock structure as an integer.
    */
   private static native long nativeCreateClockHandle(ClockType clockType);
+
+  public Clock() {
+    this(ClockType.SYSTEM_TIME);
+  }
 
   /**
    * Constructor.
@@ -60,6 +67,31 @@ public class Clock implements Disposable {
   public Clock(ClockType clockType) {
     this.clockType = clockType;
     this.handle = Clock.nativeCreateClockHandle(clockType);
+    this.clockHandleMutex = new Object();
+  }
+
+  public Time now() {
+    synchronized(this.clockHandleMutex) {
+      return new Time(0, nativeGetNow(this.handle), this.clockType);
+    }
+  }
+
+  public boolean getRosTimeIsActive() {
+    synchronized(this.clockHandleMutex) {
+      return nativeRosTimeOverrideEnabled(this.handle);
+    }
+  }
+
+  public void setRosTimeIsActive(boolean enabled) {
+    synchronized(this.clockHandleMutex) {
+      nativeSetRosTimeOverrideEnabled(this.handle, enabled);
+    }
+  }
+
+  public void setRosTimeOverride(Time time) {
+    synchronized(this.clockHandleMutex) {
+      nativeSetRosTimeOverride(this.handle, time.nanoseconds());
+    }
   }
 
   /**
@@ -68,6 +100,18 @@ public class Clock implements Disposable {
   public ClockType getClockType() {
     return clockType;
   }
+
+  // TODO(clalancette): The rclcpp and rclpy implementations of the Clock class
+  // both have the ability to register "time jump" callbacks with rcl.  That is
+  // only used with tf2, so we don't need it in rcljava until we have tf2 support.
+
+  private static native long nativeGetNow(long handle);
+
+  private static native boolean nativeRosTimeOverrideEnabled(long handle);
+
+  private static native void nativeSetRosTimeOverrideEnabled(long handle, boolean enabled);
+
+  private static native void nativeSetRosTimeOverride(long handle, long nanos);
 
   /**
    * Destroy an RCL clock (rcl_clock_t).
@@ -80,7 +124,9 @@ public class Clock implements Disposable {
    * {@inheritDoc}
    */
   public final void dispose() {
-    Clock.nativeDispose(this.handle);
+    synchronized(this.clockHandleMutex) {
+      nativeDispose(this.handle);
+    }
     this.handle = 0;
   }
 

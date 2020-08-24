@@ -35,56 +35,37 @@ public final class Time {
     }
   }
 
-  /**
-   * Private constructor so this cannot be instantiated.
-   */
-  private Time() {}
+  private final ClockType clockType;
 
-  public static builtin_interfaces.msg.Time now() {
-    return Time.now(ClockType.SYSTEM_TIME);
+  private final long nanoseconds;
+
+  public Time() {
+    this(0, 0, ClockType.SYSTEM_TIME);
   }
 
-  public static builtin_interfaces.msg.Time now(ClockType clockType) {
-    long rclTime = 0;
+  public Time(final long nanos, final ClockType ct) {
+    this(0, nanos, ct);
+  }
 
-    switch (clockType) {
-      case ROS_TIME:
-        throw new UnsupportedOperationException("ROS Time is currently not implemented");
-      case SYSTEM_TIME:
-        rclTime = rclSystemTimeNow();
-        break;
-      case STEADY_TIME:
-        rclTime = rclSteadyTimeNow();
-        break;
+  public Time(final builtin_interfaces.msg.Time time_msg, final ClockType ct) {
+    this(time_msg.getSec(), time_msg.getNanosec(), ct);
+  }
+
+  public Time(final long secs, final long nanos, final ClockType ct) {
+    if (secs < 0 || nanos < 0) {
+      // TODO(clalancette): Make this a custom exception
+      throw new IllegalArgumentException("seconds and nanoseconds must not be negative");
     }
-
-    builtin_interfaces.msg.Time msgTime = new builtin_interfaces.msg.Time();
-    msgTime.setSec((int) TimeUnit.SECONDS.convert(rclTime, TimeUnit.NANOSECONDS));
-    msgTime.setNanosec((int) rclTime % (1000 * 1000 * 1000));
-    return msgTime;
+    this.clockType = ct;
+    this.nanoseconds = TimeUnit.SECONDS.toNanos(secs) + nanos;
   }
 
-  public static long toNanoseconds(builtin_interfaces.msg.Time msgTime) {
-    return TimeUnit.NANOSECONDS.convert(msgTime.getSec(), TimeUnit.SECONDS)
-        + (msgTime.getNanosec() & 0x00000000ffffffffL);
+
+  public long nanoseconds() {
+    return nanoseconds;
   }
 
-  public static long difference(
-      builtin_interfaces.msg.Time msgTime1, builtin_interfaces.msg.Time msgTime2) {
-    long difference =
-        (Time.toNanoseconds(msgTime1) - Time.toNanoseconds(msgTime2)) & 0x00000000ffffffffL;
-    return difference;
+  public ClockType clockType() {
+    return clockType;
   }
-
-  private static long rclSystemTimeNow() {
-    return nativeRCLSystemTimeNow(); // new RuntimeException("Could not get current time");
-  }
-
-  private static long rclSteadyTimeNow() {
-    return nativeRCLSteadyTimeNow(); // new RuntimeException("Could not get current time");
-  }
-
-  private static native long nativeRCLSystemTimeNow();
-
-  private static native long nativeRCLSteadyTimeNow();
 }

@@ -67,7 +67,7 @@ public interface Subscription<T extends MessageDefinition> extends Disposable {
     EventHandler<T, Subscription> eventHandler);
 
   /**
-   * Get the event handlers that were registered in this Publisher.
+   * Get the event handlers that were registered in this Subscription.
    *
    * @return The registered event handlers.
    */

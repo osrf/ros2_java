@@ -15,8 +15,11 @@
 
 package org.ros2.rcljava.qos;
 
+import java.time.Duration;
+
 import org.ros2.rcljava.qos.policies.Durability;
 import org.ros2.rcljava.qos.policies.History;
+import org.ros2.rcljava.qos.policies.Liveliness;
 import org.ros2.rcljava.qos.policies.QoSPolicy;
 import org.ros2.rcljava.qos.policies.Reliability;
 
@@ -28,6 +31,14 @@ public class QoSProfile {
   private Reliability reliability;
 
   private Durability durability;
+
+  private Duration deadline;
+
+  private Duration lifespan;
+
+  private Liveliness liveliness;
+
+  private Duration livelinessLeaseDuration;
 
   private boolean avoidROSNamespaceConventions;
 
@@ -73,6 +84,42 @@ public class QoSProfile {
 
   public final QoSProfile setDurability(Durability durability) {
     this.durability = durability;
+    return this;
+  }
+
+  public final Duration getDeadline() {
+    return this.deadline;
+  }
+
+  public final QoSProfile setDeadline(Duration deadline) {
+    this.deadline = deadline;
+    return this;
+  }
+
+  public final Duration getLifespan() {
+    return this.lifespan;
+  }
+
+  public final QoSProfile setLifespan(Duration lifespan) {
+    this.lifespan = lifespan;
+    return this;
+  }
+
+  public final Liveliness getLiveliness() {
+    return this.liveliness;
+  }
+
+  public final QoSProfile setLiveliness(Liveliness liveliness) {
+    this.liveliness = liveliness;
+    return this;
+  }
+
+  public final Duration getLivelinessLeaseDuration() {
+    return this.livelinessLeaseDuration;
+  }
+
+  public final QoSProfile setLivelinessLeaseDuration(Duration livelinessLeaseDuration) {
+    this.livelinessLeaseDuration = livelinessLeaseDuration;
     return this;
   }
 

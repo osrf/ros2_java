@@ -153,6 +153,7 @@ set(${PROJECT_NAME}_sources
   "src/main/java/org/ros2/rcljava/publisher/PublisherImpl.java"
   "src/main/java/org/ros2/rcljava/qos/policies/Durability.java"
   "src/main/java/org/ros2/rcljava/qos/policies/History.java"
+  "src/main/java/org/ros2/rcljava/qos/policies/Liveliness.java"
   "src/main/java/org/ros2/rcljava/qos/policies/QoSPolicy.java"
   "src/main/java/org/ros2/rcljava/qos/policies/Reliability.java"
   "src/main/java/org/ros2/rcljava/qos/QoSProfile.java"

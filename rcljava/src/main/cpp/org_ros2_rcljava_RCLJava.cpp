@@ -157,14 +157,15 @@ Java_org_ros2_rcljava_RCLJava_nativeGetRMWIdentifier(JNIEnv * env, jclass)
   do { \
     if (seconds < 0) { \
       rcljava_throw_exception( \
-        env, "java/lang/IllegalArgumentException", "negative " #policy_name); \
+        env, "java/lang/IllegalArgumentException", \
+        "seconds must not be negative for " #policy_name); \
       free(qos_profile); \
       return 0; \
     } \
     if (nanos < 0) { \
       rcljava_throw_exception( \
         env, "java/lang/IllegalStateException", \
-        "unexpected error: " #policy_name " nanoseconds should not have been negative"); \
+        "unexpected error: nanoseconds must not be negative for " #policy_name); \
       free(qos_profile); \
       return 0; \
     } \

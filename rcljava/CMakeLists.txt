@@ -244,7 +244,6 @@ if(BUILD_TESTING)
   )
 
   set(${PROJECT_NAME}_testsuites
-    "org.ros2.rcljava.qos.QoSProfile"
     "org.ros2.rcljava.RCLJavaTest"
     "org.ros2.rcljava.SpinTest"
     "org.ros2.rcljava.TimeTest"
@@ -255,6 +254,7 @@ if(BUILD_TESTING)
     "org.ros2.rcljava.node.NodeTest"
     # "org.ros2.rcljava.parameters.SyncParametersClientTest"
     "org.ros2.rcljava.publisher.PublisherTest"
+    "org.ros2.rcljava.qos.QoSProfileTest"
     "org.ros2.rcljava.subscription.SubscriptionTest"
     "org.ros2.rcljava.timer.TimerTest"
   )

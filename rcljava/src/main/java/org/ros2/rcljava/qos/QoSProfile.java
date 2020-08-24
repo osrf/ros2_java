@@ -55,7 +55,7 @@ public class QoSProfile {
     return this.history;
   }
 
-  public final QoSProfile setHistory(History history) {
+  public final QoSProfile setHistory(final History history) {
     this.history = history;
     return this;
   }
@@ -64,7 +64,7 @@ public class QoSProfile {
     return this.depth;
   }
 
-  public final QoSProfile setDepth(int depth) {
+  public final QoSProfile setDepth(final int depth) {
     this.depth = depth;
     return this;
   }
@@ -73,7 +73,7 @@ public class QoSProfile {
     return this.reliability;
   }
 
-  public final QoSProfile setReliability(Reliability reliability) {
+  public final QoSProfile setReliability(final Reliability reliability) {
     this.reliability = reliability;
     return this;
   }
@@ -82,7 +82,7 @@ public class QoSProfile {
     return this.durability;
   }
 
-  public final QoSProfile setDurability(Durability durability) {
+  public final QoSProfile setDurability(final Durability durability) {
     this.durability = durability;
     return this;
   }
@@ -91,7 +91,7 @@ public class QoSProfile {
     return this.deadline;
   }
 
-  public final QoSProfile setDeadline(Duration deadline) {
+  public final QoSProfile setDeadline(final Duration deadline) {
     this.deadline = deadline;
     return this;
   }
@@ -100,7 +100,7 @@ public class QoSProfile {
     return this.lifespan;
   }
 
-  public final QoSProfile setLifespan(Duration lifespan) {
+  public final QoSProfile setLifespan(final Duration lifespan) {
     this.lifespan = lifespan;
     return this;
   }
@@ -109,7 +109,7 @@ public class QoSProfile {
     return this.liveliness;
   }
 
-  public final QoSProfile setLiveliness(Liveliness liveliness) {
+  public final QoSProfile setLiveliness(final Liveliness liveliness) {
     this.liveliness = liveliness;
     return this;
   }
@@ -118,7 +118,7 @@ public class QoSProfile {
     return this.livelinessLeaseDuration;
   }
 
-  public final QoSProfile setLivelinessLeaseDuration(Duration livelinessLeaseDuration) {
+  public final QoSProfile setLivelinessLeaseDuration(final Duration livelinessLeaseDuration) {
     this.livelinessLeaseDuration = livelinessLeaseDuration;
     return this;
   }
@@ -127,7 +127,7 @@ public class QoSProfile {
     return this.avoidROSNamespaceConventions;
   }
 
-  public final QoSProfile setAvoidROSNamespaceConventions(boolean avoidROSConventions) {
+  public final QoSProfile setAvoidROSNamespaceConventions(final boolean avoidROSConventions) {
     this.avoidROSNamespaceConventions = avoidROSConventions;
     return this;
   }

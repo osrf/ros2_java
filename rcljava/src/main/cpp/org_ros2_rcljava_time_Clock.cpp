@@ -62,8 +62,89 @@ Java_org_ros2_rcljava_time_Clock_nativeCreateClockHandle(JNIEnv * env, jclass, j
     return 0;
   }
 
-  jlong clock_handle = reinterpret_cast<jlong>(clock);
-  return clock_handle;
+  return reinterpret_cast<jlong>(clock);
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_ros2_rcljava_time_Clock_nativeGetNow(JNIEnv * env, jclass, jlong clock_handle)
+{
+  rcl_clock_t * clock = reinterpret_cast<rcl_clock_t *>(clock_handle);
+  rcl_time_point_value_t nanoseconds;
+  rcl_ret_t ret = rcl_clock_get_now(clock, &nanoseconds);
+  if (ret != RCL_RET_OK) {
+    std::string msg = "Failed to get time: " + std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+    return 0;
+  }
+
+  return static_cast<jlong>(nanoseconds);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_ros2_rcljava_time_Clock_nativeRosTimeOverrideEnabled(
+  JNIEnv * env, jclass, jlong clock_handle)
+{
+  rcl_clock_t * clock = reinterpret_cast<rcl_clock_t *>(clock_handle);
+
+  if (!rcl_clock_valid(clock)) {
+    return false;
+  }
+
+  bool is_enabled = false;
+  rcl_ret_t ret = rcl_is_enabled_ros_time_override(clock, &is_enabled);
+  if (ret != RCL_RET_OK) {
+    std::string msg = "Failed to check ros_time_override_status: " +
+      std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+    return false;
+  }
+
+  return is_enabled;
+}
+
+JNIEXPORT void JNICALL
+Java_org_ros2_rcljava_time_Clock_nativeSetRosTimeOverrideEnabled(
+  JNIEnv * env, jclass, jlong clock_handle, jboolean enabled)
+{
+  rcl_clock_t * clock = reinterpret_cast<rcl_clock_t *>(clock_handle);
+
+  if (!rcl_clock_valid(clock)) {
+    return;
+  }
+
+  rcl_ret_t ret;
+  if (enabled) {
+    ret = rcl_enable_ros_time_override(clock);
+  } else {
+    ret = rcl_disable_ros_time_override(clock);
+  }
+  if (ret != RCL_RET_OK) {
+    std::string msg = "Failed to set ROS time override enable for clock: " +
+      std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+  }
+}
+
+JNIEXPORT void JNICALL
+Java_org_ros2_rcljava_time_Clock_nativeSetRosTimeOverride(
+  JNIEnv * env, jclass, jlong clock_handle, jlong nanos)
+{
+  rcl_clock_t * clock = reinterpret_cast<rcl_clock_t *>(clock_handle);
+
+  if (!rcl_clock_valid(clock)) {
+    return;
+  }
+
+  rcl_ret_t ret = rcl_set_ros_time_override(clock, static_cast<rcl_time_point_value_t>(nanos));
+  if (ret != RCL_RET_OK) {
+    std::string msg = "Failed to set ROS time override for clock: " +
+      std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+  }
 }
 
 JNIEXPORT void JNICALL

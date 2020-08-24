@@ -138,6 +138,9 @@ public class QoSProfile {
     return this;
   }
 
+  // TODO(ivanpauno): refactor all static default profiles methods,
+  // so that the return value is get from the rmw definition directly
+  // (leveraging a native function).
   public static final QoSProfile defaultProfile() {
     return new QoSProfile(10);
   }

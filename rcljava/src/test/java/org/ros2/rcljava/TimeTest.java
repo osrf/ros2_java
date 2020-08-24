@@ -16,9 +16,6 @@
 package org.ros2.rcljava;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.concurrent.TimeUnit;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,50 +30,34 @@ public class TimeTest {
     org.apache.log4j.BasicConfigurator.configure();
   }
 
-  // @Test
-  public final void testSystemTime() {
-    builtin_interfaces.msg.Time now = Time.now(ClockType.SYSTEM_TIME);
-    long javaNowMillis = System.currentTimeMillis();
-
-    long nowNanos = Time.toNanoseconds(now);
-    long javaNowNanos = TimeUnit.NANOSECONDS.convert(javaNowMillis, TimeUnit.MILLISECONDS);
-
-    long tolerance = TimeUnit.NANOSECONDS.convert(1000, TimeUnit.MILLISECONDS);
-    assertEquals(javaNowNanos, nowNanos, tolerance);
-  }
-
-  // @Test
-  public final void testSteadyTime() {
-    int millisecondsToSleep = 100;
-    builtin_interfaces.msg.Time now = Time.now(ClockType.STEADY_TIME);
-    long javaNowNanos = System.nanoTime();
-
-    try {
-      Thread.sleep(millisecondsToSleep);
-    } catch (InterruptedException iex) {
-      fail("Failed to sleep for " + millisecondsToSleep + " milliseconds");
-    }
-
-    builtin_interfaces.msg.Time later = Time.now(ClockType.STEADY_TIME);
-
-    long javaLaterNanos = System.nanoTime();
-
-    long tolerance = TimeUnit.NANOSECONDS.convert(1, TimeUnit.MILLISECONDS);
-
-    long javaDifference = javaLaterNanos - javaNowNanos;
-    long difference = Time.difference(later, now);
-    assertEquals(javaDifference, difference, tolerance);
+  @Test
+  public final void testTimeNoArgConstructor() {
+    Time time = new Time();
+    assertEquals(0, time.nanoseconds());
+    assertEquals(ClockType.SYSTEM_TIME, time.clockType());
   }
 
   @Test
-  public final void testROSTime() {
-    builtin_interfaces.msg.Time startTime;
-    try {
-      startTime = Time.now(ClockType.ROS_TIME);
-    } catch (UnsupportedOperationException uoe) {
-      return;
-    }
+  public final void testTimeNanos() {
+    Time time = new Time(45, ClockType.SYSTEM_TIME);
+    assertEquals(45, time.nanoseconds());
+    assertEquals(ClockType.SYSTEM_TIME, time.clockType());
+  }
 
-    fail("ROS time is not supported yet");
+  @Test
+  public final void testTimeAllArgs() {
+    Time time = new Time(0, 45, ClockType.SYSTEM_TIME);
+    assertEquals(45, time.nanoseconds());
+    assertEquals(ClockType.SYSTEM_TIME, time.clockType());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public final void testTimeBadSecs() {
+    Time time = new Time(-1, 0, ClockType.SYSTEM_TIME);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public final void testTimeBadNanos() {
+    Time time = new Time(0, -45, ClockType.SYSTEM_TIME);
   }
 }

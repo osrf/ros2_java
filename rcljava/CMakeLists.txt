@@ -226,6 +226,7 @@ if(BUILD_TESTING)
     PROPERTY "JAR_FILE")
 
   set(${PROJECT_NAME}_test_sources
+    "src/test/java/org/ros2/rcljava/QoSProfileTest.java"
     "src/test/java/org/ros2/rcljava/RCLJavaTest.java"
     "src/test/java/org/ros2/rcljava/SpinTest.java"
     "src/test/java/org/ros2/rcljava/TimeTest.java"
@@ -242,6 +243,7 @@ if(BUILD_TESTING)
   )
 
   set(${PROJECT_NAME}_testsuites
+    "org.ros2.rcljava.QoSProfile"
     "org.ros2.rcljava.RCLJavaTest"
     "org.ros2.rcljava.SpinTest"
     "org.ros2.rcljava.TimeTest"

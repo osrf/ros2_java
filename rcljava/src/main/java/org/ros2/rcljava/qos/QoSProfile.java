@@ -21,15 +21,15 @@ import org.ros2.rcljava.qos.policies.QoSPolicy;
 import org.ros2.rcljava.qos.policies.Reliability;
 
 public class QoSProfile {
-  private final History history;
+  private History history;
 
-  private final int depth;
+  private int depth;
 
-  private final Reliability reliability;
+  private Reliability reliability;
 
-  private final Durability durability;
+  private Durability durability;
 
-  private final boolean avoidROSNamespaceConventions;
+  private boolean avoidROSNamespaceConventions;
 
   public QoSProfile(History history, int depth, Reliability reliability, Durability durability,
       boolean avoidROSNamespaceConventions) {
@@ -44,39 +44,89 @@ public class QoSProfile {
     return this.history;
   }
 
+  public final QoSProfile setHistory(History history) {
+    this.history = history;
+    return this;
+  }
+
   public final int getDepth() {
     return this.depth;
+  }
+
+  public final QoSProfile setDepth(int depth) {
+    this.depth = depth;
+    return this;
   }
 
   public final Reliability getReliability() {
     return this.reliability;
   }
 
+  public final QoSProfile setReliability(Reliability reliability) {
+    this.reliability = reliability;
+    return this;
+  }
+
   public final Durability getDurability() {
     return this.durability;
+  }
+
+  public final QoSProfile setDurability(Durability durability) {
+    this.durability = durability;
+    return this;
   }
 
   public final boolean getAvoidROSNamespaceConventions() {
     return this.avoidROSNamespaceConventions;
   }
 
+  public final QoSProfile setAvoidROSNamespaceConventions(boolean avoidROSConventions) {
+    this.avoidROSNamespaceConventions = avoidROSConventions;
+    return this;
+  }
+
+  public static final QoSProfile defaultProfile() {
+    return new QoSProfile(
+      History.KEEP_LAST, 10, Reliability.RELIABLE, Durability.VOLATILE, false);
+  }
+
+  public static final QoSProfile systemDefault() {
+    return new QoSProfile(
+      History.SYSTEM_DEFAULT, QoSProfile.DEPTH_SYSTEM_DEFAULT,
+      Reliability.SYSTEM_DEFAULT, Durability.SYSTEM_DEFAULT, false);
+  }
+
+  public static final QoSProfile sensorData() {
+    return new QoSProfile(
+      History.KEEP_LAST, 5, Reliability.BEST_EFFORT, Durability.VOLATILE, false);
+  }
+
+  public static final QoSProfile parametersDefault() {
+    return new QoSProfile(
+      History.KEEP_LAST, 1000, Reliability.RELIABLE, Durability.VOLATILE, false);
+  }
+
+  public static final QoSProfile servicesDefault() {
+    return new QoSProfile(
+      History.KEEP_LAST, 10, Reliability.RELIABLE, Durability.VOLATILE, false);
+  }
+
+  public static final QoSProfile parameterEventsDefault() {
+    return new QoSProfile(
+      History.KEEP_ALL, 1000, Reliability.RELIABLE, Durability.VOLATILE, false);
+  }
+
   public static final int DEPTH_SYSTEM_DEFAULT = 0;
 
-  public static final QoSProfile SENSOR_DATA =
-      new QoSProfile(History.KEEP_LAST, 5, Reliability.BEST_EFFORT, Durability.VOLATILE, false);
+  public static final QoSProfile SENSOR_DATA = sensorData();
 
-  public static final QoSProfile PARAMETERS =
-      new QoSProfile(History.KEEP_LAST, 1000, Reliability.RELIABLE, Durability.VOLATILE, false);
+  public static final QoSProfile PARAMETERS = parametersDefault();
 
-  public static final QoSProfile DEFAULT =
-      new QoSProfile(History.KEEP_LAST, 10, Reliability.RELIABLE, Durability.VOLATILE, false);
+  public static final QoSProfile DEFAULT = defaultProfile();
 
-  public static final QoSProfile SERVICES_DEFAULT =
-      new QoSProfile(History.KEEP_LAST, 10, Reliability.RELIABLE, Durability.VOLATILE, false);
+  public static final QoSProfile SERVICES_DEFAULT = servicesDefault();
 
-  public static final QoSProfile PARAMETER_EVENTS =
-      new QoSProfile(History.KEEP_ALL, 1000, Reliability.RELIABLE, Durability.VOLATILE, false);
+  public static final QoSProfile PARAMETER_EVENTS = parameterEventsDefault();
 
-  public static final QoSProfile SYSTEM_DEFAULT = new QoSProfile(History.SYSTEM_DEFAULT,
-      DEPTH_SYSTEM_DEFAULT, Reliability.SYSTEM_DEFAULT, Durability.SYSTEM_DEFAULT, false);
+  public static final QoSProfile SYSTEM_DEFAULT = systemDefault();
 }

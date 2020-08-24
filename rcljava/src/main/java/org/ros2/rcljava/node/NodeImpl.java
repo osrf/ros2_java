@@ -45,6 +45,7 @@ import org.ros2.rcljava.subscription.Subscription;
 import org.ros2.rcljava.subscription.SubscriptionImpl;
 import org.ros2.rcljava.time.Clock;
 import org.ros2.rcljava.time.ClockType;
+import org.ros2.rcljava.time.TimeSource;
 import org.ros2.rcljava.timer.Timer;
 import org.ros2.rcljava.timer.WallTimer;
 import org.ros2.rcljava.timer.WallTimerImpl;
@@ -97,6 +98,8 @@ public class NodeImpl implements Node {
    */
   private Clock clock;
 
+  private TimeSource timeSource;
+
   /**
    * All the @{link Subscription}s that have been created through this instance.
    */
@@ -142,7 +145,6 @@ public class NodeImpl implements Node {
    *     be zero.
    */
   public NodeImpl(final long handle, final Context context, final boolean allowUndeclaredParameters) {
-    this.clock = new Clock(ClockType.SYSTEM_TIME);
     this.handle = handle;
     this.context = context;
     this.publishers = new LinkedBlockingQueue<Publisher>();
@@ -155,6 +157,9 @@ public class NodeImpl implements Node {
     this.allowUndeclaredParameters = allowUndeclaredParameters;
     this.parameterCallbacksMutex = new Object();
     this.parameterCallbacks = new ArrayList<ParameterCallback>();
+    this.clock = new Clock(ClockType.ROS_TIME);
+    this.timeSource = new TimeSource(this);
+    this.timeSource.attachClock(this.clock);
   }
 
   /**

@@ -337,7 +337,8 @@ public class NodeParametersTest {
     node.declareParameter(new ParameterVariant("thing.do", true));
 
     rcl_interfaces.msg.ListParametersResult result = node.listParameters(new ArrayList<String>(), rcl_interfaces.srv.ListParameters_Request.DEPTH_RECURSIVE);
-    assertEquals(2, result.getNames().size());
+    // 2 we added above plus the implicit "use_sim_time"
+    assertEquals(3, result.getNames().size());
   }
 
   @Test

@@ -99,7 +99,7 @@ Java_org_ros2_rcljava_detail_QosIncompatibleStatus_nativeFromRCLEvent(
       break;
     default:
       rcljava_throw_exception(
-        env, "java/lang/IllegalStateException", "unknown rmw qos policy kind");
+        env, "java/lang/IllegalArgumentException", "unknown rmw qos policy kind");
       break;
   }
   if (env->ExceptionCheck()) {

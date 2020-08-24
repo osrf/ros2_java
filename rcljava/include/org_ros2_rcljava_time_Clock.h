@@ -30,6 +30,40 @@ JNICALL Java_org_ros2_rcljava_time_Clock_nativeCreateClockHandle(JNIEnv *, jclas
 
 /*
  * Class:     org_ros2_rcljava_time_Clock
+ * Method:    nativeGetNow
+ * Signature: (J)J
+ */
+JNIEXPORT jlong
+JNICALL Java_org_ros2_rcljava_time_Clock_nativeGetNow(JNIEnv * env, jclass, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_time_Clock
+ * Method:    nativeRosTimeOverrideEnabled
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean
+JNICALL Java_org_ros2_rcljava_time_Clock_nativeRosTimeOverrideEnabled(JNIEnv * env, jclass, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_time_Clock
+ * Method:    nativeSetRosTimeOverrideEnabled
+ * Signature: (JZ)V
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_time_Clock_nativeSetRosTimeOverrideEnabled(
+  JNIEnv * env, jclass, jlong, jboolean);
+
+/*
+ * Class:     org_ros2_rcljava_time_Clock
+ * Method:    nativeSetRosTimeOverride
+ * Signature: (JJ)V
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_time_Clock_nativeSetRosTimeOverride(
+  JNIEnv * env, jclass, jlong, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_time_Clock
  * Method:    nativeDispose
  * Signature: (J)V
  */

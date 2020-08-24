@@ -32,15 +32,19 @@ public class QoSProfile {
 
   private Durability durability;
 
-  private Duration deadline;
+  private Duration deadline = Duration.ofSeconds(0, 0);
 
-  private Duration lifespan;
+  private Duration lifespan = Duration.ofSeconds(0, 0);
 
-  private Liveliness liveliness;
+  private Liveliness liveliness = Liveliness.SYSTEM_DEFAULT;
 
-  private Duration livelinessLeaseDuration;
+  private Duration livelinessLeaseDuration = Duration.ofSeconds(0, 0);
 
   private boolean avoidROSNamespaceConventions;
+
+  public QoSProfile(int depth) {
+    this(History.KEEP_LAST, depth, Reliability.RELIABLE, Durability.VOLATILE, false);
+  }
 
   public QoSProfile(History history, int depth, Reliability reliability, Durability durability,
       boolean avoidROSNamespaceConventions) {
@@ -133,8 +137,7 @@ public class QoSProfile {
   }
 
   public static final QoSProfile defaultProfile() {
-    return new QoSProfile(
-      History.KEEP_LAST, 10, Reliability.RELIABLE, Durability.VOLATILE, false);
+    return new QoSProfile(10);
   }
 
   public static final QoSProfile systemDefault() {

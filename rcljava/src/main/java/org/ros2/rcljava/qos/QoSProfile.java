@@ -24,6 +24,8 @@ import org.ros2.rcljava.qos.policies.QoSPolicy;
 import org.ros2.rcljava.qos.policies.Reliability;
 
 public class QoSProfile {
+  // TODO(ivanpauno): Update all qos policies in a way that the objects are created from RCL,
+  // to avoid depending on the enum values.
   private History history;
 
   private int depth;

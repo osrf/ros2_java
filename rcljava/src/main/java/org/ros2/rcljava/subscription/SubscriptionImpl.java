@@ -164,7 +164,7 @@ public class SubscriptionImpl<T extends MessageDefinition> implements Subscripti
    * The ownership of the created event handle will immediately be transferred to an
    * @{link EventHandlerImpl}, that will be responsible of disposing it.
    *
-   * @param handle A pointer to the underlying ROS2 subscription structure.
+   * @param handle A pointer to the underlying ROS 2 subscription structure.
    *     Must not be zero.
    * @param eventType The rcl event type.
    */

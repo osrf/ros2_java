@@ -33,6 +33,21 @@ import java.util.List;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Implementation of the ROS time source abstraction.
+ *
+ * This class updates the time of one or more @{link Clock}s with a ROS time source.
+ * A ROS time source is expected to be published to the "/clock" topic.
+ * A TimeSource object needs a @{link Node} in order create a subscription to the "/clock" topic.
+ *
+ * There are two ways to enable (or disable) using a ROS time source:
+ *
+ * 1. Calling the method @{link #setRosTimeIsActive(boolean)}, or
+ * 2. Setting the 'use_sim_time' parameter on the @{link Node} that is attached to this TimeSource
+ *
+ * More information can be found in the design document
+ * <a href="http://design.ros2.org/articles/clock_and_time.html">Clock and Time</a>.
+ */
 public final class TimeSource {
   private Node node;
   private boolean rosTimeIsActive;
@@ -43,10 +58,18 @@ public final class TimeSource {
 
   private static final Logger logger = LoggerFactory.getLogger(TimeSource.class);
 
+  /**
+   * Default constructor.
+   */
   public TimeSource() {
     this(null);
   }
 
+  /**
+   * Attach a node to the time source.
+   *
+   * @param node The node to attach to the time source.
+   */
   public TimeSource(Node node) {
     this.rosTimeIsActive = false;
     this.associatedClocks = new LinkedBlockingQueue<Clock>();
@@ -57,6 +80,10 @@ public final class TimeSource {
     }
   }
 
+  /**
+   * @return true if ROS time is active, false otherwise.
+   *   Being active means we are listening to the "/clock" topic.
+   */
   public boolean getRosTimeIsActive() {
     return this.rosTimeIsActive;
   }
@@ -77,6 +104,11 @@ public final class TimeSource {
     }
   }
 
+  /**
+   * Enable or disable ROS time.
+   *
+   * @param enabled Flag to enable or disable ROS time.
+   */
   public void setRosTimeIsActive(boolean enabled) {
     if (this.rosTimeIsActive == enabled) {
       return;
@@ -97,6 +129,14 @@ public final class TimeSource {
     }
   }
 
+  /**
+   * Attach a @{link Node} to the time source.
+   *
+   * This node is used to create a subscription to the "/clock" topic.
+   * Any previously attached @{link Node} is detached.
+   *
+   * @param node The node to attach to the time source.
+   */
   public void attachNode(Node node) {
     if (this.node != null) {
       detachNode();
@@ -148,6 +188,13 @@ public final class TimeSource {
     this.node.addOnSetParametersCallback(this.simTimeCB);
   }
 
+  /**
+   * Detach a @{link Node} from the time source.
+   *
+   * Unsubscribes from the "/clock" topic, effectively disabling ROS time.
+   *
+   * If no Node is attached, nothing happens.
+   */
   public void detachNode() {
     if (this.node == null) {
       return;
@@ -157,6 +204,15 @@ public final class TimeSource {
     this.node = null;
   }
 
+  /**
+   * Attach a @{link Clock} to the time source.
+   *
+   * More than one clock may be attached to a time source.
+   * Attached clocks will be updated to the the time received on the "/clock" topic.
+   *
+   * @param clock The Clock to attach.
+   *   Must be of type @{link ClockType.ROS_TIME}, otherwise an exception is thrown.
+   */
   public void attachClock(Clock clock) {
     if (clock.getClockType() != ClockType.ROS_TIME) {
       // TODO(clalancette): Make this a custom exception
@@ -167,6 +223,13 @@ public final class TimeSource {
     this.associatedClocks.add(clock);
   }
 
+  /**
+   * Detach a @{link Clock} from the time source.
+   *
+   * The Clock will no longer receive time updates from this time source.
+   *
+   * @param clock The Clock to detach.
+   */
   public void detachClock(Clock clock) {
     this.associatedClocks.remove(clock);
   }

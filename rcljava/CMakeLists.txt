@@ -190,6 +190,36 @@ if(BUILD_TESTING)
   find_package(std_msgs REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  # Find mockito and it's dependencies
+  # TODO(jacobperron): Wrap this into cmake helper
+  find_jar(MOCKITO_JAR NAME mockito-core)
+  find_jar(BYTE_BUDDY_JAR NAME byte-buddy)
+  find_jar(BYTE_BUDDY_AGENT_JAR NAME byte-buddy-agent)
+  find_jar(OBJENESIS_JAR NAME objenesis)
+
+  if(NOT MOCKITO_JAR)
+    message(FATAL_ERROR "mockito installation not found")
+  endif()
+
+  if(NOT BYTE_BUDDY_JAR)
+    message(FATAL_ERROR "byte-buddy installation not found (mockito dependency)")
+  endif()
+
+  if(NOT BYTE_BUDDY_AGENT_JAR)
+    message(FATAL_ERROR "byte-buddy-agent installation not found (mockito dependency)")
+  endif()
+
+  if(NOT OBJENESIS_JAR)
+    message(FATAL_ERROR "objenesis installation not found (mockito dependency)")
+  endif()
+
+  set(MOCKITO_JARS
+    "${MOCKITO_JAR}"
+    "${BYTE_BUDDY_JAR}"
+    "${BYTE_BUDDY_AGENT_JAR}"
+    "${OBJENESIS_JAR}"
+  )
+
   set(${PROJECT_NAME}_message_files
     "msg/BoundedArrayNested.msg"
     "msg/BoundedArrayPrimitives.msg"
@@ -243,6 +273,7 @@ if(BUILD_TESTING)
     # "src/test/java/org/ros2/rcljava/parameters/SyncParametersClientTest.java"
     "src/test/java/org/ros2/rcljava/publisher/PublisherTest.java"
     "src/test/java/org/ros2/rcljava/subscription/SubscriptionTest.java"
+    "src/test/java/org/ros2/rcljava/time/TimeSourceTest.java"
     "src/test/java/org/ros2/rcljava/timer/TimerTest.java"
   )
 
@@ -258,6 +289,7 @@ if(BUILD_TESTING)
     # "org.ros2.rcljava.parameters.SyncParametersClientTest"
     "org.ros2.rcljava.publisher.PublisherTest"
     "org.ros2.rcljava.subscription.SubscriptionTest"
+    "org.ros2.rcljava.time.TimeSourceTest"
     "org.ros2.rcljava.timer.TimerTest"
   )
 
@@ -330,6 +362,7 @@ if(BUILD_TESTING)
       "${rosgraph_msgs_JARS}"
       "${_${PROJECT_NAME}_jar_file}"
       "${_${PROJECT_NAME}_messages_jar_file}"
+      "${MOCKITO_JARS}"
       APPEND_LIBRARY_DIRS
       "${_deps_library_dirs}"
     )

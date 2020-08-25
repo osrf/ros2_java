@@ -36,11 +36,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Implementation of the ROS time source abstraction.
  *
- * The abstraction uses a subscription to a "/clock" topic as described in
- * the design document
- * <a href="http://design.ros2.org/articles/clock_and_time.html">Clock and Time</a>.
+ * This class updates the time of one or more @{link Clock}s with a ROS time source.
+ * A ROS time source is expected to be published to the "/clock" topic.
+ * A TimeSource object needs a @{link Node} in order create a subscription to the "/clock" topic.
  *
- * A @{link Node} needs to be attached to a TimeSource in order for subscription to be created.
+ * There are two ways to enable (or disable) using a ROS time source:
+ *
+ * 1. Calling the method @{link #setRosTimeIsActive(boolean)}, or
+ * 2. Setting the 'use_sim_time' parameter on the @{link Node} that is attached to this TimeSource
+ *
+ * More information can be found in the design document
+ * <a href="http://design.ros2.org/articles/clock_and_time.html">Clock and Time</a>.
  */
 public final class TimeSource {
   private Node node;
@@ -53,7 +59,7 @@ public final class TimeSource {
   private static final Logger logger = LoggerFactory.getLogger(TimeSource.class);
 
   /**
-   * Empty constructor.
+   * Default constructor.
    */
   public TimeSource() {
     this(null);

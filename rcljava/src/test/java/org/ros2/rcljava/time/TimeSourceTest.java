@@ -15,31 +15,36 @@
 
 package org.ros2.rcljava.time;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-// import static org.mockito.Mockito;
+import org.junit.runner.RunWith;
+
 import static org.mockito.Mockito.*;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.ros2.rcljava.consumers.Consumer;
-import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.RCLJava;
 import org.ros2.rcljava.node.Node;
-import org.ros2.rcljava.parameters.ParameterType;
 import org.ros2.rcljava.parameters.ParameterVariant;
 import org.ros2.rcljava.subscription.Subscription;
 import org.ros2.rcljava.time.TimeSource;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class TimeSourceTest {
+  @Mock
   private Node mockedNode;
+
+  @Mock
+  private Clock mockedClock;
+
+  @Mock
+  private Subscription mockSubscription;
 
   @BeforeClass
   public static void setupOnce() throws Exception {
@@ -52,11 +57,6 @@ public class TimeSourceTest {
   @AfterClass
   public static void tearDownOnce() {
     RCLJava.shutdown();
-  }
-
-  @Before
-  public void setUp() {
-    mockedNode = mock(Node.class);
   }
 
   @Test
@@ -122,7 +122,6 @@ public class TimeSourceTest {
 
   @Test
   public final void testAttachClock() {
-    Clock mockedClock = mock(Clock.class);
     when(mockedClock.getClockType()).thenReturn(ClockType.ROS_TIME);
 
     TimeSource timeSource = new TimeSource();
@@ -137,15 +136,12 @@ public class TimeSourceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public final void testAttachClockInvalidType() {
-    Clock mockedClock = mock(Clock.class);
-
     TimeSource timeSource = new TimeSource();
     timeSource.attachClock(mockedClock);
   }
 
   @Test
   public final void testDetachClock() {
-    Clock mockedClock = mock(Clock.class);
     when(mockedClock.getClockType()).thenReturn(ClockType.ROS_TIME);
 
     TimeSource timeSource = new TimeSource();
@@ -169,7 +165,6 @@ public class TimeSourceTest {
   @Test
   public final void testSetRosTimeIsActiveWithNode() {
     when(mockedNode.getParameter("use_sim_time")).thenReturn(new ParameterVariant("use_sim_time", false));
-    Subscription mockSubscription = mock(Subscription.class);
     when(mockedNode.createSubscription(eq(rosgraph_msgs.msg.Clock.class), anyString(), any(Consumer.class)))
       .thenReturn(mockSubscription);
 

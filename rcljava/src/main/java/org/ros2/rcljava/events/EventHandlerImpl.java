@@ -64,19 +64,19 @@ implements EventHandler<T, ParentT> {
    * @param eventStatusFactory Factory of an event status.
    * @param callback The callback function that will be called when the event
    *     is triggered.
-   * @param removeCallback Callback that will be called when this object is being disposed.
+   * @param disposeCallback Callback that will be called when this object is disposed.
    */
   public EventHandlerImpl(
       final WeakReference<ParentT> parentReference,
       final long handle,
       final Supplier<T> eventStatusFactory,
       final Consumer<T> callback,
-      final Consumer<EventHandler> removeCallback) {
+      final Consumer<EventHandler> disposeCallback) {
     this.parentReference = parentReference;
     this.handle = handle;
     this.eventStatusFactory = eventStatusFactory;
     this.callback = callback;
-    this.removeCallback = removeCallback;
+    this.disposeCallback = disposeCallback;
   }
 
   /**
@@ -108,7 +108,7 @@ implements EventHandler<T, ParentT> {
     if (this.handle == 0) {
       return;
     }
-    this.removeCallback.accept(this);
+    this.disposeCallback.accept(this);
     nativeDispose(this.handle);
     this.handle = 0;
   }
@@ -138,5 +138,5 @@ implements EventHandler<T, ParentT> {
   private final WeakReference<ParentT> parentReference;
   private long handle;
   private final Consumer<T> callback;
-  private final Consumer<EventHandler> removeCallback;
+  private final Consumer<EventHandler> disposeCallback;
 }

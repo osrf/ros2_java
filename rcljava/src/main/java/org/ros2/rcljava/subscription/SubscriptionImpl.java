@@ -131,7 +131,7 @@ public class SubscriptionImpl<T extends MessageDefinition> implements Subscripti
   createEventHandler(Supplier<T> factory, Consumer<T> callback) {
     final WeakReference<Collection<EventHandler>> weakEventHandlers = new WeakReference(
       this.eventHandlers);
-    Consumer<EventHandler> removeCallback = new Consumer<EventHandler>() {
+    Consumer<EventHandler> disposeCallback = new Consumer<EventHandler>() {
       public void accept(EventHandler eventHandler) {
         Collection<EventHandler> eventHandlers = weakEventHandlers.get();
         if (eventHandlers != null) {
@@ -142,7 +142,7 @@ public class SubscriptionImpl<T extends MessageDefinition> implements Subscripti
     T status = factory.get();
     long eventHandle = nativeCreateEvent(this.handle, status.getSubscriptionEventType());
     EventHandler<T, Subscription> eventHandler = new EventHandlerImpl(
-      new WeakReference<Subscription>(this), eventHandle, factory, callback, removeCallback);
+      new WeakReference<Subscription>(this), eventHandle, factory, callback, disposeCallback);
     this.eventHandlers.add(eventHandler);
     return eventHandler;
   }

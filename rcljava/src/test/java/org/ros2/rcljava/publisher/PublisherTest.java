@@ -99,7 +99,6 @@ public class PublisherTest {
 
   @Test
   public final void testCreateOfferedDeadlineMissedEvent() {
-    String identifier = RCLJava.getRMWIdentifier();
     RCLJava.rclJavaInit();
     Node node = RCLJava.createNode("test_node");
     Publisher<std_msgs.msg.String> publisher =

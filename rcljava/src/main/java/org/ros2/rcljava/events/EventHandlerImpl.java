@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 
 import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.consumers.Consumer;
-import org.ros2.rcljava.consumers.Consumer;
 import org.ros2.rcljava.events.EventHandler;
 import org.ros2.rcljava.events.EventStatus;
 import org.ros2.rcljava.interfaces.Disposable;

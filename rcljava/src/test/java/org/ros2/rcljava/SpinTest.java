@@ -438,7 +438,6 @@ public class SpinTest {
     EventHandler eventHandler = subscription.createEventHandler(
       RequestedQosIncompatible.factory, eventConsumer
     );
-    System.out.print("created event handler");
     Publisher<std_msgs.msg.String> publisher = node.<std_msgs.msg.String>createPublisher(
       std_msgs.msg.String.class, "test_topic_spin_subscription_event", new QoSProfile(
         History.KEEP_LAST, 1,

@@ -309,3 +309,59 @@ cleanup:
     rcljava_throw_rclexception(env, ret, "failed to fini topic names and types structure");
   }
 }
+
+JNIEXPORT void JNICALL
+Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublishersInfo(
+  JNIEnv * env, jclass, jlong handle, jstring jtopic_name, jobject jpublishers_info)
+{
+  rcl_node_t * node = reinterpret_cast<rcl_node_t *>(handle);
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+  rcl_topic_endpoint_info_array_t publishers_info =
+    rcl_get_zero_initialized_topic_endpoint_info_array();
+
+  const char * topic_name = env->GetStringUTFChars(jtopic_name, NULL);
+  if (!topic_name) {
+    rcljava_throw_exception(
+      env, "java/lang/IllegalStateException", "failed to convert jstring to utf chars");
+    return;
+  }
+
+  rcl_ret_t ret = rcl_get_publishers_info_by_topic(
+    node,
+    &allocator,
+    topic_name,
+    false,  // use ros mangling conventions
+    &publishers_info);
+
+  env->ReleaseStringUTFChars(jtopic_name, topic_name);
+
+  RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get publisher info");
+
+  {
+    jclass list_clazz = env->GetObjectClass(jpublishers_info);
+    jmethodID list_add_mid = env->GetMethodID(list_clazz, "add", "(Ljava/lang/Object;)Z");
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    jclass endpoint_info_clazz = env->FindClass("org/ros2/rcljava/graph/EndpointInfo");
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    jmethodID endpoint_info_init_mid = env->GetMethodID(endpoint_info_clazz, "<init>", "()V");
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    jmethodID endpoint_info_from_rcl_mid = env->GetMethodID(
+      endpoint_info_clazz, "nativeFromRCL", "(J)V");
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+
+    for (size_t i = 0; i < publishers_info.size; i++) {
+      jobject item = env->NewObject(endpoint_info_clazz, endpoint_info_init_mid);
+      env->CallVoidMethod(item, endpoint_info_from_rcl_mid, &publishers_info.info_array[i]);
+      env->CallBooleanMethod(jpublishers_info, list_add_mid, item);
+      env->DeleteLocalRef(item);
+    }
+  }
+
+// TODO(ivanpauno): Add a dependency on rcpputils and use "scope exit" utility
+// instead of C style error handling (?).
+cleanup:
+  ret = rcl_topic_endpoint_info_array_fini(&publishers_info, &allocator);
+  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+    rcljava_throw_rclexception(env, ret, "failed to destroy rcl publisher info");
+  }
+}

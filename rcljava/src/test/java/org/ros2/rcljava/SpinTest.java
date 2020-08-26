@@ -435,7 +435,6 @@ public class SpinTest {
         false));
     // create a RequestedQoSIncompatible event handler with custom event consumer
     RequestedQosIncompatibleConsumer eventConsumer = new RequestedQosIncompatibleConsumer();
-    System.out.print("creating event handler");
     EventHandler eventHandler = subscription.createEventHandler(
       RequestedQosIncompatible.factory, eventConsumer
     );

@@ -457,7 +457,6 @@ public class SpinTest {
     do {
       executor.spinAll((1000 + System.currentTimeMillis() - start) * 1000 * 1000);
     } while (!eventConsumer.done && System.currentTimeMillis() < start + 1000);
-    System.out.print("done!");
     assert(eventConsumer.done);
   }
 }

@@ -40,7 +40,7 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
   <test_depend>builtin_interfaces</test_depend>
-  <test_depend>libmockito-java</test_depend>
+  <test_depend>mockito_vendor</test_depend>
   <test_depend>rcl_interfaces</test_depend>
   <test_depend>rcljava_common</test_depend>
   <test_depend>rmw_implementation_cmake</test_depend>

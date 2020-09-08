@@ -38,13 +38,13 @@ qos_set_duration(JNIEnv * env, uint64_t seconds, uint64_t nanos, jobject jqos, j
     nanos = static_cast<uint64_t>(std::numeric_limits<jlong>::max());
   }
   jclass duration_clazz = env->FindClass("java/time/Duration");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jmethodID factory_mid = env->GetStaticMethodID(
     duration_clazz, "ofSeconds", "(JJ)Ljava/time/Duration;");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jobject jduration = env->CallStaticObjectMethod(
     duration_clazz, factory_mid, static_cast<jlong>(seconds), static_cast<jlong>(nanos));
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   env->SetObjectField(jqos, fid, jduration);
 }
 
@@ -55,28 +55,28 @@ qos_from_rcl(JNIEnv * env, const rmw_qos_profile_t & qos, jobject jqos)
   jclass clazz = env->GetObjectClass(jqos);
   const char * history_class_path = "Lorg/ros2/rcljava/qos/policies/History;";
   jfieldID history_fid = env->GetFieldID(clazz, "history", history_class_path);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID depth_fid = env->GetFieldID(clazz, "depth", "I");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   const char * reliability_class_path = "Lorg/ros2/rcljava/qos/policies/Reliability;";
   jfieldID reliability_fid = env->GetFieldID(clazz, "reliability", reliability_class_path);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   const char * durability_class_path = "Lorg/ros2/rcljava/qos/policies/Durability;";
   jfieldID durability_fid = env->GetFieldID(clazz, "durability", durability_class_path);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID deadline_fid = env->GetFieldID(clazz, "deadline", "Ljava/time/Duration;");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID lifespan_fid = env->GetFieldID(clazz, "lifespan", "Ljava/time/Duration;");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   const char * liveliness_class_path = "Lorg/ros2/rcljava/qos/policies/Liveliness;";
   jfieldID liveliness_fid = env->GetFieldID(clazz, "liveliness", liveliness_class_path);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID liveliness_lease_fid = env->GetFieldID(
     clazz, "livelinessLeaseDuration", "Ljava/time/Duration;");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID avoid_ros_conventions_fid = env->GetFieldID(
     clazz, "avoidROSNamespaceConventions", "Z");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
 
   jclass history_clazz = env->FindClass("org/ros2/rcljava/qos/policies/History");
   jfieldID history_value_fid;
@@ -103,7 +103,7 @@ qos_from_rcl(JNIEnv * env, const rmw_qos_profile_t & qos, jobject jqos)
       rcljava_throw_exception(env, "java/lang/IllegalStateException", oss.str());
       break;
   }
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jobject history_value = env->GetStaticObjectField(history_clazz, history_value_fid);
   env->SetObjectField(jqos, history_fid, history_value);
 
@@ -133,7 +133,7 @@ qos_from_rcl(JNIEnv * env, const rmw_qos_profile_t & qos, jobject jqos)
         env, "java/lang/IllegalStateException", "unknown reliability policy value");
       break;
   }
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jobject reliability_value = env->GetStaticObjectField(reliability_clazz, reliability_value_fid);
   env->SetObjectField(jqos, reliability_fid, reliability_value);
 
@@ -161,18 +161,18 @@ qos_from_rcl(JNIEnv * env, const rmw_qos_profile_t & qos, jobject jqos)
         env, "java/lang/IllegalStateException", "unknown durability policy value");
       break;
   }
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jobject durability_value = env->GetStaticObjectField(durability_clazz, durability_value_fid);
   env->SetObjectField(jqos, durability_fid, durability_value);
 
   qos_set_duration(env, qos.deadline.sec, qos.deadline.nsec, jqos, deadline_fid);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   qos_set_duration(env, qos.lifespan.sec, qos.lifespan.nsec, jqos, lifespan_fid);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   qos_set_duration(
     env, qos.liveliness_lease_duration.sec,
     qos.liveliness_lease_duration.nsec, jqos, liveliness_lease_fid);
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
 
   jclass liveliness_clazz = env->FindClass("org/ros2/rcljava/qos/policies/Liveliness");
   jfieldID liveliness_value_fid;
@@ -198,7 +198,7 @@ qos_from_rcl(JNIEnv * env, const rmw_qos_profile_t & qos, jobject jqos)
         env, "java/lang/IllegalStateException", "unknown liveliness policy value");
       break;
   }
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jobject liveliness_value = env->GetStaticObjectField(liveliness_clazz, liveliness_value_fid);
   env->SetObjectField(jqos, liveliness_fid, liveliness_value);
 

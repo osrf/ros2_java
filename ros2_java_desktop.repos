@@ -22,7 +22,7 @@ repositories:
   ros2_java/mockito_vendor:
     type: git
     url: https://github.com/ros2-java/mockito_vendor.git
-    version: add_package
+    version: main
   ros2_java/ros2_java:
     type: git
     url: https://github.com/osrf/ros2_java.git

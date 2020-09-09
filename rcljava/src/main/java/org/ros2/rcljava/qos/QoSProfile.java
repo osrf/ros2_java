@@ -216,7 +216,7 @@ public class QoSProfile {
   }
 
   /**
-   * @param avoidROSConventions when `true`, ros mangling conventions will be ignored.
+   * @param avoidROSConventions when `true`, ROS name mangling conventions will be ignored.
    * @return reference to `this` object, allowing method chaining.
    */
   public final QoSProfile setAvoidROSNamespaceConventions(final boolean avoidROSConventions) {

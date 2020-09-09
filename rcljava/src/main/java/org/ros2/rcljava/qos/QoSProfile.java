@@ -28,7 +28,7 @@ import org.ros2.rcljava.qos.policies.QoSPolicy;
 import org.ros2.rcljava.qos.policies.Reliability;
 
 /**
- * Implementation of the ROS qos profile abstraction.
+ * Implementation of the ROS QoS profile abstraction.
  *
  * It works as a bridge with rmw_qos_profile_t.
  * This class provides several static methods to instantiate the default profiles,

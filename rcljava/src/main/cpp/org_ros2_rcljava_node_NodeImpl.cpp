@@ -266,15 +266,15 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetTopicNamesAndTypes(
   jclass collection_clazz = env->FindClass("java/util/Collection");
   jmethodID collection_add_mid = env->GetMethodID(
     collection_clazz, "add", "(Ljava/lang/Object;)Z");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jclass name_and_types_clazz = env->FindClass("org/ros2/rcljava/graph/NameAndTypes");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jmethodID name_and_types_init_mid = env->GetMethodID(name_and_types_clazz, "<init>", "()V");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID name_fid = env->GetFieldID(name_and_types_clazz, "name", "Ljava/lang/String;");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jfieldID types_fid = env->GetFieldID(name_and_types_clazz, "types", "Ljava/util/Collection;");
-  RCLJAVA_COMMON_EXCEPTION_CHECK(env);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
 
   rcl_allocator_t allocator = rcl_get_default_allocator();
   rcl_names_and_types_t topic_names_and_types = rcl_get_zero_initialized_names_and_types();
@@ -288,19 +288,19 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetTopicNamesAndTypes(
 
   for (size_t i = 0; i < topic_names_and_types.names.size; i++) {
     jobject jitem = env->NewObject(name_and_types_clazz, name_and_types_init_mid);
-    RCLJAVA_COMMON_EXCEPTION_CHECK_X(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
     jstring jname = env->NewStringUTF(topic_names_and_types.names.data[i]);
-    RCLJAVA_COMMON_EXCEPTION_CHECK_X(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
     env->SetObjectField(jitem, name_fid, jname);
     // the default constructor already inits types to an empty ArrayList
     jobject jtypes = env->GetObjectField(jitem, types_fid);
     for (size_t j = 0; j < topic_names_and_types.types[i].size; j++) {
       jstring jtype = env->NewStringUTF(topic_names_and_types.types[i].data[j]);
       env->CallBooleanMethod(jtypes, collection_add_mid, jtype);
-      RCLJAVA_COMMON_EXCEPTION_CHECK_X(env, goto cleanup);
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
     }
     env->CallBooleanMethod(jnames_and_types, collection_add_mid, jitem);
-    RCLJAVA_COMMON_EXCEPTION_CHECK_X(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
   }
 
 cleanup:

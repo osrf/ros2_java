@@ -209,7 +209,7 @@ public class QoSProfile {
   }
 
   /**
-   * @return `true` if ros namespace conventions are ignored, else `false`.
+   * @return `true` if ROS namespace conventions are ignored, else `false`.
    */
   public final boolean getAvoidROSNamespaceConventions() {
     return this.avoidROSNamespaceConventions;

@@ -16,7 +16,6 @@
 
 #include <jni.h>
 #include <limits>
-#include <sstream>
 
 #include "rcljava_common/exceptions.hpp"
 #include "rmw/qos_profiles.h"

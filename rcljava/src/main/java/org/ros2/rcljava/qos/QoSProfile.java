@@ -182,7 +182,7 @@ public class QoSProfile {
   }
 
   /**
-   * @param deadline liveliness policy to be set. See
+   * @param liveliness liveliness policy to be set. See
    *  <a href="http://design.ros2.org/articles/qos_deadline_liveliness_lifespan.html">here</a>.
    * @return reference to `this` object, allowing method chaining.
    */

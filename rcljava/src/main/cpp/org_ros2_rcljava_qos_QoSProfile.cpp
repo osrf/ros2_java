@@ -98,9 +98,8 @@ qos_from_rcl(JNIEnv * env, const rmw_qos_profile_t & qos, jobject jqos)
         history_clazz, "UNKNOWN", history_class_path);
       break;
     default:
-      std::ostringstream oss{"unknown history policy value: ", std::ios_base::ate};
-      oss << qos.history;
-      rcljava_throw_exception(env, "java/lang/IllegalStateException", oss.str());
+      rcljava_throw_exception(
+        env, "java/lang/IllegalStateException", "unknown history policy value");
       break;
   }
   RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);

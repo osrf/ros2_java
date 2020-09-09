@@ -47,7 +47,7 @@ public class QoSProfile {
   // to avoid depending on the enum values.
 
   /**
-   * Construct a keep last qos profile with the specified depth.
+   * Construct a keep last QoS profile with the specified depth.
    *
    * @param depth history depth.
    * @return a new QoSProfile.

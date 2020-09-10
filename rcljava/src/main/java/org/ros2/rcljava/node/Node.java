@@ -649,4 +649,16 @@ public interface Node extends Disposable {
    */
   Collection<NameAndTypes> getSubscriptionNamesAndTypesByNode(
     String nodeName, String nodeNamespace);
+
+  /**
+   * Return the service server names and types that were created from the node specified by the
+   * given node name and namespace.
+   * See @{link graph#NameAndTypes} for more information about the returned value.
+   *
+   * @param nodeName name of the node we want to know its services.
+   * @param nodeNamespace namespace of the node we want to know its services.
+   * @return the detected service server names and types.
+   */
+  Collection<NameAndTypes> getServiceNamesAndTypesByNode(
+    String nodeName, String nodeNamespace);
 }

@@ -146,6 +146,15 @@ JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublisherNamesAndTypesByNode(
   JNIEnv *, jclass, jlong, jstring, jstring, jobject);
 
+/*
+ * Class:     org_ros2_rcljava_node_NodeImpl
+ * Method:    nativeGetSubscriptionNamesAndTypesByNode
+ * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/util/Collection;)V
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_node_NodeImpl_nativeGetSubscriptionNamesAndTypesByNode(
+  JNIEnv *, jclass, jlong, jstring, jstring, jobject);
+
 #ifdef __cplusplus
 }
 #endif

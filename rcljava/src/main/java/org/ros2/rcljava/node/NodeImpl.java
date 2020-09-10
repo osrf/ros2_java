@@ -820,4 +820,15 @@ public class NodeImpl implements Node {
 
   private static native final Collection<NameAndTypes> nativeGetPublisherNamesAndTypesByNode(
     long handle, String nodeName, String nodeNamespace, Collection<NameAndTypes> namesAndTypes);
+
+  public final Collection<NameAndTypes> getSubscriptionNamesAndTypesByNode(
+    String nodeName, String nodeNamespace)
+  {
+    Collection<NameAndTypes> namesAndTypes = new ArrayList();
+    nativeGetSubscriptionNamesAndTypesByNode(this.handle, nodeName, nodeNamespace, namesAndTypes);
+    return namesAndTypes;
+  }
+
+  private static native final Collection<NameAndTypes> nativeGetSubscriptionNamesAndTypesByNode(
+    long handle, String nodeName, String nodeNamespace, Collection<NameAndTypes> namesAndTypes);
 }

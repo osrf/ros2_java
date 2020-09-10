@@ -537,3 +537,38 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublisherNamesAndTypesByNode(
   RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get publisher names and types");
   fill_jnames_and_types(env, publisher_names_and_types, jnames_and_types);
 }
+
+JNIEXPORT void JNICALL
+Java_org_ros2_rcljava_node_NodeImpl_nativeGetSubscriptionNamesAndTypesByNode(
+  JNIEnv * env, jclass, jlong handle, jstring jname, jstring jnamespace, jobject jnames_and_types)
+{
+  rcl_node_t * node = reinterpret_cast<rcl_node_t *>(handle);
+  if (!node) {
+    rcljava_throw_exception(env, "java/lang/IllegalArgumentException", "node handle is NULL");
+    return;
+  }
+
+  const char * name = env->GetStringUTFChars(jname, NULL);
+  const char * namespace_ = env->GetStringUTFChars(jnamespace, NULL);
+  rcl_allocator_t allocator = rcl_get_default_allocator();
+  rcl_names_and_types_t subscription_names_and_types = rcl_get_zero_initialized_names_and_types();
+
+  rcl_ret_t ret = rcl_get_subscriber_names_and_types_by_node(
+    node,
+    &allocator,
+    false,
+    name,
+    namespace_,
+    &subscription_names_and_types);
+  RCLJAVA_COMMON_THROW_FROM_RCL_X(
+    env, ret, "failed to get subscription names and types", goto cleanup);
+  fill_jnames_and_types(env, subscription_names_and_types, jnames_and_types);
+
+cleanup:
+  env->ReleaseStringUTFChars(jname, name);
+  env->ReleaseStringUTFChars(jnamespace, namespace_);
+  ret = rcl_names_and_types_fini(&subscription_names_and_types);
+  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+    rcljava_throw_rclexception(env, ret, "failed to fini subscription names and types structure");
+  }
+}

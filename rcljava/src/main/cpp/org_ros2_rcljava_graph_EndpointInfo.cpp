@@ -96,10 +96,14 @@ Java_org_ros2_rcljava_graph_EndpointInfo_nativeFromRCL(JNIEnv * env, jobject sel
   RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   env->SetObjectField(self, endpoint_gid_fid, jgid);
   jclass qos_clazz = env->FindClass("org/ros2/rcljava/qos/QoSProfile");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jmethodID qos_init_mid = env->GetMethodID(qos_clazz, "<init>", "()V");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jobject jqos = env->NewObject(qos_clazz, qos_init_mid);
   RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   jmethodID qos_from_rcl_mid = env->GetMethodID(qos_clazz, "nativeFromRCL", "(J)V");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   env->CallObjectMethod(jqos, qos_from_rcl_mid, &p->qos_profile);
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   env->SetObjectField(self, qos_fid, jqos);
 }

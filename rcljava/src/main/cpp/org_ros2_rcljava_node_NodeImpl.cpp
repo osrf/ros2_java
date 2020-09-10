@@ -315,6 +315,12 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublishersInfo(
   JNIEnv * env, jclass, jlong handle, jstring jtopic_name, jobject jpublishers_info)
 {
   rcl_node_t * node = reinterpret_cast<rcl_node_t *>(handle);
+  if (!node) {
+    rcljava_throw_exception(
+      env, "java/lang/IllegalStateException", "passed node handle is NULL");
+    return;
+  }
+
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
   rcl_topic_endpoint_info_array_t publishers_info =
     rcl_get_zero_initialized_topic_endpoint_info_array();
@@ -351,8 +357,11 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublishersInfo(
 
     for (size_t i = 0; i < publishers_info.size; i++) {
       jobject item = env->NewObject(endpoint_info_clazz, endpoint_info_init_mid);
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
       env->CallVoidMethod(item, endpoint_info_from_rcl_mid, &publishers_info.info_array[i]);
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
       env->CallBooleanMethod(jpublishers_info, list_add_mid, item);
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
       env->DeleteLocalRef(item);
     }
   }

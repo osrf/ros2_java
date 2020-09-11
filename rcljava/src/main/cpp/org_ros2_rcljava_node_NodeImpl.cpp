@@ -22,6 +22,7 @@
 #include "rcl/graph.h"
 #include "rcl/node.h"
 #include "rcl/rcl.h"
+#include "rcpputils/scope_exit.hpp"
 #include "rmw/rmw.h"
 #include "rosidl_runtime_c/message_type_support_struct.h"
 
@@ -342,35 +343,33 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublishersInfo(
   env->ReleaseStringUTFChars(jtopic_name, topic_name);
 
   RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get publisher info");
-
-  {
-    jclass list_clazz = env->GetObjectClass(jpublishers_info);
-    jmethodID list_add_mid = env->GetMethodID(list_clazz, "add", "(Ljava/lang/Object;)Z");
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
-    jclass endpoint_info_clazz = env->FindClass("org/ros2/rcljava/graph/EndpointInfo");
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
-    jmethodID endpoint_info_init_mid = env->GetMethodID(endpoint_info_clazz, "<init>", "()V");
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
-    jmethodID endpoint_info_from_rcl_mid = env->GetMethodID(
-      endpoint_info_clazz, "nativeFromRCL", "(J)V");
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
-
-    for (size_t i = 0; i < publishers_info.size; i++) {
-      jobject item = env->NewObject(endpoint_info_clazz, endpoint_info_init_mid);
-      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
-      env->CallVoidMethod(item, endpoint_info_from_rcl_mid, &publishers_info.info_array[i]);
-      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
-      env->CallBooleanMethod(jpublishers_info, list_add_mid, item);
-      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
-      env->DeleteLocalRef(item);
+  auto cleanup_info_array = rcpputils::make_scope_exit(
+    [info_ptr = &publishers_info, allocator_ptr = &allocator, env]() {
+      rcl_ret_t ret = rcl_topic_endpoint_info_array_fini(info_ptr, allocator_ptr);
+      if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+        rcljava_throw_rclexception(env, ret, "failed to destroy rcl publisher info");
+      }
     }
-  }
+  );
 
-// TODO(ivanpauno): Add a dependency on rcpputils and use "scope exit" utility
-// instead of C style error handling (?).
-cleanup:
-  ret = rcl_topic_endpoint_info_array_fini(&publishers_info, &allocator);
-  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
-    rcljava_throw_rclexception(env, ret, "failed to destroy rcl publisher info");
+  jclass list_clazz = env->GetObjectClass(jpublishers_info);
+  jmethodID list_add_mid = env->GetMethodID(list_clazz, "add", "(Ljava/lang/Object;)Z");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+  jclass endpoint_info_clazz = env->FindClass("org/ros2/rcljava/graph/EndpointInfo");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+  jmethodID endpoint_info_init_mid = env->GetMethodID(endpoint_info_clazz, "<init>", "()V");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+  jmethodID endpoint_info_from_rcl_mid = env->GetMethodID(
+    endpoint_info_clazz, "nativeFromRCL", "(J)V");
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+
+  for (size_t i = 0; i < publishers_info.size; i++) {
+    jobject item = env->NewObject(endpoint_info_clazz, endpoint_info_init_mid);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+    env->CallVoidMethod(item, endpoint_info_from_rcl_mid, &publishers_info.info_array[i]);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+    env->CallBooleanMethod(jpublishers_info, list_add_mid, item);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+    env->DeleteLocalRef(item);
   }
 }

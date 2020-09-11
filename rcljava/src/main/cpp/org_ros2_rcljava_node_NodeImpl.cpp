@@ -318,7 +318,7 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublishersInfo(
   rcl_node_t * node = reinterpret_cast<rcl_node_t *>(handle);
   if (!node) {
     rcljava_throw_exception(
-      env, "java/lang/IllegalStateException", "passed node handle is NULL");
+      env, "java/lang/IllegalArgumentException", "passed node handle is NULL");
     return;
   }
 
@@ -329,7 +329,7 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetPublishersInfo(
   const char * topic_name = env->GetStringUTFChars(jtopic_name, NULL);
   if (!topic_name) {
     rcljava_throw_exception(
-      env, "java/lang/IllegalStateException", "failed to convert jstring to utf chars");
+      env, "java/lang/IllegalArgumentException", "failed to convert jstring to utf chars");
     return;
   }
 

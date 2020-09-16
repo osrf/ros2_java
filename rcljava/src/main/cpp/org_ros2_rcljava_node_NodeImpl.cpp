@@ -290,43 +290,45 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetNodeNames(
     &node_namespaces,
     &enclaves);
   RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "rcl_get_node_names_with_enclaves failed");
+  auto on_scope_exit = rcpputils::make_scope_exit(
+    [pnames = &node_names, pnamespaces = &node_namespaces, penclaves = &enclaves, env]() {
+      rcl_ret_t ret = rcutils_string_array_fini(pnames);
+      if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+        rcljava_throw_rclexception(env, ret, "failed to fini node names string array");
+      }
+      ret = rcutils_string_array_fini(pnamespaces);
+      if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+        rcljava_throw_rclexception(env, ret, "failed to fini node namespaces string array");
+      }
+      ret = rcutils_string_array_fini(penclaves);
+      if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+        rcljava_throw_rclexception(env, ret, "failed to fini enclaves string array");
+      }
+    }
+  );
 
   if (node_names.size != node_namespaces.size || node_names.size != enclaves.size) {
     rcljava_throw_exception(
       env,
       "java/lang/IllegalStateException",
       "names, namespaces and enclaves array leghts don't match");
-    goto cleanup;
+    return;
   }
 
   for (size_t i = 0; i < node_names.size; i++) {
     jstring jnode_name = env->NewStringUTF(node_names.data[i]);
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
     jstring jnode_namespace = env->NewStringUTF(node_namespaces.data[i]);
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
     jstring jenclave = env->NewStringUTF(enclaves.data[i]);
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
     jobject jitem = env->NewObject(node_info_clazz, node_info_init_mid);
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
     env->SetObjectField(jitem, name_fid, jnode_name);
     env->SetObjectField(jitem, namespace_fid, jnode_namespace);
     env->SetObjectField(jitem, enclave_fid, jenclave);
     env->CallBooleanMethod(jnode_names_info, list_add_mid, jitem);
-    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION_WITH_ERROR_STATEMENT(env, goto cleanup);
-  }
-
-cleanup:
-  ret = rcutils_string_array_fini(&node_names);
-  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
-    rcljava_throw_rclexception(env, ret, "failed to fini node names string array");
-  }
-  ret = rcutils_string_array_fini(&node_namespaces);
-  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
-    rcljava_throw_rclexception(env, ret, "failed to fini node namespaces string array");
-  }
-  ret = rcutils_string_array_fini(&enclaves);
-  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
-    rcljava_throw_rclexception(env, ret, "failed to fini enclaves string array");
+    RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   }
 }
 

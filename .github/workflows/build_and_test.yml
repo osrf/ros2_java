@@ -14,7 +14,7 @@ jobs:
     - uses: ros-tooling/setup-ros@0.0.25
       with:
         required-ros-distributions: foxy
-    - uses: jacobperron/action-ros-ci@remove_vcs_dir
+    - uses: ros-tooling/action-ros-ci@master
       with:
         package-name: rosidl_generator_java rcljava_common rcljava
         target-ros2-distro: foxy

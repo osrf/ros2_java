@@ -47,17 +47,13 @@ public class NodeNameInfo {
   /// Default constructor, used from jni.
   private NodeNameInfo() {}
 
-  /// Used to create a NodeNameInfo object from jni code.
-  private native final void nativeFromRCL(
-    long namesHandle, long namespacesHandle, long enclavesHandle);
-
   @Override
   public boolean equals(Object o) {
     if (o == this) {
       return true;
     }
     if (!(o instanceof NodeNameInfo)) {
-        return false;
+      return false;
     }
     NodeNameInfo other = (NodeNameInfo) o;
     return Objects.equals(this.name, other.name) &&
@@ -67,16 +63,6 @@ public class NodeNameInfo {
 
   @Override
   public int hashCode() {
-      return Objects.hash(this.name, this.namespace, this.enclave);
-  }
-
-  private static final Logger logger = LoggerFactory.getLogger(NodeNameInfo.class);
-  static {
-    try {
-      JNIUtils.loadImplementation(NodeNameInfo.class);
-    } catch (UnsatisfiedLinkError ule) {
-      logger.error("Native code library failed to load.\n" + ule);
-      System.exit(1);
-    }
+    return Objects.hash(this.name, this.namespace, this.enclave);
   }
 }

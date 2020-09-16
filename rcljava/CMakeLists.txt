@@ -62,7 +62,6 @@ set(${PROJECT_NAME}_jni_sources
   "src/main/cpp/org_ros2_rcljava_executors_BaseExecutor.cpp"
   "src/main/cpp/org_ros2_rcljava_events_EventHandlerImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_graph_EndpointInfo"
-  "src/main/cpp/org_ros2_rcljava_graph_NodeNameInfo.cpp"
   "src/main/cpp/org_ros2_rcljava_publisher_statuses_LivelinessLost.cpp"
   "src/main/cpp/org_ros2_rcljava_publisher_statuses_OfferedDeadlineMissed.cpp"
   "src/main/cpp/org_ros2_rcljava_publisher_statuses_OfferedQosIncompatible.cpp"

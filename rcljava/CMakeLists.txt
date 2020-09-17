@@ -216,6 +216,7 @@ ament_export_jars("share/${PROJECT_NAME}/java/${PROJECT_NAME}.jar")
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(std_msgs REQUIRED)
+  find_package(mockito_vendor REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
   set(${PROJECT_NAME}_message_files
@@ -272,6 +273,7 @@ if(BUILD_TESTING)
     "src/test/java/org/ros2/rcljava/publisher/PublisherTest.java"
     "src/test/java/org/ros2/rcljava/qos/QoSProfileTest.java"
     "src/test/java/org/ros2/rcljava/subscription/SubscriptionTest.java"
+    "src/test/java/org/ros2/rcljava/time/TimeSourceTest.java"
     "src/test/java/org/ros2/rcljava/timer/TimerTest.java"
   )
 
@@ -288,6 +290,7 @@ if(BUILD_TESTING)
     "org.ros2.rcljava.publisher.PublisherTest"
     "org.ros2.rcljava.qos.QoSProfileTest"
     "org.ros2.rcljava.subscription.SubscriptionTest"
+    "org.ros2.rcljava.time.TimeSourceTest"
     "org.ros2.rcljava.timer.TimerTest"
   )
 
@@ -358,6 +361,7 @@ if(BUILD_TESTING)
       "${builtin_interfaces_JARS}"
       "${rcl_interfaces_JARS}"
       "${rosgraph_msgs_JARS}"
+      "${mockito_vendor_JARS}"
       "${_${PROJECT_NAME}_jar_file}"
       "${_${PROJECT_NAME}_messages_jar_file}"
       APPEND_LIBRARY_DIRS

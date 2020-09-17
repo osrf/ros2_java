@@ -171,7 +171,7 @@ public final class TimeSource {
         for (ParameterVariant param : parameters) {
           if (param.getName() == "use_sim_time") {
             if (param.getType() == ParameterType.PARAMETER_BOOL) {
-              this.timeSource.rosTimeIsActive = param.asBool();
+              this.timeSource.setRosTimeIsActive(param.asBool());
             } else {
               result.setSuccessful(false);
               result.setReason("'use_sim_time' parameter must be a boolean");

@@ -70,7 +70,7 @@ public class TimerTest {
     Node node = RCLJava.createNode("test_node");
     RCLFuture<Boolean> future = new RCLFuture<Boolean>(new WeakReference<Node>(node));
     TimerCallback timerCallback = new TimerCallback(future, max_iterations);
-    WallTimer timer = node.createWallTimer(250, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(250, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     while (RCLJava.ok() && !future.isDone()) {

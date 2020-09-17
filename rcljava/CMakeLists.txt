@@ -65,7 +65,7 @@ set(${PROJECT_NAME}_jni_sources
   "src/main/cpp/org_ros2_rcljava_service_ServiceImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_subscription_SubscriptionImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_time_Clock.cpp"
-  "src/main/cpp/org_ros2_rcljava_timer_WallTimerImpl.cpp"
+  "src/main/cpp/org_ros2_rcljava_timer_TimerImpl.cpp"
 )
 
 foreach(_jni_source ${${PROJECT_NAME}_jni_sources})
@@ -167,6 +167,7 @@ set(${PROJECT_NAME}_sources
   "src/main/java/org/ros2/rcljava/time/ClockType.java"
   "src/main/java/org/ros2/rcljava/time/TimeSource.java"
   "src/main/java/org/ros2/rcljava/timer/Timer.java"
+  "src/main/java/org/ros2/rcljava/timer/TimerImpl.java"
   "src/main/java/org/ros2/rcljava/timer/WallTimer.java"
   "src/main/java/org/ros2/rcljava/timer/WallTimerImpl.java"
 )

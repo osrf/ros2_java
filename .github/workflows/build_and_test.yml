@@ -14,7 +14,7 @@ jobs:
     - uses: ros-tooling/setup-ros@0.0.25
       with:
         required-ros-distributions: foxy
-    - uses: ros-tooling/action-ros-ci@0.0.19
+    - uses: ros-tooling/action-ros-ci@master
       with:
         package-name: rosidl_generator_java rcljava_common rcljava
         target-ros2-distro: foxy

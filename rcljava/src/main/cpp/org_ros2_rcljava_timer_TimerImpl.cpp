@@ -27,19 +27,19 @@
 #include "rcljava_common/exceptions.hpp"
 #include "rcljava_common/signatures.hpp"
 
-#include "org_ros2_rcljava_timer_WallTimerImpl.h"
+#include "org_ros2_rcljava_timer_TimerImpl.h"
 
 using rcljava_common::exceptions::rcljava_throw_exception;
 using rcljava_common::signatures::convert_from_java_signature;
 using rcljava_common::signatures::destroy_ros_message_signature;
 
 JNIEXPORT jboolean JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeIsReady(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeIsReady(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   bool is_ready;
   rcl_ret_t ret = rcl_timer_is_ready(timer, &is_ready);
@@ -54,12 +54,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeIsReady(
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeIsCanceled(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeIsCanceled(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   bool is_canceled;
   rcl_ret_t ret = rcl_timer_is_canceled(timer, &is_canceled);
@@ -74,15 +74,15 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeIsCanceled(
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeDispose(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeDispose(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  if (wall_timer_handle == 0) {
+  if (timer_handle == 0) {
     // everything is ok, already destroyed
     return;
   }
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -96,11 +96,11 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeDispose(
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeReset(JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeReset(JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -114,12 +114,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeReset(JNIEnv * env, jclass, jlon
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeCancel(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeCancel(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -133,12 +133,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeCancel(
 }
 
 JNIEXPORT jlong JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeTimeUntilNextCall(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeTimeUntilNextCall(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -157,12 +157,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeTimeUntilNextCall(
 }
 
 JNIEXPORT jlong JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeTimeSinceLastCall(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeTimeSinceLastCall(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -181,12 +181,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeTimeSinceLastCall(
 }
 
 JNIEXPORT jlong JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeGetTimerPeriodNS(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeGetTimerPeriodNS(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -204,12 +204,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeGetTimerPeriodNS(
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeSetTimerPeriodNS(
-  JNIEnv * env, jclass, jlong wall_timer_handle, jlong timer_period)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeSetTimerPeriodNS(
+  JNIEnv * env, jclass, jlong timer_handle, jlong timer_period)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 
@@ -224,12 +224,12 @@ Java_org_ros2_rcljava_timer_WallTimerImpl_nativeSetTimerPeriodNS(
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_timer_WallTimerImpl_nativeCallTimer(
-  JNIEnv * env, jclass, jlong wall_timer_handle)
+Java_org_ros2_rcljava_timer_TimerImpl_nativeCallTimer(
+  JNIEnv * env, jclass, jlong timer_handle)
 {
-  assert(wall_timer_handle != 0);
+  assert(timer_handle != 0);
 
-  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(wall_timer_handle);
+  rcl_timer_t * timer = reinterpret_cast<rcl_timer_t *>(timer_handle);
 
   assert(timer != NULL);
 

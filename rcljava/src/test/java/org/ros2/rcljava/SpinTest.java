@@ -34,7 +34,7 @@ import org.ros2.rcljava.executors.Executor;
 import org.ros2.rcljava.executors.SingleThreadedExecutor;
 import org.ros2.rcljava.node.ComposableNode;
 import org.ros2.rcljava.node.Node;
-import org.ros2.rcljava.timer.WallTimer;
+import org.ros2.rcljava.timer.Timer;
 import org.ros2.rcljava.publisher.Publisher;
 import org.ros2.rcljava.qos.policies.Durability;
 import org.ros2.rcljava.qos.policies.History;
@@ -85,7 +85,7 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_once_node");
     TimerCallback timerCallback = new TimerCallback(0);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     ComposableNode composableNode = new ComposableNode() {
@@ -105,7 +105,7 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_once_timeout");
     TimerCallback timerCallback = new TimerCallback(0);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     ComposableNode composableNode = new ComposableNode() {
@@ -125,7 +125,7 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_once_timeout_too_short_node");
     TimerCallback timerCallback = new TimerCallback(0);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     ComposableNode composableNode = new ComposableNode() {
@@ -145,7 +145,7 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_some_node");
     TimerCallback timerCallback = new TimerCallback(0);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     ComposableNode composableNode = new ComposableNode() {
@@ -173,7 +173,7 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_some_max_duration_node");
     TimerCallback timerCallback = new TimerCallback(0);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     ComposableNode composableNode = new ComposableNode() {
@@ -201,8 +201,8 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_some_max_duration_multiple_timers_node");
     TimerCallback timerCallback = new TimerCallback(200);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
-    WallTimer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
     assertNotEquals(0, timer2.getHandle());
 
@@ -231,8 +231,8 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_some_max_duration_too_short_node");
     TimerCallback timerCallback = new TimerCallback(200);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
-    WallTimer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
     assertNotEquals(0, timer2.getHandle());
 
@@ -261,7 +261,7 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_all_node");
     TimerCallback timerCallback = new TimerCallback(0);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
 
     ComposableNode composableNode = new ComposableNode() {
@@ -290,8 +290,8 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_all_max_duration_multiple_timers_node");
     TimerCallback timerCallback = new TimerCallback(200);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
-    WallTimer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
     assertNotEquals(0, timer2.getHandle());
 
@@ -320,8 +320,8 @@ public class SpinTest {
     Executor executor = new SingleThreadedExecutor();
     final Node node = RCLJava.createNode("spin_all_max_duration_too_short_node");
     TimerCallback timerCallback = new TimerCallback(200);
-    WallTimer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
-    WallTimer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
+    Timer timer2 = node.createWallTimer(100, TimeUnit.MILLISECONDS, timerCallback);
     assertNotEquals(0, timer.getHandle());
     assertNotEquals(0, timer2.getHandle());
 

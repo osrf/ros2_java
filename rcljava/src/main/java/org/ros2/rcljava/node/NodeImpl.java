@@ -799,4 +799,15 @@ public class NodeImpl implements Node {
 
   private native static final void nativeGetSubscriptionsInfo(
     final long handle, final String topicName, ArrayList<EndpointInfo> endpointInfo);
+
+  public final Collection<NameAndTypes> getPublisherNamesAndTypesByNode(
+    String nodeName, String nodeNamespace)
+  {
+    Collection<NameAndTypes> namesAndTypes = new ArrayList();
+    nativeGetPublisherNamesAndTypesByNode(this.handle, nodeName, nodeNamespace, namesAndTypes);
+    return namesAndTypes;
+  }
+
+  private static native final Collection<NameAndTypes> nativeGetPublisherNamesAndTypesByNode(
+    long handle, String nodeName, String nodeNamespace, Collection<NameAndTypes> namesAndTypes);
 }

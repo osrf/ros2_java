@@ -598,4 +598,15 @@ public interface Node extends Disposable {
    *    passed topic.
    */
   Collection<EndpointInfo> getSubscriptionsInfo(final String topicName);
+
+  /**
+   * Return the publisher names and types that were created from the node specified by the given
+   * node name and namespace.
+   * See @{link graph#NameAndTypes} for more information about the returned value.
+   *
+   * @param nodeName name of the node we want to know its publishers.
+   * @param nodeNamespace namespace of the node we want to know its publishers.
+   * @return the detected publisher names and types.
+   */
+  Collection<NameAndTypes> getPublisherNamesAndTypesByNode(String nodeName, String nodeNamespace);
 }

@@ -42,6 +42,7 @@ import org.ros2.rcljava.RCLJava;
 import org.ros2.rcljava.client.Client;
 import org.ros2.rcljava.concurrent.RCLFuture;
 import org.ros2.rcljava.consumers.Consumer;
+import org.ros2.rcljava.consumers.BiConsumer;
 import org.ros2.rcljava.consumers.TriConsumer;
 import org.ros2.rcljava.executors.Executor;
 import org.ros2.rcljava.executors.MultiThreadedExecutor;
@@ -1174,5 +1175,90 @@ public class NodeTest {
     validateEndpointInfo.accept(subscriptionsInfo);
     subscription.dispose();
     subscription2.dispose();
+  }
+
+  @Test
+  public final void testGetPublisherNamesAndTypesByNode() throws Exception {
+    final Node remoteNode = RCLJava.createNode("test_get_publisher_names_and_types_remote_node");
+    Publisher<rcljava.msg.UInt32> publisher1 = node.<rcljava.msg.UInt32>createPublisher(
+      rcljava.msg.UInt32.class, "test_get_publisher_names_and_types_one");
+    Publisher<rcljava.msg.UInt32> publisher2 = node.<rcljava.msg.UInt32>createPublisher(
+      rcljava.msg.UInt32.class, "test_get_publisher_names_and_types_two");
+    Publisher<rcljava.msg.UInt32> publisher3 = remoteNode.<rcljava.msg.UInt32>createPublisher(
+      rcljava.msg.UInt32.class, "test_get_publisher_names_and_types_two");
+    Publisher<rcljava.msg.UInt32> publisher4 = remoteNode.<rcljava.msg.UInt32>createPublisher(
+      rcljava.msg.UInt32.class, "test_get_publisher_names_and_types_three");
+    Subscription<rcljava.msg.Empty> subscription = node.<rcljava.msg.Empty>createSubscription(
+      rcljava.msg.Empty.class, "test_get_topic_names_and_types_this_should_not_appear",
+      new Consumer<rcljava.msg.Empty>() {
+        public void accept(final rcljava.msg.Empty msg) {}
+      });
+
+    BiConsumer<Collection<NameAndTypes>, Collection<NameAndTypes>> validateNameAndTypes =
+    new BiConsumer<Collection<NameAndTypes>, Collection<NameAndTypes>>() {
+      public void accept(final Collection<NameAndTypes> local, Collection<NameAndTypes> remote) {
+        // TODO(ivanpauno): Using assertj may help a lot here https://assertj.github.io/doc/.
+        assertEquals(local.size(), 2);
+        assertTrue(
+          "topic 'test_get_publisher_names_and_types_one' was not discovered for local node",
+          local.contains(
+            new NameAndTypes(
+              "/test_get_publisher_names_and_types_one",
+              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+        assertTrue(
+          "topic 'test_get_publisher_names_and_types_two' was not discovered for local node",
+          local.contains(
+            new NameAndTypes(
+              "/test_get_publisher_names_and_types_two",
+              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+
+        assertEquals(remote.size(), 2);
+        assertTrue(
+          "topic 'test_get_publisher_names_and_types_two' was not discovered for remote node",
+          remote.contains(
+            new NameAndTypes(
+              "/test_get_publisher_names_and_types_two",
+              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+        assertTrue(
+          "topic 'test_get_publisher_names_and_types_three' was not discovered for remote node",
+          remote.contains(
+            new NameAndTypes(
+              "/test_get_publisher_names_and_types_three",
+              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+      }
+    };
+
+    long start = System.currentTimeMillis();
+    boolean ok = false;
+    Collection<NameAndTypes> local = null;
+    Collection<NameAndTypes> remote = null;
+    do {
+      local = this.node.getPublisherNamesAndTypesByNode("test_node", "/");
+      remote = this.node.getPublisherNamesAndTypesByNode(
+        "test_get_publisher_names_and_types_remote_node", "/");
+      try {
+        validateNameAndTypes.accept(local, remote);
+        ok = true;
+      } catch (AssertionError err) {
+        // ignore here, it's going to be validated again at the end.
+      }
+      // TODO(ivanpauno): We could wait for the graph guard condition to be triggered if that
+      // would be available.
+      try {
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (InterruptedException err) {
+        // ignore
+      }
+    } while (!ok && System.currentTimeMillis() < start + 1000);
+    assertNotNull(local);
+    assertNotNull(remote);
+    validateNameAndTypes.accept(local, remote);
+
+    publisher1.dispose();
+    publisher2.dispose();
+    publisher3.dispose();
+    publisher4.dispose();
+    subscription.dispose();
+    remoteNode.dispose();
   }
 }

@@ -23,4 +23,18 @@ public interface Timer extends Disposable {
   void executeCallback();
 
   boolean isReady();
+
+  long getTimerPeriodNS();
+
+  void setTimerPeriodNS(long period);
+
+  boolean isCanceled();
+
+  void cancel();
+
+  void reset();
+
+  long timeSinceLastCall();
+
+  long timeUntilNextCall();
 }

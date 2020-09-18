@@ -47,6 +47,7 @@ import org.ros2.rcljava.time.Clock;
 import org.ros2.rcljava.time.ClockType;
 import org.ros2.rcljava.time.TimeSource;
 import org.ros2.rcljava.timer.Timer;
+import org.ros2.rcljava.timer.TimerImpl;
 import org.ros2.rcljava.timer.WallTimer;
 import org.ros2.rcljava.timer.WallTimerImpl;
 
@@ -97,6 +98,11 @@ public class NodeImpl implements Node {
    * The clock used by this node.
    */
   private Clock clock;
+
+  /**
+   * The clock used for creating wall timers.
+   */
+  private Clock wall_clock;
 
   private TimeSource timeSource;
 
@@ -158,6 +164,7 @@ public class NodeImpl implements Node {
     this.parameterCallbacksMutex = new Object();
     this.parameterCallbacks = new ArrayList<ParameterCallback>();
     this.clock = new Clock(ClockType.ROS_TIME);
+    this.wall_clock = new Clock(ClockType.STEADY_TIME);
     this.timeSource = new TimeSource(this);
     this.timeSource.attachClock(this.clock);
   }
@@ -413,14 +420,26 @@ public class NodeImpl implements Node {
 
   private static native long nativeCreateTimerHandle(long clockHandle, long contextHandle, long timerPeriod);
 
-  public WallTimer createWallTimer(
-      final long period, final TimeUnit unit, final Callback callback) {
+  private Timer createTimer(Clock clock, final long period, final TimeUnit unit, final Callback callback) {
     long timerPeriodNS = TimeUnit.NANOSECONDS.convert(period, unit);
-    long timerHandle = nativeCreateTimerHandle(clock.getHandle(), context.getHandle(), timerPeriodNS);
-    WallTimer timer =
-        new WallTimerImpl(new WeakReference<Node>(this), timerHandle, callback, timerPeriodNS);
+    long timerHandle = nativeCreateTimerHandle(clock.getHandle(), this.context.getHandle(), timerPeriodNS);
+    WallTimer timer = new WallTimerImpl(new WeakReference<Node>(this), timerHandle, callback, timerPeriodNS);
     this.timers.add(timer);
     return timer;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public WallTimer createWallTimer(final long period, final TimeUnit unit, final Callback callback) {
+    return (WallTimer) this.createTimer(this.wall_clock, period, unit, callback);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Timer createTimer(final long period, final TimeUnit unit, final Callback callback) {
+    return this.createTimer(this.clock, period, unit, callback);
   }
 
   /**

@@ -17,18 +17,10 @@ package org.ros2.rcljava.timer;
 
 import org.ros2.rcljava.concurrent.Callback;
 
+/**
+ * @deprecated
+ * Use @{link Timer} interface instead.
+ */
+@Deprecated
 public interface WallTimer extends Timer {
-  long getTimerPeriodNS();
-
-  void setTimerPeriodNS(long period);
-
-  boolean isCanceled();
-
-  void cancel();
-
-  void reset();
-
-  long timeSinceLastCall();
-
-  long timeUntilNextCall();
 }

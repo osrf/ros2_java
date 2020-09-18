@@ -175,8 +175,30 @@ public interface Node extends Disposable {
    */
   boolean removeClient(final Client client);
 
-
+  /**
+   * Create a wall timer.
+   *
+   * A wall timer uses steady time.
+   * To create a timer that uses ROS time, see @{link Node#createTimer}.
+   *
+   * @param period Time between calls to the provided callback function.
+   * @param unit Time unit of the timer period.
+   * @param callback Function that is called when the timer expires.
+   * @return The created timer.
+   */
   WallTimer createWallTimer(final long period, final TimeUnit unit, final Callback callback);
+
+  /**
+   * Create a timer.
+   *
+   * The timer will use the same time source as the node, ie. ROS time.
+   *
+   * @param period Time between calls to the provided callback function.
+   * @param unit Time unit of the timer period.
+   * @param callback Function that is called when the timer expires.
+   * @return The created timer.
+   */
+  Timer createTimer(final long period, final TimeUnit unit, final Callback callback);
 
   /** Get the name of the node.
    *

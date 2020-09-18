@@ -126,11 +126,13 @@ public class ClientImpl<T extends ServiceDefinition> implements Client<T> {
    */
   public final void dispose() {
     Node node = this.nodeReference.get();
-    if (node != null) {
-      node.removeClient(this);
-      nativeDispose(node.getHandle(), this.handle);
-      this.handle = 0;
+    if (node == null) {
+      logger.error("Node reference is null. Failed to dispose of Client.");
+      return;
     }
+    node.removeClient(this);
+    nativeDispose(node.getHandle(), this.handle);
+    this.handle = 0;
   }
 
   /**

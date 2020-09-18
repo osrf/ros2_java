@@ -113,10 +113,12 @@ public class TimerImpl implements Timer {
 
   public void dispose() {
     Node node = this.nodeReference.get();
-    if (node != null) {
-      nativeDispose(this.handle);
-      this.handle = 0;
+    if (node == null) {
+      logger.error("Node reference is null. Failed to dispose of Timer.");
+      return;
     }
+    nativeDispose(this.handle);
+    this.handle = 0;
   }
 
   public void callTimer() {

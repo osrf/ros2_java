@@ -17,113 +17,19 @@ package org.ros2.rcljava.timer;
 
 import java.lang.ref.WeakReference;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.concurrent.Callback;
 import org.ros2.rcljava.node.Node;
+import org.ros2.rcljava.timer.TimerImpl;
+import org.ros2.rcljava.timer.WallTimer;
 
-public class WallTimerImpl implements WallTimer {
-  private static final Logger logger = LoggerFactory.getLogger(WallTimerImpl.class);
-
-  static {
-    try {
-      JNIUtils.loadImplementation(WallTimerImpl.class);
-    } catch (UnsatisfiedLinkError ule) {
-      logger.error("Native code library failed to load.\n" + ule);
-      System.exit(1);
-    }
-  }
-
-  private long timerPeriodNS;
-
-  private final WeakReference<Node> nodeReference;
-
-  private long handle;
-
-  private final Callback callback;
-
-  private static native boolean nativeIsReady(long handle);
-
-  private static native boolean nativeIsCanceled(long handle);
-
-  private static native long nativeTimeSinceLastCall(long handle);
-
-  private static native long nativeTimeUntilNextCall(long handle);
-
-  private static native long nativeReset(long handle);
-
-  private static native long nativeCancel(long handle);
-
-  private static native long nativeGetTimerPeriodNS(long handle);
-
-  private static native void nativeSetTimerPeriodNS(long handle, long period);
-
-  private static native long nativeCallTimer(long handle);
-
+/**
+ * @deprecated
+ * Use @{link TimerImpl} instead.
+ */
+@Deprecated
+public class WallTimerImpl extends TimerImpl implements WallTimer {
   public WallTimerImpl(final WeakReference<Node> nodeReference, final long handle,
       final Callback callback, final long timerPeriodNS) {
-    this.nodeReference = nodeReference;
-    this.handle = handle;
-    this.callback = callback;
-    this.timerPeriodNS = timerPeriodNS;
-  }
-
-  public long timeSinceLastCall() {
-    return nativeTimeSinceLastCall(this.handle);
-  }
-
-  public long timeUntilNextCall() {
-    return nativeTimeUntilNextCall(this.handle);
-  }
-
-  public void reset() {
-    nativeReset(this.handle);
-  }
-
-  public void cancel() {
-    nativeCancel(this.handle);
-  }
-
-  public boolean isCanceled() {
-    return nativeIsCanceled(this.handle);
-  }
-
-  public boolean isReady() {
-    return nativeIsReady(this.handle);
-  }
-
-  public void setTimerPeriodNS(final long timerPeriodNS) {
-    nativeSetTimerPeriodNS(this.handle, timerPeriodNS);
-    this.timerPeriodNS = timerPeriodNS;
-  }
-
-  public long getTimerPeriodNS() {
-    long timerPeriodNS = nativeGetTimerPeriodNS(this.handle);
-    this.timerPeriodNS = timerPeriodNS;
-    return this.timerPeriodNS;
-  }
-
-  public long getHandle() {
-    return this.handle;
-  }
-
-  private static native void nativeDispose(long handle);
-
-  public void dispose() {
-    Node node = this.nodeReference.get();
-    if (node != null) {
-      nativeDispose(this.handle);
-      this.handle = 0;
-    }
-  }
-
-  public void callTimer() {
-    nativeCallTimer(this.handle);
-  }
-
-  public void executeCallback() {
-    this.callback.call();
+    super(nodeReference, handle, callback, timerPeriodNS);
   }
 }

@@ -200,11 +200,13 @@ public class SubscriptionImpl<T extends MessageDefinition> implements Subscripti
     }
     this.eventHandlers.clear();
     Node node = this.nodeReference.get();
-    if (node != null) {
-      node.removeSubscription(this);
-      nativeDispose(node.getHandle(), this.handle);
-      this.handle = 0;
+    if (node == null) {
+      logger.error("Node reference is null. Failed to dispose of Subscription.");
+      return;
     }
+    node.removeSubscription(this);
+    nativeDispose(node.getHandle(), this.handle);
+    this.handle = 0;
   }
 
   public void executeCallback(T message) {

@@ -84,11 +84,13 @@ public class ServiceImpl<T extends ServiceDefinition> implements Service<T> {
    */
   public final void dispose() {
     Node node = this.nodeReference.get();
-    if (node != null) {
-      node.removeService(this);
-      nativeDispose(node.getHandle(), this.handle);
-      this.handle = 0;
+    if (node == null) {
+      logger.error("Node reference is null. Failed to dispose of Service.");
+      return;
     }
+    node.removeService(this);
+    nativeDispose(node.getHandle(), this.handle);
+    this.handle = 0;
   }
 
   /**

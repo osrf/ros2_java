@@ -549,9 +549,20 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetSubscriptionNamesAndTypesByNode(
   }
 
   const char * name = env->GetStringUTFChars(jname, NULL);
+  auto release_jname = rcpputils::make_scope_exit(
+    [jname, name, env]() {env->ReleaseStringUTFChars(jname, name);});
   const char * namespace_ = env->GetStringUTFChars(jnamespace, NULL);
+  auto release_jnamespace = rcpputils::make_scope_exit(
+    [jnamespace, namespace_, env]() {env->ReleaseStringUTFChars(jnamespace, namespace_);});
   rcl_allocator_t allocator = rcl_get_default_allocator();
   rcl_names_and_types_t subscription_names_and_types = rcl_get_zero_initialized_names_and_types();
+  auto fini_names_and_types = rcpputils::make_scope_exit(
+    [pnames_and_types = &subscription_names_and_types, env]() {
+      rcl_ret_t ret = rcl_names_and_types_fini(pnames_and_types);
+      if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+        rcljava_throw_rclexception(env, ret, "failed to fini publisher names and types structure");
+      }
+    });
 
   rcl_ret_t ret = rcl_get_subscriber_names_and_types_by_node(
     node,
@@ -560,15 +571,6 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetSubscriptionNamesAndTypesByNode(
     name,
     namespace_,
     &subscription_names_and_types);
-  RCLJAVA_COMMON_THROW_FROM_RCL_X(
-    env, ret, "failed to get subscription names and types", goto cleanup);
+  RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get subscription names and types");
   fill_jnames_and_types(env, subscription_names_and_types, jnames_and_types);
-
-cleanup:
-  env->ReleaseStringUTFChars(jname, name);
-  env->ReleaseStringUTFChars(jnamespace, namespace_);
-  ret = rcl_names_and_types_fini(&subscription_names_and_types);
-  if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
-    rcljava_throw_rclexception(env, ret, "failed to fini subscription names and types structure");
-  }
 }

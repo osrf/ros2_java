@@ -644,6 +644,6 @@ JNIEXPORT void JNICALL Java_org_ros2_rcljava_node_NodeImpl_nativeGetClientNamesA
     name,
     namespace_,
     &client_names_and_types);
-  RCLJAVA_COMMON_THROW_FROM_RCL_X(env, ret, "failed to get client names and types");
+  RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get client names and types");
   fill_jnames_and_types(env, client_names_and_types, jnames_and_types);
 }

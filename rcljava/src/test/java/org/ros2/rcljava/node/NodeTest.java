@@ -1354,4 +1354,122 @@ public class NodeTest {
     publisher.dispose();
     remoteNode.dispose();
   }
+
+  @Test
+  public final void testGetServiceNamesAndTypesByNode() throws Exception {
+    final Node remoteNode = RCLJava.createNode("test_get_service_names_and_types_remote_node");
+    Service<rcljava.srv.AddTwoInts> service1 = node.<rcljava.srv.AddTwoInts>createService(
+      rcljava.srv.AddTwoInts.class, "test_get_service_names_and_types_one",
+      new TriConsumer<
+        RMWRequestId, rcljava.srv.AddTwoInts_Request, rcljava.srv.AddTwoInts_Response>()
+      {
+        public final void accept(
+          final RMWRequestId header,
+          final rcljava.srv.AddTwoInts_Request request,
+          final rcljava.srv.AddTwoInts_Response response)
+        {}
+      });
+    Service<rcljava.srv.AddTwoInts> service2 = node.<rcljava.srv.AddTwoInts>createService(
+      rcljava.srv.AddTwoInts.class, "test_get_service_names_and_types_two",
+      new TriConsumer<
+        RMWRequestId, rcljava.srv.AddTwoInts_Request, rcljava.srv.AddTwoInts_Response>()
+      {
+        public final void accept(
+          final RMWRequestId header,
+          final rcljava.srv.AddTwoInts_Request request,
+          final rcljava.srv.AddTwoInts_Response response)
+        {}
+      });
+    Service<rcljava.srv.AddTwoInts> service3 = remoteNode.<rcljava.srv.AddTwoInts>createService(
+      rcljava.srv.AddTwoInts.class, "test_get_service_names_and_types_two",
+      new TriConsumer<
+        RMWRequestId, rcljava.srv.AddTwoInts_Request, rcljava.srv.AddTwoInts_Response>()
+      {
+        public final void accept(
+          final RMWRequestId header,
+          final rcljava.srv.AddTwoInts_Request request,
+          final rcljava.srv.AddTwoInts_Response response)
+        {}
+      });
+    Service<rcljava.srv.AddTwoInts> service4 = remoteNode.<rcljava.srv.AddTwoInts>createService(
+      rcljava.srv.AddTwoInts.class, "test_get_service_names_and_types_three",
+      new TriConsumer<
+        RMWRequestId, rcljava.srv.AddTwoInts_Request, rcljava.srv.AddTwoInts_Response>()
+      {
+        public final void accept(
+          final RMWRequestId header,
+          final rcljava.srv.AddTwoInts_Request request,
+          final rcljava.srv.AddTwoInts_Response response)
+        {}
+      });
+    Client<rcljava.srv.AddTwoInts> client = node.<rcljava.srv.AddTwoInts>createClient(
+      rcljava.srv.AddTwoInts.class, "test_get_service_names_and_types_this_should_not_appear");
+
+    BiConsumer<Collection<NameAndTypes>, Collection<NameAndTypes>> validateNameAndTypes =
+    new BiConsumer<Collection<NameAndTypes>, Collection<NameAndTypes>>() {
+      public void accept(final Collection<NameAndTypes> local, Collection<NameAndTypes> remote) {
+        // TODO(ivanpauno): Using assertj may help a lot here https://assertj.github.io/doc/.
+        assertEquals(local.size(), 2);
+        assertTrue(
+          "service 'test_get_service_names_and_types_one' was not discovered for local node",
+          local.contains(
+            new NameAndTypes(
+              "/test_get_service_names_and_types_one",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+        assertTrue(
+          "service 'test_get_service_names_and_types_two' was not discovered for local node",
+          local.contains(
+            new NameAndTypes(
+              "/test_get_service_names_and_types_two",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+
+        assertEquals(remote.size(), 2);
+        assertTrue(
+          "service 'test_get_service_names_and_types_two' was not discovered for remote node",
+          remote.contains(
+            new NameAndTypes(
+              "/test_get_service_names_and_types_two",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+        assertTrue(
+          "service 'test_get_service_names_and_types_three' was not discovered for remote node",
+          remote.contains(
+            new NameAndTypes(
+              "/test_get_service_names_and_types_three",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+      }
+    };
+
+    long start = System.currentTimeMillis();
+    boolean ok = false;
+    Collection<NameAndTypes> local = null;
+    Collection<NameAndTypes> remote = null;
+    do {
+      local = this.node.getServiceNamesAndTypesByNode("test_node", "/");
+      remote = this.node.getServiceNamesAndTypesByNode(
+        "test_get_service_names_and_types_remote_node", "/");
+      try {
+        validateNameAndTypes.accept(local, remote);
+        ok = true;
+      } catch (AssertionError err) {
+        // ignore here, it's going to be validated again at the end.
+      }
+      // TODO(ivanpauno): We could wait for the graph guard condition to be triggered if that
+      // would be available.
+      try {
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (InterruptedException err) {
+        // ignore
+      }
+    } while (!ok && System.currentTimeMillis() < start + 1000);
+    assertNotNull(local);
+    assertNotNull(remote);
+    validateNameAndTypes.accept(local, remote);
+
+    service1.dispose();
+    service2.dispose();
+    service3.dispose();
+    service4.dispose();
+    client.dispose();
+    remoteNode.dispose();
+  }
 }

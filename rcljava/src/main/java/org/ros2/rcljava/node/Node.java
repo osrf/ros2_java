@@ -637,4 +637,16 @@ public interface Node extends Disposable {
    * @return the detected publisher names and types.
    */
   Collection<NameAndTypes> getPublisherNamesAndTypesByNode(String nodeName, String nodeNamespace);
+
+  /**
+   * Return the subscription names and types that were created from the node specified by the given
+   * node name and namespace.
+   * See @{link graph#NameAndTypes} for more information about the returned value.
+   *
+   * @param nodeName name of the node we want to know its subscriptions.
+   * @param nodeNamespace namespace of the node we want to know its subscriptions.
+   * @return the detected subscription names and types.
+   */
+  Collection<NameAndTypes> getSubscriptionNamesAndTypesByNode(
+    String nodeName, String nodeNamespace);
 }

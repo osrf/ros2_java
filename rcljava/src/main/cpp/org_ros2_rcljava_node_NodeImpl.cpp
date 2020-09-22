@@ -560,7 +560,7 @@ Java_org_ros2_rcljava_node_NodeImpl_nativeGetSubscriptionNamesAndTypesByNode(
     [pnames_and_types = &subscription_names_and_types, env]() {
       rcl_ret_t ret = rcl_names_and_types_fini(pnames_and_types);
       if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
-        rcljava_throw_rclexception(env, ret, "failed to fini publisher names and types structure");
+        rcljava_throw_rclexception(env, ret, "failed to fini subscription names and types structure");
       }
     });
 

@@ -849,4 +849,15 @@ public class NodeImpl implements Node {
 
   private static native final Collection<NameAndTypes> nativeGetServiceNamesAndTypesByNode(
     long handle, String nodeName, String nodeNamespace, Collection<NameAndTypes> namesAndTypes);
+
+  public final Collection<NameAndTypes> getClientNamesAndTypesByNode(
+    String nodeName, String nodeNamespace)
+  {
+    Collection<NameAndTypes> namesAndTypes = new ArrayList();
+    nativeGetClientNamesAndTypesByNode(this.handle, nodeName, nodeNamespace, namesAndTypes);
+    return namesAndTypes;
+  }
+
+  private static native final Collection<NameAndTypes> nativeGetClientNamesAndTypesByNode(
+    long handle, String nodeName, String nodeNamespace, Collection<NameAndTypes> namesAndTypes);
 }

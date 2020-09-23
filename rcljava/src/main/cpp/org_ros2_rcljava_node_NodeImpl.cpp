@@ -611,3 +611,39 @@ JNIEXPORT void JNICALL Java_org_ros2_rcljava_node_NodeImpl_nativeGetServiceNames
   RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get service names and types");
   fill_jnames_and_types(env, service_names_and_types, jnames_and_types);
 }
+
+JNIEXPORT void JNICALL Java_org_ros2_rcljava_node_NodeImpl_nativeGetClientNamesAndTypesByNode(
+  JNIEnv * env, jclass, jlong handle, jstring jname, jstring jnamespace, jobject jnames_and_types)
+{
+  rcl_node_t * node = reinterpret_cast<rcl_node_t *>(handle);
+  if (!node) {
+    rcljava_throw_exception(env, "java/lang/IllegalArgumentException", "node handle is NULL");
+    return;
+  }
+
+  const char * name = env->GetStringUTFChars(jname, NULL);
+  auto release_jname = rcpputils::make_scope_exit(
+    [jname, name, env]() {env->ReleaseStringUTFChars(jname, name);});
+  const char * namespace_ = env->GetStringUTFChars(jnamespace, NULL);
+  auto release_jnamespace = rcpputils::make_scope_exit(
+    [jnamespace, namespace_, env]() {env->ReleaseStringUTFChars(jnamespace, namespace_);});
+  rcl_allocator_t allocator = rcl_get_default_allocator();
+  rcl_names_and_types_t client_names_and_types = rcl_get_zero_initialized_names_and_types();
+  auto fini_names_and_types = rcpputils::make_scope_exit(
+    [pnames_and_types = &client_names_and_types, env]() {
+      rcl_ret_t ret = rcl_names_and_types_fini(pnames_and_types);
+      if (!env->ExceptionCheck() && RCL_RET_OK != ret) {
+        rcljava_throw_rclexception(
+          env, ret, "failed to fini client names and types structure");
+      }
+    });
+
+  rcl_ret_t ret = rcl_get_client_names_and_types_by_node(
+    node,
+    &allocator,
+    name,
+    namespace_,
+    &client_names_and_types);
+  RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "failed to get client names and types");
+  fill_jnames_and_types(env, client_names_and_types, jnames_and_types);
+}

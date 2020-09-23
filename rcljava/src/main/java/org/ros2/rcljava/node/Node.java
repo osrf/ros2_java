@@ -661,4 +661,16 @@ public interface Node extends Disposable {
    */
   Collection<NameAndTypes> getServiceNamesAndTypesByNode(
     String nodeName, String nodeNamespace);
+
+  /**
+   * Return the client names and types that were created from the node specified by the
+   * given node name and namespace.
+   * See @{link graph#NameAndTypes} for more information about the returned value.
+   *
+   * @param nodeName name of the node we want to know its clients.
+   * @param nodeNamespace namespace of the node we want to know its clients.
+   * @return the detected client names and types.
+   */
+  Collection<NameAndTypes> getClientNamesAndTypesByNode(
+    String nodeName, String nodeNamespace);
 }

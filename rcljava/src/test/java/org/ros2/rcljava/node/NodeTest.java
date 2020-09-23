@@ -1473,4 +1473,95 @@ public class NodeTest {
     client.dispose();
     remoteNode.dispose();
   }
+
+  @Test
+  public final void testGetClientNamesAndTypesByNode() throws Exception {
+    final Node remoteNode = RCLJava.createNode("test_get_client_names_and_types_remote_node");
+    Client<rcljava.srv.AddTwoInts> client1 = node.<rcljava.srv.AddTwoInts>createClient(
+      rcljava.srv.AddTwoInts.class, "test_get_client_names_and_types_one");
+    Client<rcljava.srv.AddTwoInts> client2 = node.<rcljava.srv.AddTwoInts>createClient(
+      rcljava.srv.AddTwoInts.class, "test_get_client_names_and_types_two");
+    Client<rcljava.srv.AddTwoInts> client3 = remoteNode.<rcljava.srv.AddTwoInts>createClient(
+      rcljava.srv.AddTwoInts.class, "test_get_client_names_and_types_two");
+    Client<rcljava.srv.AddTwoInts> client4 = remoteNode.<rcljava.srv.AddTwoInts>createClient(
+      rcljava.srv.AddTwoInts.class, "test_get_client_names_and_types_three");
+    Service<rcljava.srv.AddTwoInts> service = node.<rcljava.srv.AddTwoInts>createService(
+      rcljava.srv.AddTwoInts.class, "test_get_client_names_and_types_this_should_not_appear",
+      new TriConsumer<
+        RMWRequestId, rcljava.srv.AddTwoInts_Request, rcljava.srv.AddTwoInts_Response>()
+      {
+        public final void accept(
+          final RMWRequestId header,
+          final rcljava.srv.AddTwoInts_Request request,
+          final rcljava.srv.AddTwoInts_Response response)
+        {}
+      });
+
+    BiConsumer<Collection<NameAndTypes>, Collection<NameAndTypes>> validateNameAndTypes =
+    new BiConsumer<Collection<NameAndTypes>, Collection<NameAndTypes>>() {
+      public void accept(final Collection<NameAndTypes> local, Collection<NameAndTypes> remote) {
+        // TODO(ivanpauno): Using assertj may help a lot here https://assertj.github.io/doc/.
+        assertEquals(local.size(), 2);
+        assertTrue(
+          "client 'test_get_client_names_and_types_one' was not discovered for local node",
+          local.contains(
+            new NameAndTypes(
+              "/test_get_client_names_and_types_one",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+        assertTrue(
+          "client 'test_get_client_names_and_types_two' was not discovered for local node",
+          local.contains(
+            new NameAndTypes(
+              "/test_get_client_names_and_types_two",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+
+        assertEquals(remote.size(), 2);
+        assertTrue(
+          "client 'test_get_client_names_and_types_two' was not discovered for remote node",
+          remote.contains(
+            new NameAndTypes(
+              "/test_get_client_names_and_types_two",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+        assertTrue(
+          "client 'test_get_client_names_and_types_three' was not discovered for remote node",
+          remote.contains(
+            new NameAndTypes(
+              "/test_get_client_names_and_types_three",
+              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+      }
+    };
+
+    long start = System.currentTimeMillis();
+    boolean ok = false;
+    Collection<NameAndTypes> local = null;
+    Collection<NameAndTypes> remote = null;
+    do {
+      local = this.node.getClientNamesAndTypesByNode("test_node", "/");
+      remote = this.node.getClientNamesAndTypesByNode(
+        "test_get_client_names_and_types_remote_node", "/");
+      try {
+        validateNameAndTypes.accept(local, remote);
+        ok = true;
+      } catch (AssertionError err) {
+        // ignore here, it's going to be validated again at the end.
+      }
+      // TODO(ivanpauno): We could wait for the graph guard condition to be triggered if that
+      // would be available.
+      try {
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (InterruptedException err) {
+        // ignore
+      }
+    } while (!ok && System.currentTimeMillis() < start + 1000);
+    assertNotNull(local);
+    assertNotNull(remote);
+    validateNameAndTypes.accept(local, remote);
+
+    client1.dispose();
+    client2.dispose();
+    client3.dispose();
+    client4.dispose();
+    service.dispose();
+    remoteNode.dispose();
+  }
 }

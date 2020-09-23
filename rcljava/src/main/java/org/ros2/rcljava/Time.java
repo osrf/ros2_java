@@ -60,6 +60,14 @@ public final class Time {
     this.nanoseconds = TimeUnit.SECONDS.toNanos(secs) + nanos;
   }
 
+  public builtin_interfaces.msg.Time toMsg() {
+    long seconds = this.nanoseconds / 1000000000;
+    long nanos = this.nanoseconds % 1000000000;
+    builtin_interfaces.msg.Time msg = new builtin_interfaces.msg.Time();
+    msg.setSec((int)seconds);
+    msg.setNanosec((int)nanos);
+    return msg;
+  }
 
   public long nanoseconds() {
     return nanoseconds;

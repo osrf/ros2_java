@@ -38,6 +38,16 @@ public class TimeTest {
   }
 
   @Test
+  public final void testTimeFromMsgConstructor() {
+    builtin_interfaces.msg.Time timeMsg = new builtin_interfaces.msg.Time();
+    timeMsg.setSec(42);
+    timeMsg.setNanosec(100);
+    Time time = new Time(timeMsg, ClockType.SYSTEM_TIME);
+    assertEquals(42000000100L, time.nanoseconds());
+    assertEquals(ClockType.SYSTEM_TIME, time.clockType());
+  }
+
+  @Test
   public final void testTimeNanos() {
     Time time = new Time(45, ClockType.SYSTEM_TIME);
     assertEquals(45, time.nanoseconds());
@@ -59,5 +69,30 @@ public class TimeTest {
   @Test(expected = IllegalArgumentException.class)
   public final void testTimeBadNanos() {
     Time time = new Time(0, -45, ClockType.SYSTEM_TIME);
+  }
+
+  @Test
+  public final void testTimeToMsg() {
+    {
+      Time time = new Time();
+      builtin_interfaces.msg.Time timeMsgOut = time.toMsg();
+      assertEquals(0, timeMsgOut.getSec());
+      assertEquals(0, timeMsgOut.getNanosec());
+    }
+    {
+      builtin_interfaces.msg.Time timeMsg = new builtin_interfaces.msg.Time();
+      timeMsg.setSec(42);
+      timeMsg.setNanosec(100);
+      Time time = new Time(timeMsg, ClockType.SYSTEM_TIME);
+      builtin_interfaces.msg.Time timeMsgOut = time.toMsg();
+      assertEquals(42, timeMsgOut.getSec());
+      assertEquals(100, timeMsgOut.getNanosec());
+    }
+    {
+      Time time = new Time(0, 45, ClockType.SYSTEM_TIME);
+      builtin_interfaces.msg.Time timeMsgOut = time.toMsg();
+      assertEquals(0, timeMsgOut.getSec());
+      assertEquals(45, timeMsgOut.getNanosec());
+    }
   }
 }

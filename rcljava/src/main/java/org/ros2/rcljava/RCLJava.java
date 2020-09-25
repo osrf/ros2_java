@@ -154,12 +154,20 @@ public final class RCLJava {
    *   This also initializes the default context.
    */
   public static synchronized void rclJavaInit() {
+    String args[] = {};
+    rclJavaInit(args);
+  }
+
+  /**
+   * Initialize the RCLJava API, passing command line arguments.
+   */
+  public static synchronized void rclJavaInit(String args[]) {
     if (RCLJava.ok()) {
       return;
     }
 
     // Initialize default context
-    getDefaultContext().init();
+    getDefaultContext().init(args);
 
     logger.info("Using RMW implementation: {}", RCLJava.getRMWIdentifier());
   }

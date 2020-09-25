@@ -14,7 +14,9 @@
 
 #include <jni.h>
 
+#include <limits>
 #include <string>
+#include <sstream>
 
 #include "rcl/context.h"
 #include "rcl/error_handling.h"
@@ -25,6 +27,7 @@
 
 #include "org_ros2_rcljava_contexts_ContextImpl.h"
 
+using rcljava_common::exceptions::rcljava_throw_exception;
 using rcljava_common::exceptions::rcljava_throw_rclexception;
 
 JNIEXPORT jboolean JNICALL
@@ -36,7 +39,8 @@ Java_org_ros2_rcljava_contexts_ContextImpl_nativeIsValid(JNIEnv *, jclass, jlong
 }
 
 JNIEXPORT void JNICALL
-Java_org_ros2_rcljava_contexts_ContextImpl_nativeInit(JNIEnv * env, jclass, jlong context_handle)
+Java_org_ros2_rcljava_contexts_ContextImpl_nativeInit(
+  JNIEnv * env, jclass, jlong context_handle, jobjectArray jargs)
 {
   // TODO(jacobperron): Encapsulate init options into a Java class
   rcl_init_options_t init_options = rcl_get_zero_initialized_init_options();
@@ -49,8 +53,42 @@ Java_org_ros2_rcljava_contexts_ContextImpl_nativeInit(JNIEnv * env, jclass, jlon
   }
 
   rcl_context_t * context = reinterpret_cast<rcl_context_t *>(context_handle);
-  // TODO(esteve): parse args
-  ret = rcl_init(0, nullptr, &init_options, context);
+
+  // jsize should always fit in a size_t, so the following cast is safe.
+  const auto argc = static_cast<size_t>(env->GetArrayLength(jargs));
+  // rcl_init takes an int, check for overflow just in case
+  if (argc > static_cast<size_t>(std::numeric_limits<int>::max())) {
+    std::ostringstream oss(
+      "args length is longer than expected, maximum length is ", std::ios_base::ate);
+    oss << std::numeric_limits<int>::max();
+    rcljava_throw_exception(
+      env, "java/lang/IllegalArgumentException", oss.str().c_str());
+    return;
+  }
+  const char ** argv = nullptr;
+  if (argc) {
+    argv = static_cast<const char **>(malloc(argc * sizeof(char *)));
+    for (size_t i = 0; i < argc; ++i) {
+      auto item = static_cast<jstring>(env->GetObjectArrayElement(jargs, i));
+      // an exception here should never happen,
+      // as the only possible exception is array out of bounds
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+      argv[i] = env->GetStringUTFChars(item, NULL);
+    }
+  }
+
+  ret = rcl_init(static_cast<int>(argc), argv, &init_options, context);
+  if (argc) {
+    for (size_t i = 0; i < argc; ++i) {
+      auto item = static_cast<jstring>(env->GetObjectArrayElement(jargs, i));
+      // an exception here should never happen,
+      // as the only possible exception is array out of bounds
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+      env->ReleaseStringUTFChars(item, argv[i]);
+      argv[i] = env->GetStringUTFChars(item, NULL);
+    }
+    free(argv);
+  }
   if (RCL_RET_OK != ret) {
     std::string msg = "Failed to init context: " + std::string(rcl_get_error_string().str);
     rcl_ret_t ignored_ret = rcl_init_options_fini(&init_options);

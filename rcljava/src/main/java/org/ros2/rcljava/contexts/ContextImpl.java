@@ -79,13 +79,21 @@ public class ContextImpl implements Context {
    *
    * @param contextHandle The pointer to the context structure.
    */
-  private static native void nativeInit(long contextHandle);
+  private static native void nativeInit(long contextHandle, String args[]);
 
   /**
    * {@inheritDoc}
    */
   public final void init() {
-    nativeInit(this.handle);
+    String args[] = {};
+    nativeInit(this.handle, args);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public final void init(String args[]) {
+    nativeInit(this.handle, args);
   }
 
   /**

@@ -27,7 +27,8 @@ extern "C" {
  * Signature: (J)V
  */
 JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_contexts_ContextImpl_nativeInit(JNIEnv *, jclass, jlong);
+JNICALL Java_org_ros2_rcljava_contexts_ContextImpl_nativeInit(
+  JNIEnv *, jclass, jlong, jobjectArray);
 
 /*
  * Class:     org_ros2_rcljava_contexts_ContextImpl

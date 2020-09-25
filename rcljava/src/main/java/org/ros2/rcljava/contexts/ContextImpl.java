@@ -61,10 +61,14 @@ public class ContextImpl implements Context {
    * {@inheritDoc}
    */
   public final void dispose() {
-    // Ensure the context is shutdown first
-    shutdown();
-    nativeDispose(this.handle);
-    this.handle = 0;
+    if (0 != this.handle) {
+      // Ensure the context is shutdown first.
+      if (this.isValid()) {
+        shutdown();
+      }
+      nativeDispose(this.handle);
+      this.handle = 0;
+    }
   }
 
   /**

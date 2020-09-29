@@ -15,5 +15,4 @@
 
 package org.ros2.rcljava.parameters.service;
 
-// TODO(ivanpauno): What is this interface for?
 public interface ParameterService {}

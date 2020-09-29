@@ -136,11 +136,9 @@ Java_org_ros2_rcljava_contexts_ContextImpl_nativeDispose(JNIEnv * env, jclass, j
 
   rcl_context_t * context = reinterpret_cast<rcl_context_t *>(context_handle);
 
-  // NOLINT, link too long
   // TODO(ivanpauno): Currently, calling `rcl_context_fini` in a zero initialized context fails:
-  // https://github.com/ros2/rcl/blob/5b16dc99f45a85961fb86190629eeec3d9037086/rcl/src/rcl/context.c#L52-L53
-  // That's incongruent with most other rcl objects, and it shouldn't be the case.
-  // Open a bug report in `rcl`.
+  // That's incongruent with most other rcl objects.
+  // rcl issue: https://github.com/ros2/rcl/issues/814
 
   if (!context->impl) {
     return;

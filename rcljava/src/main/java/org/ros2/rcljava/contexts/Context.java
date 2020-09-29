@@ -32,7 +32,7 @@ import org.ros2.rcljava.interfaces.Disposable;
 public interface Context extends Disposable {
   /**
    * Initialize the context.
-   * // TODO(jacobperron): Pass arguments for parsing
+   * // TODO(jacobperron): Pass in InitOptions object
    */
   void init();
 

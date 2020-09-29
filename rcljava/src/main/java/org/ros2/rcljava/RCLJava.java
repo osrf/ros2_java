@@ -262,13 +262,14 @@ public final class RCLJava {
   /**
    * Create a @{link Node}.
    *
+   * @deprecated Use `RCLJava.createNode(nodeName, namespace, new NodeOptions.setContext(context))` instead.
    * @param nodeName The name that will identify this node in a ROS2 graph.
    * @param namespace The namespace of the node.
    * @param context Context used for creating the node, @link{RCLJava.getDefaultContext()} will be used if `null`.
    * @return A @{link Node} that represents the underlying ROS2 node
    *     structure.
    */
-  // TODO(ivanpauno): Deprecate in favor of @link{RCLJava.createNode(name, namespace, nodeOptionsWithContext)}.
+  @Deprecated
   public static Node createNode(final String nodeName, final String namespace, final Context context) {
     return createNode(nodeName, namespace, new NodeOptions().setContext(context));
   }

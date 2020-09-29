@@ -61,10 +61,14 @@ public class ContextImpl implements Context {
    * {@inheritDoc}
    */
   public final void dispose() {
-    // Ensure the context is shutdown first
-    shutdown();
-    nativeDispose(this.handle);
-    this.handle = 0;
+    if (0 != this.handle) {
+      // Ensure the context is shutdown first.
+      if (this.isValid()) {
+        shutdown();
+      }
+      nativeDispose(this.handle);
+      this.handle = 0;
+    }
   }
 
   /**
@@ -79,13 +83,21 @@ public class ContextImpl implements Context {
    *
    * @param contextHandle The pointer to the context structure.
    */
-  private static native void nativeInit(long contextHandle);
+  private static native void nativeInit(long contextHandle, String args[]);
 
   /**
    * {@inheritDoc}
    */
   public final void init() {
-    nativeInit(this.handle);
+    String args[] = {};
+    nativeInit(this.handle, args);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public final void init(String args[]) {
+    nativeInit(this.handle, args);
   }
 
   /**

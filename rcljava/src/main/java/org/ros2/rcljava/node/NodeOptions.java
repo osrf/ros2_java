@@ -17,18 +17,15 @@ package org.ros2.rcljava.node;
 
 import java.util.ArrayList;
 
-public class NodeOptions {
-  private boolean useGlobalArguments;
-  private boolean enableRosout;
-  private boolean allowUndeclaredParameters;
-  private ArrayList<String> cliArgs;
+import org.ros2.rcljava.contexts.Context;
 
-  public NodeOptions() {
-    this.useGlobalArguments = true;
-    this.enableRosout = true;
-    this.allowUndeclaredParameters = false;
-    this.cliArgs = new ArrayList<String>();
-  }
+public class NodeOptions {
+  private boolean useGlobalArguments = true;
+  private boolean enableRosout = true;
+  private boolean allowUndeclaredParameters = false;
+  private boolean startParameterServices = true;
+  private Context context = null;
+  private ArrayList<String> cliArgs = new ArrayList<String>();
 
   public final boolean getUseGlobalArguments() {
     return this.useGlobalArguments;
@@ -54,6 +51,24 @@ public class NodeOptions {
 
   public NodeOptions setAllowUndeclaredParameters(boolean allow) {
     this.allowUndeclaredParameters = allow;
+    return this;
+  }
+
+  public final boolean getStartParameterServices() {
+    return this.startParameterServices;
+  }
+
+  public NodeOptions setStartParameterServices(boolean startParameterServices) {
+    this.startParameterServices = startParameterServices;
+    return this;
+  }
+
+  public final Context getContext() {
+    return this.context;
+  }
+
+  public NodeOptions setContext(Context context) {
+    this.context = context;
     return this;
   }
 

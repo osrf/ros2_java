@@ -46,7 +46,7 @@ public class NodeOptionsTest {
   public final void testCreateNodeWithArgs() {
     NodeOptions options = new NodeOptions();
     options.setCliArgs(new ArrayList<String>(Arrays.asList("--ros-args", "-r", "__ns:=/foo")));
-    Node node = RCLJava.createNode("test_node", "", RCLJava.getDefaultContext(), options);
+    Node node = RCLJava.createNode("test_node", "", options);
     assertEquals("test_node", node.getName());
     assertEquals("/foo", node.getNamespace());
 

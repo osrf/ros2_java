@@ -244,7 +244,7 @@ public final class RCLJava {
    *     structure.
    */
   public static Node createNode(final String nodeName) {
-    return createNode(nodeName, "", RCLJava.getDefaultContext(), new NodeOptions());
+    return createNode(nodeName, "", new NodeOptions());
   }
 
   /**
@@ -255,13 +255,37 @@ public final class RCLJava {
    * @return A @{link Node} that represents the underlying ROS2 node
    *     structure.
    */
-  public static Node createNode(final String nodeName, final String namespace, final Context context) {
-    return createNode(nodeName, namespace, context, new NodeOptions());
+  public static Node createNode(final String nodeName, final String namespace) {
+    return createNode(nodeName, namespace, new NodeOptions());
   }
 
-  public static Node createNode(final String nodeName, final String namespace, final Context context, final NodeOptions options) {
+  /**
+   * Create a @{link Node}.
+   *
+   * @param nodeName The name that will identify this node in a ROS2 graph.
+   * @param namespace The namespace of the node.
+   * @param context Context used for creating the node, @link{RCLJava.getDefaultContext()} will be used if `null`.
+   * @return A @{link Node} that represents the underlying ROS2 node
+   *     structure.
+   */
+  // TODO(ivanpauno): Deprecate in favor of @link{RCLJava.createNode(name, namespace, nodeOptionsWithContext)}.
+  public static Node createNode(final String nodeName, final String namespace, final Context context) {
+    return createNode(nodeName, namespace, new NodeOptions().setContext(context));
+  }
+
+  /**
+   * Create a @{link Node}.
+   *
+   * @param nodeName The name that will identify this node in a ROS2 graph.
+   * @param namespace The namespace of the node.
+   * @param options Additional options to customize the Node creation. See @link{org.ros2.rcljava.node.NodeOptions}.
+   * @return A @{link Node} that represents the underlying ROS2 node
+   *     structure.
+   */
+  public static Node createNode(final String nodeName, final String namespace, final NodeOptions options) {
+    Context context = options.getContext() == null ? RCLJava.getDefaultContext() : options.getContext();
     long nodeHandle = nativeCreateNodeHandle(nodeName, namespace, context.getHandle(), options.getCliArgs(), options.getUseGlobalArguments(), options.getEnableRosout());
-    Node node = new NodeImpl(nodeHandle, context, options.getAllowUndeclaredParameters());
+    Node node = new NodeImpl(nodeHandle, options);
     nodes.add(node);
     return node;
   }

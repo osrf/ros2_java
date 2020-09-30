@@ -26,6 +26,7 @@ import org.ros2.rcljava.graph.NodeNameInfo;
 import org.ros2.rcljava.contexts.Context;
 import org.ros2.rcljava.graph.EndpointInfo;
 import org.ros2.rcljava.graph.NameAndTypes;
+import org.ros2.rcljava.interfaces.Disposable;
 import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ServiceDefinition;
 import org.ros2.rcljava.node.NodeOptions;
@@ -418,10 +419,26 @@ public class NodeImpl implements Node {
    */
   private static native void nativeDispose(long handle);
 
+  private <T extends Disposable> void cleanupDisposables(Collection<T> disposables) {
+    for (Disposable disposable : disposables) {
+      disposable.dispose();
+    }
+    disposables.clear();
+  }
+
+  private void cleanup() {
+    cleanupDisposables(subscriptions);
+    cleanupDisposables(publishers);
+    cleanupDisposables(timers);
+    cleanupDisposables(services);
+    cleanupDisposables(clients);
+  }
+
   /**
    * {@inheritDoc}
    */
   public final void dispose() {
+    cleanup();
     nativeDispose(this.handle);
     this.handle = 0;
   }

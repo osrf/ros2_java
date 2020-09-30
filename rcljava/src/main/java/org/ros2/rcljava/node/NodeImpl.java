@@ -28,6 +28,7 @@ import org.ros2.rcljava.graph.EndpointInfo;
 import org.ros2.rcljava.graph.NameAndTypes;
 import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ServiceDefinition;
+import org.ros2.rcljava.node.NodeOptions;
 import org.ros2.rcljava.parameters.InvalidParametersException;
 import org.ros2.rcljava.parameters.InvalidParameterValueException;
 import org.ros2.rcljava.parameters.ParameterAlreadyDeclaredException;
@@ -35,6 +36,8 @@ import org.ros2.rcljava.parameters.ParameterCallback;
 import org.ros2.rcljava.parameters.ParameterNotDeclaredException;
 import org.ros2.rcljava.parameters.ParameterType;
 import org.ros2.rcljava.parameters.ParameterVariant;
+import org.ros2.rcljava.parameters.service.ParameterService;
+import org.ros2.rcljava.parameters.service.ParameterServiceImpl;
 import org.ros2.rcljava.publisher.Publisher;
 import org.ros2.rcljava.publisher.PublisherImpl;
 import org.ros2.rcljava.qos.QoSProfile;
@@ -146,15 +149,18 @@ public class NodeImpl implements Node {
   private Object parameterCallbacksMutex;
   private List<ParameterCallback> parameterCallbacks;
 
+  private final ParameterService parameterService;
+
   /**
    * Constructor.
    *
    * @param handle A pointer to the underlying ROS2 node structure. Must not
    *     be zero.
    */
-  public NodeImpl(final long handle, final Context context, final boolean allowUndeclaredParameters) {
+  public NodeImpl(final long handle, final NodeOptions nodeOptions) {
     this.handle = handle;
-    this.context = context;
+    this.context = nodeOptions.getContext() == null ?
+      RCLJava.getDefaultContext() : nodeOptions.getContext();
     this.publishers = new LinkedBlockingQueue<Publisher>();
     this.subscriptions = new LinkedBlockingQueue<Subscription>();
     this.services = new LinkedBlockingQueue<Service>();
@@ -162,13 +168,25 @@ public class NodeImpl implements Node {
     this.timers = new LinkedBlockingQueue<Timer>();
     this.parametersMutex = new Object();
     this.parameters = new ConcurrentHashMap<String, ParameterAndDescriptor>();
-    this.allowUndeclaredParameters = allowUndeclaredParameters;
+    this.allowUndeclaredParameters = nodeOptions.getAllowUndeclaredParameters();
     this.parameterCallbacksMutex = new Object();
     this.parameterCallbacks = new ArrayList<ParameterCallback>();
     this.clock = new Clock(ClockType.ROS_TIME);
     this.wall_clock = new Clock(ClockType.STEADY_TIME);
     this.timeSource = new TimeSource(this);
     this.timeSource.attachClock(this.clock);
+    try {
+      this.parameterService = nodeOptions.getStartParameterServices() ?
+        new ParameterServiceImpl(this) : null;
+    // TODO(ivanpauno): Modify createService, createClient so they don't declare
+    // NoSuchFieldException and IllegalAccessException checked exceptions.
+    // That only happens if the user passed the wrong Class object, and the exception should
+    // be rethrown as an unchecked IllegalArgumentException.
+    } catch (NoSuchFieldException ex) {
+      throw new IllegalArgumentException(ex.getMessage());
+    } catch (IllegalAccessException ex) {
+      throw new IllegalArgumentException(ex.getMessage());
+    }
   }
 
   /**

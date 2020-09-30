@@ -43,7 +43,7 @@ import org.ros2.rcljava.subscription.Subscription;
 import org.ros2.rcljava.timer.Timer;
 
 /**
- * Entry point for the ROS2 Java API, similar to the rclcpp API.
+ * Entry point for the ROS 2 Java API, similar to the rclcpp API.
  */
 public final class RCLJava {
   private static final Logger logger = LoggerFactory.getLogger(RCLJava.class);
@@ -132,7 +132,7 @@ public final class RCLJava {
 
   /**
    * Initialize the RCLJava API. If successful, a valid RMW implementation will
-   *   be loaded and accessible, enabling the creating of ROS2 entities
+   *   be loaded and accessible, enabling the creating of ROS 2 entities
    *   (@{link Node}s, @{link Publisher}s and @{link Subscription}s.
    *   This also initializes the default context.
    */
@@ -163,18 +163,18 @@ public final class RCLJava {
   private static native long nativeCreateContextHandle();
 
   /**
-   * Create a ROS2 node (rcl_node_t) and return a pointer to it as an integer.
+   * Create a ROS 2 node (rcl_node_t) and return a pointer to it as an integer.
    *
-   * @param nodeName The name that will identify this node in a ROS2 graph.
+   * @param nodeName The name that will identify this node in a ROS 2 graph.
    * @param namespace The namespace of the node.
    * @param contextHandle Pointer to a context (rcl_context_t) with which to associated the node.
-   * @return A pointer to the underlying ROS2 node structure.
+   * @return A pointer to the underlying ROS 2 node structure.
    */
   private static native long nativeCreateNodeHandle(String nodeName, String namespace, long contextHandle, ArrayList<String> arguments, boolean useGlobalArguments, boolean enableRosout);
 
   /**
    * @return The identifier of the currently active RMW implementation via the
-   *     native ROS2 API.
+   *     native ROS 2 API.
    */
   private static native String nativeGetRMWIdentifier();
 
@@ -186,7 +186,7 @@ public final class RCLJava {
   }
 
   /**
-   * Call the underlying ROS2 rcl mechanism to check if ROS2 has been shut
+   * Call the underlying ROS 2 rcl mechanism to check if ROS 2 has been shut
    *   down.
    *
    * @return true if RCLJava hasn't been shut down, false otherwise.
@@ -222,29 +222,50 @@ public final class RCLJava {
   /**
    * Create a @{link Node}.
    *
-   * @param nodeName The name that will identify this node in a ROS2 graph.
-   * @return A @{link Node} that represents the underlying ROS2 node
-   *     structure.
+   * @param nodeName The name that will identify this node in a ROS 2 graph.
+   * @return A @{link Node} that represents the underlying ROS 2 node structure.
    */
   public static Node createNode(final String nodeName) {
-    return createNode(nodeName, "", RCLJava.getDefaultContext(), new NodeOptions());
+    return createNode(nodeName, "", new NodeOptions());
   }
 
   /**
    * Create a @{link Node}.
    *
-   * @param nodeName The name that will identify this node in a ROS2 graph.
+   * @param nodeName The name that will identify this node in a ROS 2 graph.
    * @param namespace The namespace of the node.
-   * @return A @{link Node} that represents the underlying ROS2 node
-   *     structure.
+   * @return A @{link Node} that represents the underlying ROS 2 node structure.
    */
-  public static Node createNode(final String nodeName, final String namespace, final Context context) {
-    return createNode(nodeName, namespace, context, new NodeOptions());
+  public static Node createNode(final String nodeName, final String namespace) {
+    return createNode(nodeName, namespace, new NodeOptions());
   }
 
-  public static Node createNode(final String nodeName, final String namespace, final Context context, final NodeOptions options) {
+  /**
+   * Create a @{link Node}.
+   *
+   * @deprecated Use `RCLJava.createNode(nodeName, namespace, new NodeOptions.setContext(context))` instead.
+   * @param nodeName The name that will identify this node in a ROS 2 graph.
+   * @param namespace The namespace of the node.
+   * @param context Context used for creating the node, @link{RCLJava.getDefaultContext()} will be used if `null`.
+   * @return A @{link Node} that represents the underlying ROS 2 node structure.
+   */
+  @Deprecated
+  public static Node createNode(final String nodeName, final String namespace, final Context context) {
+    return createNode(nodeName, namespace, new NodeOptions().setContext(context));
+  }
+
+  /**
+   * Create a @{link Node}.
+   *
+   * @param nodeName The name that will identify this node in a ROS 2 graph.
+   * @param namespace The namespace of the node.
+   * @param options Additional options to customize the Node creation. See @link{org.ros2.rcljava.node.NodeOptions}.
+   * @return A @{link Node} that represents the underlying ROS 2 node structure.
+   */
+  public static Node createNode(final String nodeName, final String namespace, final NodeOptions options) {
+    Context context = options.getContext() == null ? RCLJava.getDefaultContext() : options.getContext();
     long nodeHandle = nativeCreateNodeHandle(nodeName, namespace, context.getHandle(), options.getCliArgs(), options.getUseGlobalArguments(), options.getEnableRosout());
-    Node node = new NodeImpl(nodeHandle, context, options.getAllowUndeclaredParameters());
+    Node node = new NodeImpl(nodeHandle, options);
     nodes.add(node);
     return node;
   }

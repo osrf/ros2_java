@@ -51,6 +51,7 @@ import org.ros2.rcljava.graph.EndpointInfo;
 import org.ros2.rcljava.graph.NameAndTypes;
 import org.ros2.rcljava.graph.NodeNameInfo;
 import org.ros2.rcljava.node.Node;
+import org.ros2.rcljava.node.NodeOptions;
 import org.ros2.rcljava.publisher.Publisher;
 import org.ros2.rcljava.qos.policies.Reliability;
 import org.ros2.rcljava.qos.QoSProfile;
@@ -125,7 +126,8 @@ public class NodeTest {
 
   @Before
   public void setUp() {
-    node = RCLJava.createNode("test_node");
+    node = RCLJava.createNode(
+      "test_node", "/", new NodeOptions().setStartParameterServices(false));
 
     primitives1 = new rcljava.msg.Primitives();
     primitives2 = new rcljava.msg.Primitives();
@@ -1358,7 +1360,9 @@ public class NodeTest {
 
   @Test
   public final void testGetServiceNamesAndTypesByNode() throws Exception {
-    final Node remoteNode = RCLJava.createNode("test_get_service_names_and_types_remote_node");
+    final Node remoteNode = RCLJava.createNode(
+      "test_get_service_names_and_types_remote_node", "/",
+      new NodeOptions().setStartParameterServices(false));
     Service<rcljava.srv.AddTwoInts> service1 = node.<rcljava.srv.AddTwoInts>createService(
       rcljava.srv.AddTwoInts.class, "test_get_service_names_and_types_one",
       new TriConsumer<
@@ -1476,7 +1480,9 @@ public class NodeTest {
 
   @Test
   public final void testGetClientNamesAndTypesByNode() throws Exception {
-    final Node remoteNode = RCLJava.createNode("test_get_client_names_and_types_remote_node");
+    final Node remoteNode = RCLJava.createNode(
+      "test_get_client_names_and_types_remote_node", "/",
+      new NodeOptions().setStartParameterServices(false));
     Client<rcljava.srv.AddTwoInts> client1 = node.<rcljava.srv.AddTwoInts>createClient(
       rcljava.srv.AddTwoInts.class, "test_get_client_names_and_types_one");
     Client<rcljava.srv.AddTwoInts> client2 = node.<rcljava.srv.AddTwoInts>createClient(

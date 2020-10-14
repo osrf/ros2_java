@@ -7,6 +7,7 @@ find_package(ament_cmake_export_jars REQUIRED)
 find_package(ament_cmake_export_jni_libraries REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(rcl REQUIRED)
+find_package(rcl_action REQUIRED)
 find_package(rcl_interfaces REQUIRED)
 find_package(rcljava_common REQUIRED)
 find_package(rmw REQUIRED)
@@ -57,6 +58,7 @@ endif()
 set(${PROJECT_NAME}_jni_sources
   "src/main/cpp/org_ros2_rcljava_RCLJava.cpp"
   "src/main/cpp/org_ros2_rcljava_Time.cpp"
+  "src/main/cpp/org_ros2_rcljava_action_ActionServerImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_client_ClientImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_contexts_ContextImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_detail_QosIncompatibleStatus.cpp"
@@ -106,6 +108,7 @@ foreach(_jni_source ${${PROJECT_NAME}_jni_sources})
 
   ament_target_dependencies(${_target_name}
     "rcl"
+    "rcl_action"
     "rcljava_common"
     "builtin_interfaces"
     "rcl_interfaces"
@@ -129,6 +132,13 @@ endforeach()
 set(${PROJECT_NAME}_sources
   "src/main/java/org/ros2/rcljava/RCLJava.java"
   "src/main/java/org/ros2/rcljava/Time.java"
+  "src/main/java/org/ros2/rcljava/action/CancelCallback.java"
+  "src/main/java/org/ros2/rcljava/action/CancelResponse.java"
+  "src/main/java/org/ros2/rcljava/action/GoalCallback.java"
+  "src/main/java/org/ros2/rcljava/action/GoalResponse.java"
+  "src/main/java/org/ros2/rcljava/action/ActionServer.java"
+  "src/main/java/org/ros2/rcljava/action/ActionServerGoalHandle.java"
+  "src/main/java/org/ros2/rcljava/action/ActionServerImpl.java"
   "src/main/java/org/ros2/rcljava/client/Client.java"
   "src/main/java/org/ros2/rcljava/client/ClientImpl.java"
   "src/main/java/org/ros2/rcljava/concurrent/Callback.java"

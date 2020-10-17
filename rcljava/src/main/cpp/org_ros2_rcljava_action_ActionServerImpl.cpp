@@ -65,7 +65,45 @@ Java_org_ros2_rcljava_action_ActionServerImpl_nativeDispose(
 
 JNIEXPORT jlong JNICALL
 Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
-  JNIEnv *, jobject, jlong node_handle, jclass action_type, jstring action_name)
+  JNIEnv * env,
+  jobject,
+  jlong node_handle,
+  jlong clock_handle,
+  jclass jaction_class,
+  jstring jaction_name)
 {
-  return 0;
+  jmethodID mid = env->GetStaticMethodID(jaction_class, "getActionTypeSupport", "()J");
+  assert(mid != NULL);
+
+  jlong jts = env->CallStaticLongMethod(jaction_class, mid);
+  assert(jts != 0);
+
+  const char * action_name = env->GetStringUTFChars(jaction_name, 0);
+
+  // std::string service_name(service_name_tmp);
+  // env->ReleaseStringUTFChars(jservice_name, service_name_tmp);
+
+  rcl_node_t * node = reinterpret_cast<rcl_node_t *>(node_handle);
+  rcl_clock_t * clock = reinterpret_cast<rcl_clock_t *>(clock_handle);
+
+  rosidl_action_type_support_t * ts = reinterpret_cast<rosidl_action_type_support_t *>(jts);
+
+  rcl_action_server_t * action_server = static_cast<rcl_action_server_t *>(
+    malloc(sizeof(rcl_action_server_t)));
+  *action_server = rcl_action_get_zero_initialized_server();
+  rcl_action_server_options_t action_server_ops = rcl_action_server_get_default_options();
+
+  rcl_ret_t ret = rcl_action_server_init(
+    action_server, node, clock, ts, action_name, &action_server_ops);
+  env->ReleaseStringUTFChars(jaction_name, action_name);
+
+  if (ret != RCL_RET_OK) {
+    std::string msg = "Failed to create action server: " + std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+    return 0;
+  }
+
+  jlong jaction_server = reinterpret_cast<jlong>(action_server);
+  return jaction_server;
 }

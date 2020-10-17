@@ -35,7 +35,7 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeDispose(JNIEnv *, jc
  */
 JNIEXPORT jlong
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
-  JNIEnv *, jobject, jlong, jclass, jstring);
+  JNIEnv *, jobject, jlong, jlong, jclass, jstring);
 
 #ifdef __cplusplus
 }

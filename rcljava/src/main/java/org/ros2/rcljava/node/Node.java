@@ -146,8 +146,8 @@ public interface Node extends Disposable {
   <T extends ActionDefinition> ActionServer<T> createActionServer(final Class<T> actionType,
       final String actionName,
       final GoalCallback<? extends MessageDefinition> goalCallback,
-      final CancelCallback<? extends ActionDefinition> cancelCallback,
-      final Consumer<ActionServerGoalHandle<? extends ActionDefinition>> acceptedCallback);
+      final CancelCallback<T> cancelCallback,
+      final Consumer<ActionServerGoalHandle<T>> acceptedCallback);
 
   /**
    * Remove a Subscription created by this Node.

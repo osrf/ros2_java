@@ -43,11 +43,11 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   private final String actionName;
   private long handle;
   private final GoalCallback<? extends MessageDefinition> goalCallback;
-  private final CancelCallback<? extends ActionDefinition> cancelCallback;
-  private final Consumer<ActionServerGoalHandle<? extends ActionDefinition>> acceptedCallback;
+  private final CancelCallback<T> cancelCallback;
+  private final Consumer<ActionServerGoalHandle<T>> acceptedCallback;
 
   private native long nativeCreateActionServer(
-    long nodeHandle, Class<T> cls, String actionName);
+    long nodeHandle, long clockHandle, Class<T> cls, String actionName);
 
   /**
    * Create an action server.
@@ -64,8 +64,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       final Class<T> actionType,
       final String actionName,
       final GoalCallback<? extends MessageDefinition> goalCallback,
-      final CancelCallback<? extends ActionDefinition> cancelCallback,
-      final Consumer<ActionServerGoalHandle<? extends ActionDefinition>> acceptedCallback) {
+      final CancelCallback<T> cancelCallback,
+      final Consumer<ActionServerGoalHandle<T>> acceptedCallback) {
     this.nodeReference = nodeReference;
     this.actionName = actionName;
     this.goalCallback = goalCallback;
@@ -77,7 +77,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       // TODO: throw
     }
 
-    this.handle = nativeCreateActionServer(node.getHandle(), actionType, actionName);
+    this.handle = nativeCreateActionServer(
+      node.getHandle(), node.getClock().getHandle(), actionType, actionName);
     // TODO(jacobperron): Introduce 'Waitable' interface for entities like timers, services, etc
     // node.addWaitable(this);
   }

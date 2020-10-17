@@ -403,8 +403,8 @@ public class NodeImpl implements Node {
   public <T extends ActionDefinition> ActionServer<T> createActionServer(final Class<T> actionType,
       final String actionName,
       final GoalCallback<? extends MessageDefinition> goalCallback,
-      final CancelCallback<? extends ActionDefinition> cancelCallback,
-      final Consumer<ActionServerGoalHandle<? extends ActionDefinition>> acceptedCallback) {
+      final CancelCallback<T> cancelCallback,
+      final Consumer<ActionServerGoalHandle<T>> acceptedCallback) {
     ActionServer<T> actionServer = new ActionServerImpl<T>(
         new WeakReference<Node>(this), actionType, actionName,
         goalCallback, cancelCallback, acceptedCallback);

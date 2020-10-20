@@ -12,6 +12,7 @@
   <buildtool_depend>ament_cmake_export_jni_libraries</buildtool_depend>
   <buildtool_depend>rcljava_common</buildtool_depend>
 
+  <build_depend>action_msgs</build_depend>
   <build_depend>builtin_interfaces</build_depend>
   <build_depend>rcl_interfaces</build_depend>
   <build_depend>rcl</build_depend>
@@ -20,6 +21,7 @@
   <build_depend>rmw</build_depend>
   <build_depend>rosidl_generator_c</build_depend>
   <build_depend>rosidl_typesupport_c</build_depend>
+  <build_depend>unique_identifier_msgs</build_depend>
   <build_export_depend>builtin_interfaces</build_export_depend>
   <build_export_depend>rcl_interfaces</build_export_depend>
   <build_export_depend>rmw</build_export_depend>
@@ -27,6 +29,7 @@
   <build_export_depend>rosidl_generator_java</build_export_depend>
   <build_export_depend>rosidl_typesupport_c</build_export_depend>
 
+  <exec_depend>action_msgs</exec_depend>
   <exec_depend>builtin_interfaces</exec_depend>
   <exec_depend>rcl_interfaces</exec_depend>
   <exec_depend>rcl</exec_depend>
@@ -35,6 +38,7 @@
   <exec_depend>rmw_implementation</exec_depend>
   <exec_depend>rosidl_generator_c</exec_depend>
   <exec_depend>rosidl_parser</exec_depend>
+  <exec_depend>unique_identifier_msgs</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

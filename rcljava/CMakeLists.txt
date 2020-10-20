@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rcljava)
 
+find_package(action_msgs REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_export_jars REQUIRED)
 find_package(ament_cmake_export_jni_libraries REQUIRED)
@@ -12,6 +13,7 @@ find_package(rcl_interfaces REQUIRED)
 find_package(rcljava_common REQUIRED)
 find_package(rmw REQUIRED)
 find_package(rmw_implementation_cmake REQUIRED)
+find_package(unique_identifier_msgs REQUIRED)
 
 include(CrossCompilingExtra)
 
@@ -57,6 +59,7 @@ endif()
 set(${PROJECT_NAME}_jni_sources
   "src/main/cpp/org_ros2_rcljava_RCLJava.cpp"
   "src/main/cpp/org_ros2_rcljava_Time.cpp"
+  "src/main/cpp/org_ros2_rcljava_action_ActionServerGoalHandle.cpp"
   "src/main/cpp/org_ros2_rcljava_action_ActionServerImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_client_ClientImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_contexts_ContextImpl.cpp"
@@ -100,6 +103,8 @@ foreach(_jni_source ${${PROJECT_NAME}_jni_sources})
     "rcljava_common"
     "builtin_interfaces"
     "rcl_interfaces"
+    "action_msgs"
+    "unique_identifier_msgs"
   )
 
   target_include_directories(${_target_name}
@@ -180,6 +185,8 @@ add_jar("${PROJECT_NAME}_jar"
   ${rcljava_common_JARS}
   ${builtin_interfaces_JARS}
   ${rcl_interfaces_JARS}
+  ${action_msgs_JARS}
+  ${unique_identifier_msgs_JARS}
 )
 
 install_jar("${PROJECT_NAME}_jar" "share/${PROJECT_NAME}/java")
@@ -218,6 +225,8 @@ if(BUILD_TESTING)
     DEPENDENCIES
     builtin_interfaces
     rcl_interfaces
+    action_msgs
+    unique_identifier_msgs
     ${_java_type_supports}
     SKIP_INSTALL
   )
@@ -234,6 +243,7 @@ if(BUILD_TESTING)
     "src/test/java/org/ros2/rcljava/RCLJavaTest.java"
     "src/test/java/org/ros2/rcljava/TimeTest.java"
     "src/test/java/org/ros2/rcljava/action/ActionServerTest.java"
+    "src/test/java/org/ros2/rcljava/action/MockActionClient.java"
     "src/test/java/org/ros2/rcljava/client/ClientTest.java"
     "src/test/java/org/ros2/rcljava/node/NodeTest.java"
     "src/test/java/org/ros2/rcljava/parameters/AsyncParametersClientTest.java"
@@ -292,6 +302,24 @@ if(BUILD_TESTING)
     list_append_unique(_deps_library_dirs ${_dep_dir})
   endforeach()
 
+  foreach(_dep_lib ${action_msgs_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+  foreach(_dep_lib ${action_msgs_JNI_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+
+  foreach(_dep_lib ${unique_identifier_msgs_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+  foreach(_dep_lib ${unique_identifier_msgs_JNI_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+
   foreach(_dep_lib ${test_msgs_LIBRARIES})
     get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
     list_append_unique(_deps_library_dirs ${_dep_dir})
@@ -316,12 +344,14 @@ if(BUILD_TESTING)
       TESTS
       "${testsuite}"
       INCLUDE_JARS
+      "${action_msgs_JARS}"
       "${rcljava_common_JARS}"
       "${rcljava_test_msgs_JARS}"
       "${std_msgs_JARS}"
       "${builtin_interfaces_JARS}"
       "${rcl_interfaces_JARS}"
       "${test_msgs_JARS}"
+      "${unique_identifier_msgs_JARS}"
       "${_${PROJECT_NAME}_jar_file}"
       "${_${PROJECT_NAME}_messages_jar_file}"
       APPEND_LIBRARY_DIRS

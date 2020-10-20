@@ -31,6 +31,7 @@ import org.ros2.rcljava.contexts.Context;
 import org.ros2.rcljava.qos.QoSProfile;
 import org.ros2.rcljava.interfaces.Disposable;
 import org.ros2.rcljava.interfaces.ActionDefinition;
+import org.ros2.rcljava.interfaces.GoalRequestDefinition;
 import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ServiceDefinition;
 import org.ros2.rcljava.parameters.ParameterType;
@@ -336,9 +337,9 @@ public class NodeImpl implements Node {
 
   public <T extends ActionDefinition> ActionServer<T> createActionServer(final Class<T> actionType,
       final String actionName,
-      final GoalCallback<? extends MessageDefinition> goalCallback,
+      final GoalCallback<? extends GoalRequestDefinition> goalCallback,
       final CancelCallback<T> cancelCallback,
-      final Consumer<ActionServerGoalHandle<T>> acceptedCallback) {
+      final Consumer<ActionServerGoalHandle<T>> acceptedCallback) throws IllegalArgumentException {
     ActionServer<T> actionServer = new ActionServerImpl<T>(
         new WeakReference<Node>(this), actionType, actionName,
         goalCallback, cancelCallback, acceptedCallback);

@@ -16,8 +16,49 @@
 package org.ros2.rcljava.action;
 
 import org.ros2.rcljava.interfaces.Disposable;
-// import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ActionDefinition;
 
 public interface ActionServer<T extends ActionDefinition> extends Disposable {
+
+  /**
+   * Get the number of underlying subscriptions that the action server uses.
+   *
+   * @return The number of subscriptions.
+   */
+  int getNumberOfSubscriptions();
+
+  /**
+   * Get the number of underlying timers that the action server uses.
+   *
+   * @return The number of timers.
+   */
+  int getNumberOfTimers();
+
+  /**
+   * Get the number of underlying clients that the action server uses.
+   *
+   * @return The number of clients.
+   */
+  int getNumberOfClients();
+
+  /**
+   * Get the number of underlying services that the action server uses.
+   *
+   * @return The number of services.
+   */
+  int getNumberOfServices();
+
+  /**
+   * Check if an entity of the action server is ready in the wait set.
+   *
+   * @param waitSetHandle Handle to the rcl wait set that this action server was added to.
+   *
+   * @return true if at least one entity is ready, false otherwise.
+   */
+  boolean isReady(long waitSetHandle);
+
+  /**
+   * Execute any entities that are ready in the underlying wait set.
+   */
+  void execute();
 }

@@ -15,6 +15,7 @@
 
 package org.ros2.rcljava.executors;
 
+import org.ros2.rcljava.action.ActionServer;
 import org.ros2.rcljava.client.Client;
 import org.ros2.rcljava.events.EventHandler;
 import org.ros2.rcljava.subscription.Subscription;
@@ -27,4 +28,5 @@ public class AnyExecutable {
   public Service service;
   public Client client;
   public EventHandler eventHandler;
+  public ActionServer actionServer;
 }

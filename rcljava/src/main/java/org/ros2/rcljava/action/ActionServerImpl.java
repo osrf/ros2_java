@@ -16,18 +16,159 @@
 package org.ros2.rcljava.action;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.ros2.rcljava.RCLJava;
 import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.consumers.Consumer;
 import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ActionDefinition;
+import org.ros2.rcljava.interfaces.GoalRequestDefinition;
+import org.ros2.rcljava.interfaces.GoalResponseDefinition;
 import org.ros2.rcljava.node.Node;
+import org.ros2.rcljava.service.RMWRequestId;
+import org.ros2.rcljava.time.Clock;
+import org.ros2.rcljava.Time;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ActionServerImpl<T extends ActionDefinition> implements ActionServer<T> {
+  static class GoalHandleImpl<T extends ActionDefinition>  implements ActionServerGoalHandle {
+    private static final Logger logger = LoggerFactory.getLogger(GoalHandleImpl.class);
+
+    static {
+      try {
+        JNIUtils.loadImplementation(GoalHandleImpl.class);
+      } catch (UnsatisfiedLinkError ule) {
+        logger.error("Native code library failed to load.\n" + ule);
+        System.exit(1);
+      }
+    }
+
+    private long handle;
+    private ActionServer<T> actionServer;
+    private action_msgs.msg.GoalInfo goalInfo;
+    private MessageDefinition goal;
+
+    private static native long nativeAcceptNewGoal(
+      long actionServerHandle,
+      long goalInfoFromJavaConverterHandle,
+      long goalInfoDestructorHandle,
+      MessageDefinition goalInfo);
+    private static native int nativeGetStatus(long goalHandle);
+    private static native void nativeGoalEventExecute(long goalHandle);
+    private static native void nativeGoalEventCancelGoal(long goalHandle);
+    private static native void nativeGoalEventSucceed(long goalHandle);
+    private static native void nativeGoalEventAbort(long goalHandle);
+    private static native void nativeGoalEventCanceled(long goalHandle);
+    private static native void nativeDispose(long handle);
+
+    public GoalHandleImpl(
+      ActionServer<T> actionServer, action_msgs.msg.GoalInfo goalInfo, MessageDefinition goal)
+    {
+      this.actionServer = actionServer;
+      this.goalInfo = goalInfo;
+      this.goal = goal;
+      long goalInfoFromJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
+      long goalInfoDestructorHandle = goalInfo.getDestructorInstance();
+      this.handle = nativeAcceptNewGoal(
+        actionServer.getHandle(),
+        goalInfoFromJavaConverterHandle,
+        goalInfoDestructorHandle,
+        goalInfo);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized action_msgs.msg.GoalInfo getGoalInfo() {
+      return this.goalInfo;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized MessageDefinition getGoal() {
+      return this.goal;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized GoalStatus getGoalStatus() {
+      int status = nativeGetStatus(this.handle);
+      return GoalStatus.fromMessageValue((byte)status);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized boolean isCanceling() {
+      return this.getGoalStatus() == GoalStatus.CANCELING;
+    }
+
+    /**
+     * Transition the goal to the EXECUTING state.
+     */
+    public synchronized void execute() {
+      // It's possible that there has been a request to cancel the goal prior to executing.
+      // In this case we want to avoid the illegal state transition to EXECUTING
+      // but still call the users execute callback to let them handle canceling the goal.
+      if (!this.isCanceling()) {
+        nativeGoalEventExecute(this.handle);
+      }
+      // self._action_server.notify_execute(self, execute_callback)
+    }
+
+    /**
+     * Transition the goal to the CANCELING state.
+     */
+    public synchronized void cancelGoal() {
+      nativeGoalEventCancelGoal(this.handle);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void succeed() {
+      nativeGoalEventSucceed(this.handle);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void canceled() {
+      nativeGoalEventCanceled(this.handle);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void abort() {
+      nativeGoalEventAbort(this.handle);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized final void dispose() {
+      nativeDispose(this.handle);
+      this.handle = 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized final long getHandle() {
+      return handle;
+    }
+  }  // class GoalHandleImpl
+
   private static final Logger logger = LoggerFactory.getLogger(ActionServerImpl.class);
 
   static {
@@ -40,11 +181,33 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   }
 
   private final WeakReference<Node> nodeReference;
+  private final Clock clock;
+  private final T actionTypeInstance;
   private final String actionName;
   private long handle;
-  private final GoalCallback<? extends MessageDefinition> goalCallback;
+  private final GoalCallback<? extends GoalRequestDefinition> goalCallback;
   private final CancelCallback<T> cancelCallback;
   private final Consumer<ActionServerGoalHandle<T>> acceptedCallback;
+
+  private boolean[] readyEntities;
+
+  private Map<List<Byte>, GoalHandleImpl<T>> goalHandles;
+
+  private boolean isGoalRequestReady() {
+    return this.readyEntities[0];
+  }
+
+  private boolean isCancelRequestReady() {
+    return this.readyEntities[1];
+  }
+
+  private boolean isResultRequestReady() {
+    return this.readyEntities[2];
+  }
+
+  private boolean isGoalExpiredReady() {
+    return this.readyEntities[3];
+  }
 
   private native long nativeCreateActionServer(
     long nodeHandle, long clockHandle, Class<T> cls, String actionName);
@@ -63,24 +226,326 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       final WeakReference<Node> nodeReference,
       final Class<T> actionType,
       final String actionName,
-      final GoalCallback<? extends MessageDefinition> goalCallback,
+      final GoalCallback<? extends GoalRequestDefinition> goalCallback,
       final CancelCallback<T> cancelCallback,
-      final Consumer<ActionServerGoalHandle<T>> acceptedCallback) {
+      final Consumer<ActionServerGoalHandle<T>> acceptedCallback) throws IllegalArgumentException {
     this.nodeReference = nodeReference;
+    try {
+      this.actionTypeInstance = actionType.newInstance();
+    } catch (Exception ex) {
+      throw new IllegalArgumentException("Failed to instantiate provided action type", ex);
+    }
     this.actionName = actionName;
     this.goalCallback = goalCallback;
     this.cancelCallback = cancelCallback;
     this.acceptedCallback = acceptedCallback;
 
+    this.goalHandles = new HashMap<List<Byte>, GoalHandleImpl<T>>();
+
     Node node = nodeReference.get();
-    if (node != null) {
-      // TODO: throw
+    if (node == null) {
+      throw new IllegalArgumentException("Node reference is null");
     }
+
+    this.clock = node.getClock();
 
     this.handle = nativeCreateActionServer(
       node.getHandle(), node.getClock().getHandle(), actionType, actionName);
     // TODO(jacobperron): Introduce 'Waitable' interface for entities like timers, services, etc
     // node.addWaitable(this);
+  }
+
+  private static native int nativeGetNumberOfSubscriptions(long handle);
+  private static native int nativeGetNumberOfTimers(long handle);
+  private static native int nativeGetNumberOfClients(long handle);
+  private static native int nativeGetNumberOfServices(long handle);
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getNumberOfSubscriptions() {
+    return nativeGetNumberOfSubscriptions(this.handle);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getNumberOfTimers() {
+    return nativeGetNumberOfTimers(this.handle);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getNumberOfClients() {
+    return nativeGetNumberOfClients(this.handle);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getNumberOfServices() {
+    return nativeGetNumberOfServices(this.handle);
+  }
+
+  private static native boolean[] nativeGetReadyEntities(
+    long actionServerHandle, long waitSetHandle);
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isReady(long waitSetHandle) {
+    this.readyEntities = nativeGetReadyEntities(this.handle, waitSetHandle);
+    for (boolean isReady : this.readyEntities) {
+      if (isReady) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  // public Collection<ActionServerGoalHandle<T>> getGoalHandles() {
+  //   return this.goalHandles.values();
+  // }
+
+  private ActionServerGoalHandle<T> executeGoalRequest(
+    RMWRequestId rmwRequestId,
+    GoalRequestDefinition requestMessage,
+    GoalResponseDefinition responseMessage)
+  {
+    builtin_interfaces.msg.Time timeRequestHandled = this.clock.now().toMsg();
+    responseMessage.setStamp(timeRequestHandled.getSec(), timeRequestHandled.getNanosec());
+
+    // Create and populate a GoalInfo message
+    List<Byte> goalUuid = requestMessage.getGoalUuid();
+    action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
+    unique_identifier_msgs.msg.UUID uuidMessage= new unique_identifier_msgs.msg.UUID();
+    uuidMessage.setUuid(goalUuid);
+    goalInfo.setGoalId(uuidMessage);
+    goalInfo.setStamp(timeRequestHandled);
+
+    long goalInfoFromJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
+    long goalInfoDestructorHandle = goalInfo.getDestructorInstance();
+
+    // Check that the goal ID isn't already being used
+    boolean goalExists = nativeCheckGoalExists(
+      this.handle, goalInfo, goalInfoFromJavaConverterHandle, goalInfoDestructorHandle);
+    if (goalExists) {
+      logger.warn("Received goal request for goal already being tracked by action server. Goal ID: " + goalUuid);
+      responseMessage.accept(false);
+      return null;
+    }
+
+    // Workaround type
+    GoalCallback<GoalRequestDefinition> callback = ((ActionServerImpl) this).goalCallback;
+    // Call user callback
+    GoalResponse response = callback.handleGoal(requestMessage);
+
+    boolean accepted = GoalResponse.ACCEPT == response;
+    responseMessage.accept(accepted);
+
+    System.out.println("Goal request handled " + accepted);
+    if (!accepted) {
+      return null;
+    }
+
+    // Create a goal handle and add it to the list of goals
+    GoalHandleImpl<T> goalHandle = new GoalHandleImpl<T>(
+      this, goalInfo, requestMessage.getGoal());
+    this.goalHandles.put(requestMessage.getGoalUuid(), goalHandle);
+    return goalHandle;
+  }
+
+  private action_msgs.srv.CancelGoal_Response executeCancelRequest(
+    action_msgs.srv.CancelGoal_Response inputMessage)
+  {
+    action_msgs.srv.CancelGoal_Response outputMessage = new action_msgs.srv.CancelGoal_Response();
+    outputMessage.setReturnCode(inputMessage.getReturnCode());
+    List<action_msgs.msg.GoalInfo> goalsToCancel = new ArrayList<action_msgs.msg.GoalInfo>();
+
+    logger.warn("Proposed number of goals to cancel " + inputMessage.getGoalsCanceling().size());
+    // Process user callback for each goal in cancel request
+    for (action_msgs.msg.GoalInfo goalInfo : inputMessage.getGoalsCanceling()) {
+      List<Byte> goalUuid = goalInfo.getGoalId().getUuid();
+      // It's possible a goal may not be tracked by the user
+      if (!this.goalHandles.containsKey(goalUuid)) {
+        logger.warn("Ignoring cancel request for untracked goal handle with ID '" + goalUuid + "'");
+        continue;
+      }
+      GoalHandleImpl goalHandle = this.goalHandles.get(goalUuid);
+      CancelResponse cancelResponse = this.cancelCallback.handleCancel(goalHandle);
+
+      if (CancelResponse.ACCEPT == cancelResponse) {
+        // Update goal state to CANCELING
+        goalHandle.cancelGoal();
+
+        // Add to returned response
+        goalsToCancel.add(goalInfo);
+      }
+    }
+
+    logger.warn("number of goals to cancel " + goalsToCancel.size());
+    outputMessage.setGoalsCanceling(goalsToCancel);
+    return outputMessage;
+  }
+
+  private static native RMWRequestId nativeTakeGoalRequest(
+    long actionServerHandle,
+    long requestFromJavaConverterHandle,
+    long requestToJavaConverterHandle,
+    long requestDestructorHandle,
+    MessageDefinition requestMessage);
+
+  private static native RMWRequestId nativeTakeCancelRequest(
+    long actionServerHandle,
+    long requestFromJavaConverterHandle,
+    long requestToJavaConverterHandle,
+    long requestDestructorHandle,
+    MessageDefinition requestMessage);
+
+  private static native RMWRequestId nativeTakeResultRequest(
+    long actionServerHandle,
+    long requestFromJavaConverterHandle,
+    long requestToJavaConverterHandle,
+    long requestDestructorHandle,
+    MessageDefinition requestMessage);
+
+  private static native void nativeSendGoalResponse(
+    long actionServerHandle,
+    RMWRequestId header,
+    long responseFromJavaConverterHandle,
+    long responseToJavaConverterHandle,
+    long responseDestructorHandle,
+    MessageDefinition responseMessage);
+
+  private static native void nativeSendCancelResponse(
+    long actionServerHandle,
+    RMWRequestId header,
+    long responseFromJavaConverterHandle,
+    long responseToJavaConverterHandle,
+    long responseDestructorHandle,
+    MessageDefinition responseMessage);
+
+  private static native void nativeSendResultResponse(
+    long actionServerHandle,
+    RMWRequestId header,
+    long responseFromJavaConverterHandle,
+    long responseToJavaConverterHandle,
+    long responseDestructorHandle,
+    MessageDefinition responseMessage);
+
+  private static native void nativeProcessCancelRequest(
+    long actionServerHandle,
+    long requestFromJavaConverterHandle,
+    long requestDestructorHandle,
+    long responseToJavaConverterHandle,
+    MessageDefinition requestMessage,
+    MessageDefinition responseMessage);
+
+  private static native boolean nativeCheckGoalExists(
+    long handle,
+    MessageDefinition goalInfo,
+    long goalInfoFromJavaConverterHandle,
+    long goalInfoDestructorHandle);
+
+  /**
+   * {@inheritDoc}
+   */
+  public void execute() {
+    if (this.isGoalRequestReady()) {
+      logger.warn("Goal request is ready");
+      Class<? extends GoalRequestDefinition> requestType = this.actionTypeInstance.getSendGoalRequestType();
+      Class<? extends GoalResponseDefinition> responseType = this.actionTypeInstance.getSendGoalResponseType();
+
+      GoalRequestDefinition requestMessage = null;
+      GoalResponseDefinition responseMessage = null;
+
+      try {
+        requestMessage = requestType.newInstance();
+        responseMessage = responseType.newInstance();
+      } catch (InstantiationException ie) {
+        ie.printStackTrace();
+      } catch (IllegalAccessException iae) {
+        iae.printStackTrace();
+      }
+
+      if (requestMessage != null && responseMessage != null) {
+        long requestFromJavaConverterHandle = requestMessage.getFromJavaConverterInstance();
+        long requestToJavaConverterHandle = requestMessage.getToJavaConverterInstance();
+        long requestDestructorHandle = requestMessage.getDestructorInstance();
+        long responseFromJavaConverterHandle = responseMessage.getFromJavaConverterInstance();
+        long responseToJavaConverterHandle = responseMessage.getToJavaConverterInstance();
+        long responseDestructorHandle = responseMessage.getDestructorInstance();
+
+        RMWRequestId rmwRequestId =
+          nativeTakeGoalRequest(
+            this.handle,
+            requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
+            requestMessage);
+        if (rmwRequestId != null) {
+          logger.warn("Goal request taken, executing user callback");
+          ActionServerGoalHandle<T> goalHandle = this.executeGoalRequest(
+            rmwRequestId, requestMessage, responseMessage);
+          nativeSendGoalResponse(
+            this.handle, rmwRequestId,
+            responseFromJavaConverterHandle, responseToJavaConverterHandle,
+            responseDestructorHandle, responseMessage);
+          if (goalHandle != null) {
+            logger.warn("Goal accepted, executing user callback");
+            this.acceptedCallback.accept(goalHandle);
+          }
+        }
+      }
+    }
+
+    if (this.isCancelRequestReady()) {
+      logger.warn("Cancel request is ready");
+      action_msgs.srv.CancelGoal_Request requestMessage = new action_msgs.srv.CancelGoal_Request();
+      action_msgs.srv.CancelGoal_Response responseMessage = new action_msgs.srv.CancelGoal_Response();
+
+      long requestFromJavaConverterHandle = requestMessage.getFromJavaConverterInstance();
+      long requestToJavaConverterHandle = requestMessage.getToJavaConverterInstance();
+      long requestDestructorHandle = requestMessage.getDestructorInstance();
+      long responseFromJavaConverterHandle = responseMessage.getFromJavaConverterInstance();
+      long responseToJavaConverterHandle = responseMessage.getToJavaConverterInstance();
+      long responseDestructorHandle = responseMessage.getDestructorInstance();
+
+      RMWRequestId rmwRequestId =
+        nativeTakeCancelRequest(
+          this.handle,
+          requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
+          requestMessage);
+      if (rmwRequestId != null) {
+        logger.warn("Cancel request taken");
+        nativeProcessCancelRequest(
+          this.handle,
+          requestFromJavaConverterHandle,
+          requestDestructorHandle,
+          responseToJavaConverterHandle,
+          requestMessage,
+          responseMessage);
+        logger.warn("executing user callback");
+        responseMessage = executeCancelRequest(responseMessage);
+        logger.warn("Sending cancel response");
+        nativeSendCancelResponse(
+          this.handle, rmwRequestId,
+          responseFromJavaConverterHandle, responseToJavaConverterHandle,
+          responseDestructorHandle, responseMessage);
+      }
+    }
+
+    if (this.isResultRequestReady()) {
+      // executeResultRequest(rmwRequestId, requestMessage, responseMessage);
+      // TODO
+    }
+
+    if (this.isGoalExpiredReady()) {
+      // cleanupExpiredGoals();
+      // TODO
+    }
   }
 
   /**

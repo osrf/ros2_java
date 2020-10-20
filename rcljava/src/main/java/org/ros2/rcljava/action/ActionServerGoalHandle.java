@@ -16,7 +16,48 @@
 package org.ros2.rcljava.action;
 
 import org.ros2.rcljava.interfaces.ActionDefinition;
+import org.ros2.rcljava.interfaces.Disposable;
+import org.ros2.rcljava.interfaces.MessageDefinition;
 
-public class ActionServerGoalHandle<T extends ActionDefinition> {
+public interface ActionServerGoalHandle<T extends ActionDefinition> extends Disposable {
+  /**
+   * Get the message containing the timestamp and ID for the goal.
+   */
+  public action_msgs.msg.GoalInfo getGoalInfo();
 
+  /**
+   * Get the goal message.
+   */
+  public MessageDefinition getGoal();
+
+  /**
+   * Get the goal status.
+   */
+  public GoalStatus getGoalStatus();
+
+  /**
+   * Returns true if the goal is in the CANCELING state.
+   */
+  public boolean isCanceling();
+
+  /**
+   * Transition the goal to the SUCCEEDED state.
+   *
+   * Pre-condition: the goal must be in the EXECUTING or CANCELING state.
+   */
+  public void succeed();
+
+  /**
+   * Transition the goal the the CANCELED state.
+   *
+   * Pre-condition: the goal must be in the CANCELING state.
+   */
+  public void canceled();
+
+  /**
+   * Transition the goal the the CANCELED state.
+   *
+   * Pre-condition: the goal must be in the EXCUTING or CANCELING state.
+   */
+  public void abort();
 }

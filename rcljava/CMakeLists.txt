@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rcljava)
 
+find_package(action_msgs REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_export_jars REQUIRED)
 find_package(ament_cmake_export_jni_libraries REQUIRED)
@@ -13,6 +14,7 @@ find_package(rcljava_common REQUIRED)
 find_package(rmw REQUIRED)
 find_package(rmw_implementation_cmake REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
+find_package(unique_identifier_msgs REQUIRED)
 
 include(CrossCompilingExtra)
 
@@ -59,6 +61,7 @@ set(${PROJECT_NAME}_jni_sources
   "src/main/cpp/org_ros2_rcljava_RCLJava.cpp"
   "src/main/cpp/org_ros2_rcljava_Time.cpp"
   "src/main/cpp/org_ros2_rcljava_action_ActionServerImpl.cpp"
+  "src/main/cpp/org_ros2_rcljava_action_ActionServerImpl_GoalHandleImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_client_ClientImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_contexts_ContextImpl.cpp"
   "src/main/cpp/org_ros2_rcljava_detail_QosIncompatibleStatus.cpp"
@@ -113,6 +116,8 @@ foreach(_jni_source ${${PROJECT_NAME}_jni_sources})
     "builtin_interfaces"
     "rcl_interfaces"
     "rosgraph_msgs"
+    "action_msgs"
+    "unique_identifier_msgs"
   )
 
   target_include_directories(${_target_name}
@@ -132,13 +137,14 @@ endforeach()
 set(${PROJECT_NAME}_sources
   "src/main/java/org/ros2/rcljava/RCLJava.java"
   "src/main/java/org/ros2/rcljava/Time.java"
+  "src/main/java/org/ros2/rcljava/action/ActionServer.java"
+  "src/main/java/org/ros2/rcljava/action/ActionServerGoalHandle.java"
+  "src/main/java/org/ros2/rcljava/action/ActionServerImpl.java"
   "src/main/java/org/ros2/rcljava/action/CancelCallback.java"
   "src/main/java/org/ros2/rcljava/action/CancelResponse.java"
   "src/main/java/org/ros2/rcljava/action/GoalCallback.java"
   "src/main/java/org/ros2/rcljava/action/GoalResponse.java"
-  "src/main/java/org/ros2/rcljava/action/ActionServer.java"
-  "src/main/java/org/ros2/rcljava/action/ActionServerGoalHandle.java"
-  "src/main/java/org/ros2/rcljava/action/ActionServerImpl.java"
+  "src/main/java/org/ros2/rcljava/action/GoalStatus.java"
   "src/main/java/org/ros2/rcljava/client/Client.java"
   "src/main/java/org/ros2/rcljava/client/ClientImpl.java"
   "src/main/java/org/ros2/rcljava/concurrent/Callback.java"
@@ -219,6 +225,8 @@ add_jar("${PROJECT_NAME}_jar"
   ${builtin_interfaces_JARS}
   ${rcl_interfaces_JARS}
   ${rosgraph_msgs_JARS}
+  ${action_msgs_JARS}
+  ${unique_identifier_msgs_JARS}
 )
 
 install_jar("${PROJECT_NAME}_jar" "share/${PROJECT_NAME}/java")
@@ -259,6 +267,8 @@ if(BUILD_TESTING)
     builtin_interfaces
     rcl_interfaces
     rosgraph_msgs
+    action_msgs
+    unique_identifier_msgs
     ${_java_type_supports}
     SKIP_INSTALL
   )
@@ -276,6 +286,7 @@ if(BUILD_TESTING)
     "src/test/java/org/ros2/rcljava/SpinTest.java"
     "src/test/java/org/ros2/rcljava/TimeTest.java"
     "src/test/java/org/ros2/rcljava/action/ActionServerTest.java"
+    "src/test/java/org/ros2/rcljava/action/MockActionClient.java"
     "src/test/java/org/ros2/rcljava/client/ClientTest.java"
     "src/test/java/org/ros2/rcljava/contexts/ContextTest.java"
     "src/test/java/org/ros2/rcljava/node/NodeOptionsTest.java"
@@ -357,6 +368,24 @@ if(BUILD_TESTING)
     list_append_unique(_deps_library_dirs ${_dep_dir})
   endforeach()
 
+  foreach(_dep_lib ${action_msgs_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+  foreach(_dep_lib ${action_msgs_JNI_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+
+  foreach(_dep_lib ${unique_identifier_msgs_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+  foreach(_dep_lib ${unique_identifier_msgs_JNI_LIBRARIES})
+    get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
+    list_append_unique(_deps_library_dirs ${_dep_dir})
+  endforeach()
+
   foreach(_dep_lib ${test_msgs_LIBRARIES})
     get_filename_component(_dep_dir "${_dep_lib}" DIRECTORY)
     list_append_unique(_deps_library_dirs ${_dep_dir})
@@ -381,6 +410,7 @@ if(BUILD_TESTING)
       TESTS
       "${testsuite}"
       INCLUDE_JARS
+      "${action_msgs_JARS}"
       "${rcljava_common_JARS}"
       "${rcljava_test_msgs_JARS}"
       "${std_msgs_JARS}"
@@ -389,6 +419,7 @@ if(BUILD_TESTING)
       "${rosgraph_msgs_JARS}"
       "${test_msgs_JARS}"
       "${mockito_vendor_JARS}"
+      "${unique_identifier_msgs_JARS}"
       "${_${PROJECT_NAME}_jar_file}"
       "${_${PROJECT_NAME}_messages_jar_file}"
       APPEND_LIBRARY_DIRS

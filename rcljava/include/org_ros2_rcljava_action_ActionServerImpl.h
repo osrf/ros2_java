@@ -20,6 +20,52 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeGetNumberOfSubscriptions
+ * Signature: (L)I
+ */
+JNIEXPORT jint
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfSubscriptions(
+  JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeGetNumberOfTimers
+ * Signature: (L)I
+ */
+JNIEXPORT jint
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfTimers(
+  JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeGetNumberOfClients
+ * Signature: (L)I
+ */
+JNIEXPORT jint
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfClients(
+  JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeGetNumberOfServices
+ * Signature: (L)I
+ */
+JNIEXPORT jint
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfServices(
+  JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeGetReadyEntities
+ * Signature: (LL)[Z
+ */
+JNIEXPORT jbooleanArray
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetReadyEntities(
+  JNIEnv *, jclass, jlong, jlong);
+
 /*
  * Class:     org_ros2_rcljava_action_ActionServerImpl
  * Method:    nativeDispose
@@ -36,6 +82,80 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeDispose(JNIEnv *, jc
 JNIEXPORT jlong
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
   JNIEnv *, jobject, jlong, jlong, jclass, jstring);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeTakeGoalRequest
+ * Signature: (JJJJLorg/ros2/rcljava/interfaces/MessageDefinition;)Lorg/ros2/rcljava/RMWRequestId;
+ */
+JNIEXPORT jobject
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeTakeGoalRequest(
+  JNIEnv *, jclass, jlong, jlong, jlong, jlong, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeTakeCancelRequest
+ * Signature: (JJJJLorg/ros2/rcljava/interfaces/MessageDefinition;)Lorg/ros2/rcljava/RMWRequestId;
+ */
+JNIEXPORT jobject
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeTakeCancelRequest(
+  JNIEnv *, jclass, jlong, jlong, jlong, jlong, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeTakeResultRequest
+ * Signature: (JJJJLorg/ros2/rcljava/interfaces/MessageDefinition;)Lorg/ros2/rcljava/RMWRequestId;
+ */
+JNIEXPORT jobject
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeTakeResultRequest(
+  JNIEnv *, jclass, jlong, jlong, jlong, jlong, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeSendGoalResponse
+ * Signature: (JLorg/ros2/rcljava/RMWRequestId;JJJLorg/ros2/rcljava/interfaces/MessageDefinition;)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeSendGoalResponse(
+  JNIEnv *, jclass, jlong, jobject, jlong, jlong, jlong, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeSendCancelResponse
+ * Signature: (JLorg/ros2/rcljava/RMWRequestId;JJJLorg/ros2/rcljava/interfaces/MessageDefinition;)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeSendCancelResponse(
+  JNIEnv *, jclass, jlong, jobject, jlong, jlong, jlong, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeSendResultResponse
+ * Signature: (JLorg/ros2/rcljava/RMWRequestId;JJJLorg/ros2/rcljava/interfaces/MessageDefinition;)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeSendResultResponse(
+  JNIEnv *, jclass, jlong, jobject, jlong, jlong, jlong, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeProcessCancelRequest
+ * Signature: (JJJJLorg/ros2/rcljava/interfaces/MessageDefinition;Lorg/ros2/rcljava/interfaces/MessageDefinition;)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeProcessCancelRequest(
+  JNIEnv *, jclass, jlong, jlong, jlong, jlong, jobject, jobject);
+
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeCheckGoalExists
+ * Signature: (JLorg/ros2/rcljava/interfaces/MessageDefinition;JJ)Z
+ */
+
+JNIEXPORT jboolean
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeCheckGoalExists(
+  JNIEnv * env, jclass,
+  jlong, jobject, jlong, jlong);
 
 #ifdef __cplusplus
 }

@@ -15,49 +15,290 @@
 
 package org.ros2.rcljava.action;
 
+import java.time.Duration;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.Collection;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.ros2.rcljava.RCLJava;
+import org.ros2.rcljava.executors.SingleThreadedExecutor;
 import org.ros2.rcljava.consumers.Consumer;
+import org.ros2.rcljava.node.ComposableNode;
 import org.ros2.rcljava.node.Node;
 
 public class ActionServerTest {
-  @Test
-  public final void testCreateAndDispose() {
+  class MockGoalCallback implements GoalCallback<test_msgs.action.Fibonacci.SendGoalRequest> {
+    public test_msgs.action.Fibonacci_Goal goal;
+    public GoalResponse handleGoal(test_msgs.action.Fibonacci.SendGoalRequest goal) {
+      this.goal = goal.getGoal();
+      return GoalResponse.ACCEPT;
+    }
+  }
+
+  class MockCancelCallback implements CancelCallback<test_msgs.action.Fibonacci> {
+    public ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle;
+    public CancelResponse handleCancel(ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {
+      System.out.println("Mock goal cancel callback called!");
+      this.goalHandle = goalHandle;
+      return CancelResponse.ACCEPT;
+    }
+  }
+
+  class MockAcceptedCallback implements Consumer<ActionServerGoalHandle<test_msgs.action.Fibonacci>> {
+    public ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle;
+    public void accept(final ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {
+      this.goalHandle = goalHandle;
+    }
+  }
+
+  private SingleThreadedExecutor executor;
+  private Node node;
+  private ComposableNode composableNode;
+  private ActionServer<test_msgs.action.Fibonacci> actionServer;
+  private MockGoalCallback goalCallback;
+  private MockCancelCallback cancelCallback;
+  private MockAcceptedCallback acceptedCallback;
+  private MockActionClient mockActionClient;
+
+  @BeforeClass
+  public static void setupOnce() {
     RCLJava.rclJavaInit();
-    Node node = RCLJava.createNode("test_node");
-    Consumer<ActionServerGoalHandle<test_msgs.action.Fibonacci>> acceptedCallback =
-      new Consumer<ActionServerGoalHandle<test_msgs.action.Fibonacci>>() {
-        public void accept(final ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {}
+    org.apache.log4j.BasicConfigurator.configure();
+  }
+
+  @AfterClass
+  public static void tearDownOnce() {
+    RCLJava.shutdown();
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    // Create a node
+    node = RCLJava.createNode("test_action_server_node");
+
+    assertNotEquals(null, node);
+
+    // Executor requires a ComposableNode type
+    composableNode = new ComposableNode() {
+      public Node getNode() {
+        return node;
+      }
     };
+    executor = new SingleThreadedExecutor();
+    executor.addNode(composableNode);
 
-    ActionServer<test_msgs.action.Fibonacci> actionServer =
-      node.<test_msgs.action.Fibonacci>createActionServer(
-        test_msgs.action.Fibonacci.class, "test_action",
-        new GoalCallback<test_msgs.action.Fibonacci_Goal>() {
-          public GoalResponse handleGoal(test_msgs.action.Fibonacci_Goal goal) {
-	    return GoalResponse.ACCEPT;
-	  }
-	},
-	new CancelCallback<test_msgs.action.Fibonacci>() {
-	  public CancelResponse handleCancel(ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {
-            return CancelResponse.REJECT;
-	  }
-	},
-	acceptedCallback);
+    // Create action server callbacks
+    goalCallback = new MockGoalCallback();
+    cancelCallback = new MockCancelCallback();
+    acceptedCallback = new MockAcceptedCallback();
 
-    assertNotEquals(0, actionServer.getHandle());
-    assertEquals(1, node.getActionServers().size());
+    // Create an action server
+    actionServer = node.<test_msgs.action.Fibonacci>createActionServer(
+      test_msgs.action.Fibonacci.class, "test_action",
+      goalCallback, cancelCallback, acceptedCallback);
 
+    // Create mock client
+    mockActionClient = new MockActionClient(node, "test_action");
+
+    // Wait for mock client to discover action sever
+    // TODO(jacobperron): also wait for action server to discover the client
+    assertEquals(true, mockActionClient.waitForActionServer(Duration.ofSeconds(5)));
+  }
+
+  @After
+  public void tearDown() {
     // We expect that calling dispose should result in a zero handle
     // and the reference is dropped from the Node
     actionServer.dispose();
     assertEquals(0, actionServer.getHandle());
-    assertEquals(0, node.getActionServers().size());
+    assertEquals(0, this.node.getActionServers().size());
 
-    RCLJava.shutdown();
+    mockActionClient.dispose();
+
+    executor.removeNode(composableNode);
+
+    node.dispose();
   }
+
+  public test_msgs.action.Fibonacci_SendGoal_Response sendGoal(int order) throws Exception {
+    test_msgs.action.Fibonacci_SendGoal_Request request =
+      new test_msgs.action.Fibonacci_SendGoal_Request();
+    test_msgs.action.Fibonacci_Goal goal = new test_msgs.action.Fibonacci_Goal();
+    goal.setOrder(order);
+    request.setGoal(goal);
+
+    Future<test_msgs.action.Fibonacci_SendGoal_Response> future =
+      this.mockActionClient.sendGoalClient.asyncSendRequest(request);
+
+    System.out.println("ASync request sent");
+    test_msgs.action.Fibonacci_SendGoal_Response response = null;
+    long startTime = System.nanoTime();
+    while (RCLJava.ok() && !future.isDone()) {
+      System.out.println("spin");
+      this.executor.spinOnce(1);
+      System.out.println("get");
+      response = future.get(100, TimeUnit.MILLISECONDS);
+
+      // Check for timeout
+      long duration = System.nanoTime() - startTime;
+      System.out.println("Checking for timeout: " + duration / 1000000000);
+      if (TimeUnit.NANOSECONDS.toSeconds(duration) >= 5) {
+        break;
+      }
+    }
+    return response;
+  }
+
+  @Test
+  public final void testCreateAndDispose() {
+    assertNotEquals(0, this.actionServer.getHandle());
+    assertEquals(1, this.node.getActionServers().size());
+
+    // Assert no callbacks triggered
+    assertEquals(null, this.goalCallback.goal);
+    assertEquals(null, this.cancelCallback.goalHandle);
+    assertEquals(null, this.acceptedCallback.goalHandle);
+  }
+
+  @Test
+  public final void testAcceptGoal() throws Exception {
+    System.out.println("TEST START accept goal test");
+    assertNotEquals(0, this.actionServer.getHandle());
+    assertEquals(1, this.node.getActionServers().size());
+
+    // Send a goal
+    test_msgs.action.Fibonacci_SendGoal_Response response = sendGoal(42);
+
+    System.out.println("TEST goal response received");
+    assertNotEquals(null, response);
+
+    // Assert goal callback and accepted callback triggered
+    assertNotEquals(null, this.goalCallback.goal);
+    assertNotEquals(null, this.acceptedCallback.goalHandle);
+
+    assertEquals(42, this.goalCallback.goal.getOrder());
+    test_msgs.action.Fibonacci_Goal acceptedGoal = (test_msgs.action.Fibonacci_Goal)this.acceptedCallback.goalHandle.getGoal();
+    assertEquals(42, acceptedGoal.getOrder());
+
+    // Goal handle should be in action server's list
+    // Collection<ActionServerGoalHandle<test_msgs.action.Fibonacci>> goalHandles = this.actionServer.getGoalHandles();
+    // assertEquals(1, goalHandles.size());
+    // test_msgs.action.Fibonacci_Goal serverGoal = (test_msgs.action.Fibonacci_Goal)goalHandles.iterator().next().getGoal();
+    // assertEquals(42, serverGoal.getOrder());
+
+    // Assert cancel callback not triggered
+    assertEquals(null, this.cancelCallback.goalHandle);
+
+    System.out.println("TEST END accept goal test");
+  }
+
+  @Test
+  public final void testCancelGoal() throws Exception {
+    System.out.println("TEST START cancel test");
+    assertNotEquals(0, this.actionServer.getHandle());
+    assertEquals(1, this.node.getActionServers().size());
+
+    System.out.println("TEST Sending goal");
+    // Send a goal
+    test_msgs.action.Fibonacci_SendGoal_Response response = sendGoal(42);
+
+    assertNotEquals(null, response);
+
+    // Goal handle should be in action server's list
+    // Collection<ActionServerGoalHandle<test_msgs.action.Fibonacci>> goalHandles = this.actionServer.getGoalHandles();
+    // assertEquals(1, goalHandles.size());
+    // test_msgs.action.Fibonacci_Goal serverGoal = (test_msgs.action.Fibonacci_Goal)goalHandles.iterator().next().getGoal();
+    // assertEquals(42, serverGoal.getOrder());
+
+    System.out.println("TEST Canceling goal");
+    // Cancel the goal
+    action_msgs.srv.CancelGoal_Request cancelRequest = new action_msgs.srv.CancelGoal_Request();
+    // A zero GoalInfo means cancel all goals
+    action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
+    unique_identifier_msgs.msg.UUID zeroGoalId = new unique_identifier_msgs.msg.UUID();
+    // TODO(jacobperron): code generator should zero initialize to 16 elements
+    zeroGoalId.setUuid(new byte[16]); 
+    goalInfo.setGoalId(zeroGoalId);
+    cancelRequest.setGoalInfo(goalInfo);
+    Future<action_msgs.srv.CancelGoal_Response> cancelResponseFuture =
+      this.mockActionClient.cancelGoalClient.asyncSendRequest(cancelRequest);
+
+    System.out.println("TEST Waiting for cancel response");
+    // Wait for cancel response
+    long startTime = System.nanoTime();
+    while (RCLJava.ok() && !cancelResponseFuture.isDone()) {
+      this.executor.spinOnce(100000000);  // timeout of 100 milliseconds
+
+      // Check for timeout
+      long duration = System.nanoTime() - startTime;
+      if (TimeUnit.NANOSECONDS.toSeconds(duration) >= 5) {
+        break;
+      }
+    }
+
+    System.out.println("TEST cancel response received");
+    assertEquals(true, cancelResponseFuture.isDone());
+    action_msgs.srv.CancelGoal_Response cancelResponse = cancelResponseFuture.get();
+    List<action_msgs.msg.GoalInfo> goalsCanceling = cancelResponse.getGoalsCanceling();
+    assertEquals(1, goalsCanceling.size());
+
+    // Assert cancel callback was triggered
+    assertNotEquals(null, this.cancelCallback.goalHandle);
+    test_msgs.action.Fibonacci_Goal cancelingGoal = (test_msgs.action.Fibonacci_Goal)this.cancelCallback.goalHandle.getGoal();
+    assertEquals(42, cancelingGoal.getOrder());
+
+    System.out.println("TEST END cancel test");
+  }
+  /*
+  @Test
+  public final void testGetResult() throws Exception {
+    assertNotEquals(0, this.actionServer.getHandle());
+    assertEquals(1, this.node.getActionServers().size());
+
+    // Send a goal
+    test_msgs.action.Fibonacci_SendGoal_Response response = sendGoal(42);
+
+    assertNotEquals(null, response);
+
+    // Request the result
+    test_msgs.srv.GetResult_Request getResultRequest = new test_msgs.srv.GetResult_Request();
+    //TODO
+    // getResultRequest.
+    action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
+    cancelRequest.setGoalInfo(goalInfo);
+    Future<action_msgs.srv.CancelGoal_Response> cancelResponseFuture =
+      this.mockActionClient.cancelGoalClient.asyncSendRequest(cancelRequest);
+
+    // Wait for cancel response
+    long startTime = System.nanoTime();
+    while (RCLJava.ok() && !cancelResponseFuture.isDone()) {
+      this.executor.spinOnce(0);
+
+      // Check for timeout
+      long duration = System.nanoTime() - startTime;
+      if (TimeUnit.NANOSECONDS.toSeconds(duration) >= 5) {
+        break;
+      }
+    }
+    assertEquals(true, cancelResponseFuture.isDone());
+    action_msgs.srv.CancelGoal_Response cancelResponse = cancelResponseFuture.get();
+    List<action_msgs.msg.GoalInfo> goalsCanceling = cancelResponse.getGoalsCanceling();
+    assertEquals(1, goalsCanceling.size());
+
+    // Assert cancel callback was triggered
+    assertNotEquals(null, this.cancelCallback.goalHandle);
+    test_msgs.action.Fibonacci_Goal cancelingGoal = (test_msgs.action.Fibonacci_Goal)this.cancelCallback.goalHandle.getGoal();
+    assertEquals(42, cancelingGoal.getOrder());
+  }
+  */
 }

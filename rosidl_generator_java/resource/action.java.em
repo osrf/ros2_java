@@ -76,6 +76,12 @@ import @(action_import);
 
 public class @(type_name) implements ActionDefinition {
 
+  public class Goal extends @(type_name)_Goal implements ActionGoal<@(type_name)> {}
+
+  public class Result extends @(type_name)_Result implements ActionResult<@(type_name)> {}
+
+  public class Feedback extends @(type_name)_Feedback implements ActionFeedback<@(type_name)> {}
+
   private static final Logger logger = LoggerFactory.getLogger(@(type_name).class);
 
   static {
@@ -88,10 +94,4 @@ public class @(type_name) implements ActionDefinition {
   }
 
   public static native long getActionTypeSupport();
-
-  public static final Class<@(type_name)_Goal> GoalType = @(type_name)_Goal.class;
-
-  public static final Class<@(type_name)_Result> ResultType = @(type_name)_Result.class;
-
-  public static final Class<@(type_name)_Feedback> FeedbackType = @(type_name)_Feedback.class;
 }

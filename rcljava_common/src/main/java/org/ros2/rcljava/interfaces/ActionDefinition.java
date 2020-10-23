@@ -15,4 +15,8 @@
 
 package org.ros2.rcljava.interfaces;
 
-public interface ActionDefinition {}
+public interface ActionDefinition {
+  interface ActionGoal<T extends ActionDefinition> {}
+  interface ActionResult<T extends ActionDefinition> {}
+  interface ActionFeedback<T extends ActionDefinition> {}
+}

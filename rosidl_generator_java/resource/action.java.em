@@ -65,6 +65,9 @@ expand_template(
 action_imports = [
     'org.ros2.rcljava.common.JNIUtils',
     'org.ros2.rcljava.interfaces.ActionDefinition',
+    'org.ros2.rcljava.interfaces.GoalRequestDefinition',
+    'org.ros2.rcljava.interfaces.GoalResponseDefinition',
+    'org.ros2.rcljava.interfaces.MessageDefinition',
     'org.slf4j.Logger',
     'org.slf4j.LoggerFactory',
 ]
@@ -81,6 +84,34 @@ public class @(type_name) implements ActionDefinition {
   public class Result extends @(type_name)_Result implements ActionResult<@(type_name)> {}
 
   public class Feedback extends @(type_name)_Feedback implements ActionFeedback<@(type_name)> {}
+
+  public class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition {
+    public ActionDefinition.ActionGoal getAbstractGoal() {
+      return (Goal)super.getGoal();
+    }
+  }
+
+  public class SendGoalResponse extends @(type_name)_SendGoal_Response implements GoalResponseDefinition {
+    public void accept(boolean accepted) {
+      super.setAccepted(accepted);
+    }
+  }
+
+  public Class<? extends GoalRequestDefinition> getSendGoalRequestType() {
+    return SendGoalRequest.class;
+  }
+
+  public Class<? extends GoalResponseDefinition> getSendGoalResponseType() {
+    return SendGoalResponse.class;
+  }
+
+  public Class<? extends MessageDefinition> getGetResultRequestType() {
+    return @(type_name)_GetResult_Request.class;
+  }
+
+  public Class<? extends MessageDefinition> getGetResultResponseType() {
+    return @(type_name)_GetResult_Response.class;
+  }
 
   private static final Logger logger = LoggerFactory.getLogger(@(type_name).class);
 

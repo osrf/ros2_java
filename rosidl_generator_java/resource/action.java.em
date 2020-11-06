@@ -63,6 +63,7 @@ expand_template(
     template_basepath=template_basepath)
 
 action_imports = [
+    'java.util.List',
     'org.ros2.rcljava.common.JNIUtils',
     'org.ros2.rcljava.interfaces.ActionDefinition',
     'org.ros2.rcljava.interfaces.GoalRequestDefinition',
@@ -79,19 +80,19 @@ import @(action_import);
 
 public class @(type_name) implements ActionDefinition {
 
-  public class Goal extends @(type_name)_Goal implements ActionGoal<@(type_name)> {}
+  public static class Goal extends @(type_name)_Goal implements ActionGoal<@(type_name)> {}
 
-  public class Result extends @(type_name)_Result implements ActionResult<@(type_name)> {}
+  public static class Result extends @(type_name)_Result implements ActionResult<@(type_name)> {}
 
-  public class Feedback extends @(type_name)_Feedback implements ActionFeedback<@(type_name)> {}
+  public static class Feedback extends @(type_name)_Feedback implements ActionFeedback<@(type_name)> {}
 
-  public class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition {
-    public ActionDefinition.ActionGoal getAbstractGoal() {
-      return (Goal)super.getGoal();
+  public static class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition {
+    public List<Byte> getGoalUuid() {
+      return super.getGoalId().getUuid();
     }
   }
 
-  public class SendGoalResponse extends @(type_name)_SendGoal_Response implements GoalResponseDefinition {
+  public static class SendGoalResponse extends @(type_name)_SendGoal_Response implements GoalResponseDefinition {
     public void accept(boolean accepted) {
       super.setAccepted(accepted);
     }

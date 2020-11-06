@@ -15,7 +15,9 @@
 
 package org.ros2.rcljava.interfaces;
 
+import java.util.List;
+
 public interface GoalRequestDefinition extends MessageDefinition {
-  ActionDefinition.ActionGoal getAbstractGoal();
-  // TODO: Add getGoalId();
+  MessageDefinition getGoal();
+  List<Byte> getGoalUuid();
 }

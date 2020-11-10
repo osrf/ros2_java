@@ -289,6 +289,7 @@ if(BUILD_TESTING)
     "org.ros2.rcljava.node.NodeParametersTest"
     "org.ros2.rcljava.node.NodeUndeclaredParametersTest"
     "org.ros2.rcljava.node.NodeTest"
+    "org.ros2.rcljava.parameters.AsyncParametersClientTest"
     "org.ros2.rcljava.parameters.SyncParametersClientTest"
     "org.ros2.rcljava.publisher.PublisherTest"
     "org.ros2.rcljava.qos.QoSProfileTest"

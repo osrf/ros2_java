@@ -139,6 +139,10 @@ public class NodeImpl implements Node {
   private Object parametersMutex;
 
   class ParameterAndDescriptor {
+    public ParameterAndDescriptor() {
+      this.parameter = new ParameterVariant();
+      this.descriptor = new rcl_interfaces.msg.ParameterDescriptor();
+    }
     public ParameterVariant parameter;
     public rcl_interfaces.msg.ParameterDescriptor descriptor;
   }
@@ -618,7 +622,7 @@ public class NodeImpl implements Node {
     // them in the parameter list before setting them to the new value.  We
     // do this multi-stage thing so that all of the parameters are set, or
     // none of them.
-    List<String> parametersToDeclare = new ArrayList<String>();
+    List<ParameterVariant>parametersToDeclare = new ArrayList<ParameterVariant>();
     List<String> parametersToUndeclare = new ArrayList<String>();
     for (ParameterVariant parameter : parameters) {
       if (this.parameters.containsKey(parameter.getName())) {
@@ -627,7 +631,7 @@ public class NodeImpl implements Node {
         }
       } else {
         if (this.allowUndeclaredParameters) {
-          parametersToDeclare.add(parameter.getName());
+          parametersToDeclare.add(parameter);
         } else {
           throw new ParameterNotDeclaredException(String.format("Parameter '%s' is not declared", parameter.getName()));
         }
@@ -636,7 +640,8 @@ public class NodeImpl implements Node {
 
     // Check to make sure that a parameter isn't both trying to be declared
     // and undeclared simultaneously.
-    for (String name : parametersToDeclare) {
+    for (ParameterVariant parameter : parametersToDeclare) {
+      String name = parameter.getName();
       if (parametersToUndeclare.contains(name)) {
         throw new IllegalArgumentException(String.format("Cannot both declare and undeclare the same parameter name '%s'", name));
       }
@@ -651,8 +656,16 @@ public class NodeImpl implements Node {
       this.parameters.remove(name);
     }
 
-    for (String name : parametersToDeclare) {
-      this.parameters.put(name, new ParameterAndDescriptor());
+    for (ParameterVariant parameter : parametersToDeclare) {
+      String name = parameter.getName();
+      ParameterAndDescriptor pandd = new ParameterAndDescriptor();
+      rcl_interfaces.msg.ParameterDescriptor descriptor =
+        new rcl_interfaces.msg.ParameterDescriptor()
+          .setName(name)
+          .setType(parameter.getType().getValue());
+      pandd.parameter = parameter;
+      pandd.descriptor = descriptor;
+      this.parameters.put(name, pandd);
     }
 
     for (ParameterVariant parameter : parameters) {

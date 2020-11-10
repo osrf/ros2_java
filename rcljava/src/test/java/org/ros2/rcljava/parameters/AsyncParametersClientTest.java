@@ -37,6 +37,7 @@ import org.ros2.rcljava.RCLJava;
 import org.ros2.rcljava.concurrent.RCLFuture;
 import org.ros2.rcljava.consumers.Consumer;
 import org.ros2.rcljava.node.Node;
+import org.ros2.rcljava.node.NodeOptions;
 import org.ros2.rcljava.parameters.ParameterVariant;
 import org.ros2.rcljava.parameters.client.AsyncParametersClient;
 import org.ros2.rcljava.parameters.client.AsyncParametersClientImpl;
@@ -74,7 +75,9 @@ public class AsyncParametersClientTest {
 
   @Before
   public void setUp() throws Exception {
-    node = RCLJava.createNode("test_node");
+    NodeOptions opts = new NodeOptions();
+    opts.setAllowUndeclaredParameters(true);
+    node = RCLJava.createNode("test_node", "", opts);
     parameterService = new ParameterServiceImpl(node);
     parametersClient = new AsyncParametersClientImpl(node);
   }

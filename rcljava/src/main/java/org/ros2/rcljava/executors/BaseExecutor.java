@@ -404,6 +404,7 @@ public class BaseExecutor {
       AnyExecutable anyExecutable = getNextExecutable();
       if (anyExecutable != null) {
         executeAnyExecutable(anyExecutable);
+        workAvailable = true;
       } else {
         if (!workAvailable || !exhaustive) {
           break;

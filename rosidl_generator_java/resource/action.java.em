@@ -96,6 +96,13 @@ public class @(type_name) implements ActionDefinition {
     public void accept(boolean accepted) {
       super.setAccepted(accepted);
     }
+
+    public void setStamp(int sec, int nanosec) {
+      builtin_interfaces.msg.Time msg = new builtin_interfaces.msg.Time();
+      msg.setSec(sec);
+      msg.setNanosec(nanosec);
+      super.setStamp(msg);
+    }
   }
 
   public Class<? extends GoalRequestDefinition> getSendGoalRequestType() {

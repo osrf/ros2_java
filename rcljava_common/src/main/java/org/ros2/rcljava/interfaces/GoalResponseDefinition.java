@@ -17,5 +17,5 @@ package org.ros2.rcljava.interfaces;
 
 public interface GoalResponseDefinition extends MessageDefinition {
   void accept(boolean accepted);
-  // TODO: Add setStamp();
+  void setStamp(int sec, int nanosec);
 }

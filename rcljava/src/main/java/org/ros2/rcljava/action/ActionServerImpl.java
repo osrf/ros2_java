@@ -366,7 +366,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     outputMessage.setReturnCode(inputMessage.getReturnCode());
     List<action_msgs.msg.GoalInfo> goalsToCancel = new ArrayList<action_msgs.msg.GoalInfo>();
 
-    logger.warn("Proposed number of goals to cancel " + inputMessage.getGoalsCanceling().size());
     // Process user callback for each goal in cancel request
     for (action_msgs.msg.GoalInfo goalInfo : inputMessage.getGoalsCanceling()) {
       List<Byte> goalUuid = goalInfo.getGoalId().getUuid();
@@ -387,7 +386,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       }
     }
 
-    logger.warn("number of goals to cancel " + goalsToCancel.size());
     outputMessage.setGoalsCanceling(goalsToCancel);
     return outputMessage;
   }
@@ -456,7 +454,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
    */
   public void execute() {
     if (this.isGoalRequestReady()) {
-      logger.warn("Goal request is ready");
       Class<? extends GoalRequestDefinition> requestType = this.actionTypeInstance.getSendGoalRequestType();
       Class<? extends GoalResponseDefinition> responseType = this.actionTypeInstance.getSendGoalResponseType();
 
@@ -486,7 +483,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
             requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
             requestMessage);
         if (rmwRequestId != null) {
-          logger.warn("Goal request taken, executing user callback");
           ActionServerGoalHandle<T> goalHandle = this.executeGoalRequest(
             rmwRequestId, requestMessage, responseMessage);
           nativeSendGoalResponse(
@@ -494,7 +490,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
             responseFromJavaConverterHandle, responseToJavaConverterHandle,
             responseDestructorHandle, responseMessage);
           if (goalHandle != null) {
-            logger.warn("Goal accepted, executing user callback");
             this.acceptedCallback.accept(goalHandle);
           }
         }
@@ -502,7 +497,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     if (this.isCancelRequestReady()) {
-      logger.warn("Cancel request is ready");
       action_msgs.srv.CancelGoal_Request requestMessage = new action_msgs.srv.CancelGoal_Request();
       action_msgs.srv.CancelGoal_Response responseMessage = new action_msgs.srv.CancelGoal_Response();
 
@@ -519,7 +513,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
           requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
           requestMessage);
       if (rmwRequestId != null) {
-        logger.warn("Cancel request taken");
         nativeProcessCancelRequest(
           this.handle,
           requestFromJavaConverterHandle,
@@ -527,9 +520,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
           responseToJavaConverterHandle,
           requestMessage,
           responseMessage);
-        logger.warn("executing user callback");
         responseMessage = executeCancelRequest(responseMessage);
-        logger.warn("Sending cancel response");
         nativeSendCancelResponse(
           this.handle, rmwRequestId,
           responseFromJavaConverterHandle, responseToJavaConverterHandle,

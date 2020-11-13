@@ -48,7 +48,6 @@ public class ActionServerTest {
   class MockCancelCallback implements CancelCallback<test_msgs.action.Fibonacci> {
     public ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle;
     public CancelResponse handleCancel(ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {
-      System.out.println("Mock goal cancel callback called!");
       this.goalHandle = goalHandle;
       return CancelResponse.ACCEPT;
     }
@@ -140,18 +139,14 @@ public class ActionServerTest {
     Future<test_msgs.action.Fibonacci_SendGoal_Response> future =
       this.mockActionClient.sendGoalClient.asyncSendRequest(request);
 
-    System.out.println("ASync request sent");
     test_msgs.action.Fibonacci_SendGoal_Response response = null;
     long startTime = System.nanoTime();
     while (RCLJava.ok() && !future.isDone()) {
-      System.out.println("spin");
       this.executor.spinOnce(1);
-      System.out.println("get");
       response = future.get(100, TimeUnit.MILLISECONDS);
 
       // Check for timeout
       long duration = System.nanoTime() - startTime;
-      System.out.println("Checking for timeout: " + duration / 1000000000);
       if (TimeUnit.NANOSECONDS.toSeconds(duration) >= 5) {
         break;
       }
@@ -172,14 +167,12 @@ public class ActionServerTest {
 
   @Test
   public final void testAcceptGoal() throws Exception {
-    System.out.println("TEST START accept goal test");
     assertNotEquals(0, this.actionServer.getHandle());
     assertEquals(1, this.node.getActionServers().size());
 
     // Send a goal
     test_msgs.action.Fibonacci_SendGoal_Response response = sendGoal(42);
 
-    System.out.println("TEST goal response received");
     assertNotEquals(null, response);
 
     // Assert goal callback and accepted callback triggered
@@ -190,37 +183,20 @@ public class ActionServerTest {
     test_msgs.action.Fibonacci_Goal acceptedGoal = (test_msgs.action.Fibonacci_Goal)this.acceptedCallback.goalHandle.getGoal();
     assertEquals(42, acceptedGoal.getOrder());
 
-    // Goal handle should be in action server's list
-    // Collection<ActionServerGoalHandle<test_msgs.action.Fibonacci>> goalHandles = this.actionServer.getGoalHandles();
-    // assertEquals(1, goalHandles.size());
-    // test_msgs.action.Fibonacci_Goal serverGoal = (test_msgs.action.Fibonacci_Goal)goalHandles.iterator().next().getGoal();
-    // assertEquals(42, serverGoal.getOrder());
-
     // Assert cancel callback not triggered
     assertEquals(null, this.cancelCallback.goalHandle);
-
-    System.out.println("TEST END accept goal test");
   }
 
   @Test
   public final void testCancelGoal() throws Exception {
-    System.out.println("TEST START cancel test");
     assertNotEquals(0, this.actionServer.getHandle());
     assertEquals(1, this.node.getActionServers().size());
 
-    System.out.println("TEST Sending goal");
     // Send a goal
     test_msgs.action.Fibonacci_SendGoal_Response response = sendGoal(42);
 
     assertNotEquals(null, response);
 
-    // Goal handle should be in action server's list
-    // Collection<ActionServerGoalHandle<test_msgs.action.Fibonacci>> goalHandles = this.actionServer.getGoalHandles();
-    // assertEquals(1, goalHandles.size());
-    // test_msgs.action.Fibonacci_Goal serverGoal = (test_msgs.action.Fibonacci_Goal)goalHandles.iterator().next().getGoal();
-    // assertEquals(42, serverGoal.getOrder());
-
-    System.out.println("TEST Canceling goal");
     // Cancel the goal
     action_msgs.srv.CancelGoal_Request cancelRequest = new action_msgs.srv.CancelGoal_Request();
     // A zero GoalInfo means cancel all goals
@@ -233,7 +209,6 @@ public class ActionServerTest {
     Future<action_msgs.srv.CancelGoal_Response> cancelResponseFuture =
       this.mockActionClient.cancelGoalClient.asyncSendRequest(cancelRequest);
 
-    System.out.println("TEST Waiting for cancel response");
     // Wait for cancel response
     long startTime = System.nanoTime();
     while (RCLJava.ok() && !cancelResponseFuture.isDone()) {
@@ -246,7 +221,6 @@ public class ActionServerTest {
       }
     }
 
-    System.out.println("TEST cancel response received");
     assertEquals(true, cancelResponseFuture.isDone());
     action_msgs.srv.CancelGoal_Response cancelResponse = cancelResponseFuture.get();
     List<action_msgs.msg.GoalInfo> goalsCanceling = cancelResponse.getGoalsCanceling();
@@ -256,8 +230,6 @@ public class ActionServerTest {
     assertNotEquals(null, this.cancelCallback.goalHandle);
     test_msgs.action.Fibonacci_Goal cancelingGoal = (test_msgs.action.Fibonacci_Goal)this.cancelCallback.goalHandle.getGoal();
     assertEquals(42, cancelingGoal.getOrder());
-
-    System.out.println("TEST END cancel test");
   }
   /*
   @Test

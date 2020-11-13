@@ -80,12 +80,6 @@ import @(action_import);
 
 public class @(type_name) implements ActionDefinition {
 
-  public static class Goal extends @(type_name)_Goal implements ActionGoal<@(type_name)> {}
-
-  public static class Result extends @(type_name)_Result implements ActionResult<@(type_name)> {}
-
-  public static class Feedback extends @(type_name)_Feedback implements ActionFeedback<@(type_name)> {}
-
   public static class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition {
     public List<Byte> getGoalUuid() {
       return super.getGoalId().getUuid();
@@ -133,4 +127,10 @@ public class @(type_name) implements ActionDefinition {
   }
 
   public static native long getActionTypeSupport();
+
+  public static final Class<@(type_name)_Goal> GoalType = @(type_name)_Goal.class;
+
+  public static final Class<@(type_name)_Result> ResultType = @(type_name)_Result.class;
+
+  public static final Class<@(type_name)_Feedback> FeedbackType = @(type_name)_Feedback.class;
 }

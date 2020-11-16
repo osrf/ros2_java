@@ -21,7 +21,6 @@ import org.ros2.rcljava.interfaces.Disposable;
 import org.ros2.rcljava.interfaces.ActionDefinition;
 
 public interface ActionServer<T extends ActionDefinition> extends Disposable {
-
   /**
    * Get the number of underlying subscriptions that the action server uses.
    *

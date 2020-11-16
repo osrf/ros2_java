@@ -18,6 +18,11 @@ package org.ros2.rcljava.action;
 import org.ros2.rcljava.interfaces.ActionDefinition;
 
 public interface CancelCallback<T extends ActionDefinition> {
+  enum CancelResponse {
+    REJECT,
+    ACCEPT,
+  };
+
   /**
    * Called when a new cancel request is received.
    *

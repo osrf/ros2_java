@@ -334,9 +334,9 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     // Workaround type
     GoalCallback<GoalRequestDefinition> callback = ((ActionServerImpl) this).goalCallback;
     // Call user callback
-    GoalResponse response = callback.handleGoal(requestMessage);
+    GoalCallback.GoalResponse response = callback.handleGoal(requestMessage);
 
-    boolean accepted = GoalResponse.ACCEPT == response;
+    boolean accepted = GoalCallback.GoalResponse.ACCEPT == response;
     responseMessage.accept(accepted);
 
     System.out.println("Goal request handled " + accepted);
@@ -367,9 +367,9 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
         continue;
       }
       GoalHandleImpl goalHandle = this.goalHandles.get(goalUuid);
-      CancelResponse cancelResponse = this.cancelCallback.handleCancel(goalHandle);
+      CancelCallback.CancelResponse cancelResponse = this.cancelCallback.handleCancel(goalHandle);
 
-      if (CancelResponse.ACCEPT == cancelResponse) {
+      if (CancelCallback.CancelResponse.ACCEPT == cancelResponse) {
         // Update goal state to CANCELING
         goalHandle.cancelGoal();
 

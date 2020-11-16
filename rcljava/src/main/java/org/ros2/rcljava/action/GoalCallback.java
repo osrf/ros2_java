@@ -18,6 +18,11 @@ package org.ros2.rcljava.action;
 import org.ros2.rcljava.interfaces.MessageDefinition;
 
 public interface GoalCallback<T extends MessageDefinition> {
+  public enum GoalResponse {
+    REJECT,
+    ACCEPT,
+  };
+
   /**
    * Called when a new goal request is received.
    *

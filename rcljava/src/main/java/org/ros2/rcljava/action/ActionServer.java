@@ -51,11 +51,6 @@ public interface ActionServer<T extends ActionDefinition> extends Disposable {
   int getNumberOfServices();
 
   /**
-   * Get the goal handles that the action server is currently tracking.
-   */
-  // Collection<? extends ActionServerGoalHandle<T>> getGoalHandles();
-
-  /**
    * Check if an entity of the action server is ready in the wait set.
    *
    * @param waitSetHandle Handle to the rcl wait set that this action server was added to.

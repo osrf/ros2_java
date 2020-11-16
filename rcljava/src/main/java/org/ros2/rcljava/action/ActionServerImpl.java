@@ -122,7 +122,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       if (!this.isCanceling()) {
         nativeGoalEventExecute(this.handle);
       }
-      // self._action_server.notify_execute(self, execute_callback)
     }
 
     /**
@@ -303,13 +302,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
     return false;
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  // public Collection<ActionServerGoalHandle<T>> getGoalHandles() {
-  //   return this.goalHandles.values();
-  // }
 
   private ActionServerGoalHandle<T> executeGoalRequest(
     RMWRequestId rmwRequestId,

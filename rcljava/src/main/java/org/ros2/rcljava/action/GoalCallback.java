@@ -29,6 +29,5 @@ public interface GoalCallback<T extends MessageDefinition> {
    * @param goal The action goal request.
    * @return Goal response indicating if the goal was accepted or not.
    */
-  // TODO(jacobperron): Add UUID parameter
   GoalResponse handleGoal(T goal);
 }

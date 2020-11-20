@@ -80,22 +80,24 @@ public final class @(type_name) implements MessageDefinition {
 
 @[  if isinstance(member.type, AbstractNestedType)]@
 @[    if member.has_annotation('default')]@
-  private java.util.List<@(get_java_type(member.type, use_primitives=False))> @(member.name) = java.util.Arrays.asList(new @(get_java_type(member.type, use_primitives=False))[] @(value_to_java(member.type, member.get_annotation_value('default')['value'])));
+  private @(get_java_type(member.type))[] @(member.name) = new @(get_java_type(member.type))[] @(value_to_java(member.type, member.get_annotation_value('default')['value']));
 @[    else]@
 @[      if isinstance(member.type, Array)]@
-  private java.util.List<@(get_java_type(member.type, use_primitives=False))> @(member.name);
+  private @(get_java_type(member.type))[] @(member.name) = new @(get_java_type(member.type))[@(member.type.size)];
+@[      elif isinstance(member.type, BoundedSequence)]@
+  private @(get_java_type(member.type))[] @(member.name) = new @(get_java_type(member.type))[]{};
 @[      else]@
-  private java.util.List<@(get_java_type(member.type, use_primitives=False))> @(member.name) = new java.util.ArrayList<@(get_java_type(member.type, use_primitives=False))>();
+  private @(get_java_type(member.type))[] @(member.name);
 @[      end if]@
 @[    end if]@
 
-  public final @(type_name) set@(convert_lower_case_underscore_to_camel_case(member.name))(final java.util.List<@(get_java_type(member.type, use_primitives=False))> @(member.name)) {
+  public final @(type_name) set@(convert_lower_case_underscore_to_camel_case(member.name))(final @(get_java_type(member.type))[] @(member.name)) {
 @[    if isinstance(member.type, BoundedSequence)]@
-    if(@(member.name).size() > @(member.type.maximum_size)) {
-        throw new IllegalArgumentException("List too big, maximum size allowed: @(member.type.maximum_size)");
+    if(@(member.name).length > @(member.type.maximum_size)) {
+        throw new IllegalArgumentException("Array too big, maximum size allowed: @(member.type.maximum_size)");
     }
 @[    elif isinstance(member.type, Array)]@
-    if(@(member.name).size() != @(member.type.size)) {
+    if(@(member.name).length != @(member.type.size)) {
         throw new IllegalArgumentException("Invalid size for fixed array, must be exactly: @(member.type.size)");
     }
 @[    end if]@
@@ -103,17 +105,7 @@ public final class @(type_name) implements MessageDefinition {
     return this;
   }
 
-@[    if isinstance(member.type.value_type, (BasicType, AbstractGenericString))]@
-  public final @(type_name) set@(convert_lower_case_underscore_to_camel_case(member.name))(final @(get_java_type(member.type, use_primitives=True))[] @(member.name)) {
-    java.util.List<@(get_java_type(member.type, use_primitives=False))> @(member.name)_tmp = new java.util.ArrayList<@(get_java_type(member.type, use_primitives=False))>();
-    for(@(get_java_type(member.type, use_primitives=True)) @(member.name)_value : @(member.name)) {
-      @(member.name)_tmp.add(@(member.name)_value);
-    }
-    return set@(convert_lower_case_underscore_to_camel_case(member.name))(@(member.name)_tmp);
-  }
-@[    end if]@
-
-  public final java.util.List<@(get_java_type(member.type, use_primitives=False))> get@(convert_lower_case_underscore_to_camel_case(member.name))() {
+  public final @(get_java_type(member.type))[] get@(convert_lower_case_underscore_to_camel_case(member.name))() {
     return this.@(member.name);
   }
 @[  else]@

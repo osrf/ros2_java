@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
@@ -107,6 +108,18 @@ public class NodeTest {
     org.apache.log4j.BasicConfigurator.configure();
 
     RCLJava.rclJavaInit();
+    try
+    {
+      // Configure log4j. Doing this dynamically so that Android does not complain about missing
+      // the log4j JARs, SLF4J uses Android's native logging mechanism instead.
+      Class c = Class.forName("org.apache.log4j.BasicConfigurator");
+      Method m = c.getDeclaredMethod("configure", (Class<?>[]) null);
+      Object o = m.invoke(null, (Object[]) null);
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
   }
 
   public class TestConsumer<T> implements Consumer<T> {

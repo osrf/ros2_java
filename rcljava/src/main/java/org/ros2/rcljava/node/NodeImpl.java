@@ -60,8 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 
-import java.lang.reflect.Method;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

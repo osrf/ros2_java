@@ -63,6 +63,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -784,6 +785,8 @@ public class NodeImpl implements Node {
         new rcl_interfaces.msg.ListParametersResult();
 
     synchronized (parametersMutex) {
+      List<String> resultNames = Arrays.asList(result.getNames());
+      List<String> resultPrefixes = Arrays.asList(result.getPrefixes());
       for (Map.Entry<String, ParameterAndDescriptor> entry : this.parameters.entrySet()) {
         boolean getAll =
             (prefixes.size() == 0)
@@ -807,16 +810,18 @@ public class NodeImpl implements Node {
         }
 
         if (getAll || prefixMatches) {
-          result.getNames().add(entry.getKey());
+          resultNames.add(entry.getKey());
           int lastSeparator = entry.getKey().lastIndexOf(separator);
           if (-1 != lastSeparator) {
             String prefix = entry.getKey().substring(0, lastSeparator);
-            if (!result.getPrefixes().contains(prefix)) {
-              result.getPrefixes().add(prefix);
+            if (!resultPrefixes.contains(prefix)) {
+              resultPrefixes.add(prefix);
             }
           }
         }
       }
+      result.setNames((String[])resultNames.toArray());
+      result.setPrefixes((String[])resultPrefixes.toArray());
       return result;
     }
   }

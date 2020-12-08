@@ -18,6 +18,7 @@ package org.ros2.rcljava.parameters.client;
 import java.lang.ref.WeakReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.concurrent.Future;
@@ -108,22 +109,22 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
         new RCLFuture<List<ParameterVariant>>(new WeakReference<Node>(this.node));
     final rcl_interfaces.srv.GetParameters_Request request =
         new rcl_interfaces.srv.GetParameters_Request();
-    request.setNames(names);
+    request.setNames(names.toArray(new String[]{}));
 
     getParametersClient.asyncSendRequest(
         request, new Consumer<Future<rcl_interfaces.srv.GetParameters_Response>>() {
           public void accept(final Future<rcl_interfaces.srv.GetParameters_Response> future) {
             List<ParameterVariant> parameterVariants = new ArrayList<ParameterVariant>();
-            List<rcl_interfaces.msg.ParameterValue> pvalues = null;
+            rcl_interfaces.msg.ParameterValue[] pvalues = null;
             try {
               pvalues = future.get().getValues();
             } catch (Exception e) {
               // TODO(esteve): do something
             }
-            for (int i = 0; i < pvalues.size(); i++) {
+            for (int i = 0; i < pvalues.length; i++) {
               rcl_interfaces.msg.Parameter parameter = new rcl_interfaces.msg.Parameter();
-              parameter.setName(request.getNames().get(i));
-              parameter.setValue(pvalues.get(i));
+              parameter.setName(request.getNames()[i]);
+              parameter.setValue(pvalues[i]);
               parameterVariants.add(ParameterVariant.fromParameter(parameter));
             }
             futureResult.set(parameterVariants);
@@ -145,19 +146,19 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
         new RCLFuture<List<ParameterType>>(new WeakReference<Node>(this.node));
     final rcl_interfaces.srv.GetParameterTypes_Request request =
         new rcl_interfaces.srv.GetParameterTypes_Request();
-    request.setNames(names);
+    request.setNames(names.toArray(new String[]{}));
 
     getParameterTypesClient.asyncSendRequest(
         request, new Consumer<Future<rcl_interfaces.srv.GetParameterTypes_Response>>() {
           public void accept(final Future<rcl_interfaces.srv.GetParameterTypes_Response> future) {
             List<ParameterType> parameterTypes = new ArrayList<ParameterType>();
-            List<Byte> pts = null;
+            byte[] pts = null;
             try {
               pts = future.get().getTypes();
             } catch (Exception e) {
               // TODO(esteve): do something
             }
-            for (Byte pt : pts) {
+            for (byte pt : pts) {
               parameterTypes.add(ParameterType.fromByte(pt));
             }
             futureResult.set(parameterTypes);
@@ -187,14 +188,14 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
     for (ParameterVariant parameterVariant : parameters) {
       requestParameters.add(parameterVariant.toParameter());
     }
-    request.setParameters(requestParameters);
+    request.setParameters(requestParameters.toArray(new rcl_interfaces.msg.Parameter[]{}));
 
     setParametersClient.asyncSendRequest(
         request, new Consumer<Future<rcl_interfaces.srv.SetParameters_Response>>() {
           public void accept(final Future<rcl_interfaces.srv.SetParameters_Response> future) {
             List<rcl_interfaces.msg.SetParametersResult> setParametersResult = null;
             try {
-              setParametersResult = future.get().getResults();
+              setParametersResult = Arrays.asList(future.get().getResults());
             } catch (Exception e) {
               // TODO(esteve): do something
             }
@@ -224,7 +225,7 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
     for (ParameterVariant parameterVariant : parameters) {
       requestParameters.add(parameterVariant.toParameter());
     }
-    request.setParameters(requestParameters);
+    request.setParameters(requestParameters.toArray(new rcl_interfaces.msg.Parameter[]{}));
 
     setParametersAtomicallyClient.asyncSendRequest(
         request, new Consumer<Future<rcl_interfaces.srv.SetParametersAtomically_Response>>() {
@@ -256,7 +257,7 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
         new RCLFuture<rcl_interfaces.msg.ListParametersResult>(new WeakReference<Node>(this.node));
     final rcl_interfaces.srv.ListParameters_Request request =
         new rcl_interfaces.srv.ListParameters_Request();
-    request.setPrefixes(prefixes);
+    request.setPrefixes(prefixes.toArray(new String[]{}));
     request.setDepth(depth);
 
     listParametersClient.asyncSendRequest(
@@ -290,14 +291,14 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
             new WeakReference<Node>(this.node));
     final rcl_interfaces.srv.DescribeParameters_Request request =
         new rcl_interfaces.srv.DescribeParameters_Request();
-    request.setNames(names);
+    request.setNames(names.toArray(new String[]{}));
 
     describeParametersClient.asyncSendRequest(
         request, new Consumer<Future<rcl_interfaces.srv.DescribeParameters_Response>>() {
           public void accept(final Future<rcl_interfaces.srv.DescribeParameters_Response> future) {
             List<rcl_interfaces.msg.ParameterDescriptor> parameterDescriptors = null;
             try {
-              parameterDescriptors = future.get().getDescriptors();
+              parameterDescriptors = Arrays.asList(future.get().getDescriptors());
             } catch (Exception e) {
               // TODO(esteve): do something
             }

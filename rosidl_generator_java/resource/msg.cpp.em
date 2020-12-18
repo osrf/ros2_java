@@ -272,6 +272,9 @@ else:
 @[    else]@
     for (jint i = 0; i < _jarray_@(member.name)_size; ++i) {
       auto element = env->GetObjectArrayElement(_jarray_@(member.name)_obj, i);
+      if (element == nullptr) {
+        continue;
+      }
 @[      if isinstance(member.type.value_type, AbstractString)]@
       jstring _jfield_@(member.name)_value = static_cast<jstring>(element);
       if (_jfield_@(member.name)_value != nullptr) {
@@ -370,8 +373,10 @@ else:
     jni_signature = get_jni_signature(member.type)
 }@
 @[  if isinstance(member.type, AbstractNestedType)]@
-@[    if isinstance(member.type.value_type, (BasicType, AbstractGenericString))]@
+@[    if isinstance(member.type.value_type, BasicType)]@
   auto _jfield_@(member.name)_fid = env->GetFieldID(_j@(msg_normalized_type)_class_global, "@(member.name)", "[@(jni_signature)");
+@[    elif isinstance(member.type.value_type, AbstractGenericString)]@
+  auto _jfield_@(member.name)_fid = env->GetFieldID(_j@(msg_normalized_type)_class_global, "@(member.name)", "[Ljava/lang/String;");
 @[    else]@
   auto _jfield_@(member.name)_fid = env->GetFieldID(_j@(msg_normalized_type)_class_global, "@(member.name)", "[L@('/'.join(member.type.value_type.namespaced_name()));");
 @[    end if]@

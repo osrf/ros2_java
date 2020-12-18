@@ -84,10 +84,8 @@ public final class @(type_name) implements MessageDefinition {
 @[    else]@
 @[      if isinstance(member.type, Array)]@
   private @(get_java_type(member.type))[] @(member.name) = new @(get_java_type(member.type))[@(member.type.size)];
-@[      elif isinstance(member.type, BoundedSequence)]@
-  private @(get_java_type(member.type))[] @(member.name) = new @(get_java_type(member.type))[]{};
 @[      else]@
-  private @(get_java_type(member.type))[] @(member.name);
+  private @(get_java_type(member.type))[] @(member.name) = new @(get_java_type(member.type))[]{};
 @[      end if]@
 @[    end if]@
 

@@ -209,16 +209,11 @@ JNIEXPORT jlong JNICALL Java_@(underscore_separated_jni_type_name)_getDestructor
   }
 @[for member in message.structure.members]@
 @{
-if isinstance(member.type, AbstractNestedType):
-    normalized_type = get_normalized_type(member.type.value_type)
-    get_java_name = get_java_type(member.type.value_type, use_primitives=True)
-    get_method_name = get_java_type(member.type.value_type, use_primitives=True).capitalize()
-    jni_signature = get_jni_signature(member.type.value_type)
-else:
-    normalized_type = get_normalized_type(member.type)
-    get_java_name = get_java_type(member.type, use_primitives=True)
-    get_method_name = get_java_type(member.type, use_primitives=True).capitalize()
-    jni_signature = get_jni_signature(member.type)
+base_type = member.type.value_type if isinstance(member.type, AbstractNestedType) else member.type
+normalized_type = get_normalized_type(base_type)
+get_java_name = get_java_type(base_type, use_primitives=True)
+get_method_name = get_java_name.capitalize()
+jni_signature = get_jni_signature(base_type)
 }@
 @[  if isinstance(member.type, AbstractNestedType)]
 @[    if isinstance(member.type.value_type, BasicType)]@
@@ -361,16 +356,11 @@ jobject @(underscore_separated_type_name)__convert_to_java(@(msg_normalized_type
   }
 @[for member in message.structure.members]@
 @{
-if isinstance(member.type, AbstractNestedType):
-    normalized_type = get_normalized_type(member.type.value_type)
-    get_java_name = get_java_type(member.type.value_type, use_primitives=True)
-    get_method_name = get_java_type(member.type.value_type, use_primitives=True).capitalize()
-    jni_signature = get_jni_signature(member.type.value_type)
-else:
-    normalized_type = get_normalized_type(member.type)
-    get_java_name = get_java_type(member.type, use_primitives=True)
-    get_method_name = get_java_type(member.type, use_primitives=True).capitalize()
-    jni_signature = get_jni_signature(member.type)
+base_type = member.type.value_type if isinstance(member.type, AbstractNestedType) else member.type
+normalized_type = get_normalized_type(base_type)
+get_java_name = get_java_type(base_type, use_primitives=True)
+get_method_name = get_java_name.capitalize()
+jni_signature = get_jni_signature(base_type)
 }@
 @[  if isinstance(member.type, AbstractNestedType)]@
 @[    if isinstance(member.type.value_type, BasicType)]@

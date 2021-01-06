@@ -130,6 +130,9 @@ public final class @(type_name) implements MessageDefinition {
     return this.@(member.name);
   }
 
+  /**
+   * For better performance, use @@{link @(type_name)#get@(convert_lower_case_underscore_to_camel_case(member.name))} instead.
+   */
   public final java.util.List<@(get_java_type(member.type, use_primitives=False))> get@(convert_lower_case_underscore_to_camel_case(member.name))AsList() {
     // TODO(jacobperron): We could cache the List value for subsequent calls
     java.util.List<@(get_java_type(member.type, use_primitives=False))> list = new java.util.ArrayList<@(get_java_type(member.type, use_primitives=False))>(this.@(member.name).length);

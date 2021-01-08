@@ -158,10 +158,7 @@ Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
   jlong jts = env->CallStaticLongMethod(jaction_class, mid);
   assert(jts != 0);
 
-  const char * action_name_tmp = env->GetStringUTFChars(jaction_name, 0);
-
-  std::string action_name(action_name_tmp);
-  env->ReleaseStringUTFChars(jaction_name, action_name_tmp);
+  const char * action_name = env->GetStringUTFChars(jaction_name, 0);
 
   rcl_node_t * node = reinterpret_cast<rcl_node_t *>(node_handle);
   rcl_clock_t * clock = reinterpret_cast<rcl_clock_t *>(clock_handle);
@@ -174,8 +171,8 @@ Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
   rcl_action_server_options_t action_server_ops = rcl_action_server_get_default_options();
 
   rcl_ret_t ret = rcl_action_server_init(
-    action_server, node, clock, ts, action_name.c_str(), &action_server_ops);
-  // env->ReleaseStringUTFChars(jaction_name, action_name);
+    action_server, node, clock, ts, action_name, &action_server_ops);
+  env->ReleaseStringUTFChars(jaction_name, action_name);
 
   if (ret != RCL_RET_OK) {
     std::string msg = "Failed to create action server: " + std::string(rcl_get_error_string().str);

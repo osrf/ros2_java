@@ -21,9 +21,9 @@
 
 #ifndef MAIN__CPP__CONVERT_HPP_
 #define MAIN__CPP__CONVERT_HPP_
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+namespace rcljava
+{
 
 jobject
 convert_rmw_request_id_to_java(JNIEnv * env, rmw_request_id_t * request_id)
@@ -83,7 +83,6 @@ convert_rmw_request_id_from_java(JNIEnv * env, jobject jrequest_id)
   return request_id;
 }
 
-#ifdef __cplusplus
-}
-#endif
+}  // namespace rcljava
+
 #endif  // MAIN__CPP__CONVERT_HPP_

@@ -213,7 +213,7 @@ Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
       jobject jtaken_msg = convert_to_java(taken_msg, jrequest_msg); \
       destroy_ros_message(taken_msg); \
       assert(jtaken_msg != nullptr); \
-      jobject jheader = convert_rmw_request_id_to_java(env, &header); \
+      jobject jheader = rcljava::convert_rmw_request_id_to_java(env, &header); \
       return jheader; \
     } \
     destroy_ros_message(taken_msg); \
@@ -231,7 +231,7 @@ Java_org_ros2_rcljava_action_ActionServerImpl_nativeCreateActionServer(
     convert_from_java_signature convert_from_java = \
       reinterpret_cast<convert_from_java_signature>(jresponse_from_java_converter_handle); \
     void * response_msg = convert_from_java(jresponse_msg, nullptr); \
-    rmw_request_id_t * request_id = convert_rmw_request_id_from_java(env, jrequest_id); \
+    rmw_request_id_t * request_id = rcljava::convert_rmw_request_id_from_java(env, jrequest_id); \
     rcl_ret_t ret = rcl_action_send_ ## Type ## _response( \
       action_server, request_id, response_msg); \
     destroy_ros_message_signature destroy_ros_message = \

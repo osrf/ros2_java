@@ -297,7 +297,7 @@ Java_org_ros2_rcljava_executors_BaseExecutor_nativeTakeRequest(
 
     assert(jtaken_msg != nullptr);
 
-    jobject jheader = convert_rmw_request_id_to_java(env, &header);
+    jobject jheader = rcljava::convert_rmw_request_id_to_java(env, &header);
     return jheader;
   }
 
@@ -325,7 +325,7 @@ Java_org_ros2_rcljava_executors_BaseExecutor_nativeSendServiceResponse(
 
   void * response_msg = convert_from_java(jresponse_msg, nullptr);
 
-  rmw_request_id_t * request_id = convert_rmw_request_id_from_java(env, jrequest_id);
+  rmw_request_id_t * request_id = rcljava::convert_rmw_request_id_from_java(env, jrequest_id);
 
   rcl_ret_t ret = rcl_send_response(service, request_id, response_msg);
 
@@ -387,7 +387,7 @@ Java_org_ros2_rcljava_executors_BaseExecutor_nativeTakeResponse(
 
     assert(jtaken_msg != nullptr);
 
-    jobject jheader = convert_rmw_request_id_to_java(env, &header);
+    jobject jheader = rcljava::convert_rmw_request_id_to_java(env, &header);
     return jheader;
   }
 

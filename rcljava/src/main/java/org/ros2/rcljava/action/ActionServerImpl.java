@@ -328,9 +328,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       return null;
     }
 
-    // Workaround type
-    GoalCallback<GoalRequestDefinition> callback = ((ActionServerImpl) this).goalCallback;
     // Call user callback
+    GoalCallback callback = this.goalCallback;
     GoalCallback.GoalResponse response = callback.handleGoal(requestMessage);
 
     boolean accepted = GoalCallback.GoalResponse.ACCEPT == response;

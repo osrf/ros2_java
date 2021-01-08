@@ -23,38 +23,13 @@ extern "C" {
 
 /*
  * Class:     org_ros2_rcljava_action_ActionServerImpl
- * Method:    nativeGetNumberOfSubscriptions
- * Signature: (L)I
+ * Method:    nativeGetNumberOfEntities
+ * Signature: (L)[I
+ * Returns array of numbers for each type of entity,
+ *   [subscriptions, guard_conditions, timers, clients, services]
  */
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfSubscriptions(
-  JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_ros2_rcljava_action_ActionServerImpl
- * Method:    nativeGetNumberOfTimers
- * Signature: (L)I
- */
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfTimers(
-  JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_ros2_rcljava_action_ActionServerImpl
- * Method:    nativeGetNumberOfClients
- * Signature: (L)I
- */
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfClients(
-  JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_ros2_rcljava_action_ActionServerImpl
- * Method:    nativeGetNumberOfServices
- * Signature: (L)I
- */
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfServices(
+JNIEXPORT jintArray
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfEntities(
   JNIEnv *, jclass, jlong);
 
 /*

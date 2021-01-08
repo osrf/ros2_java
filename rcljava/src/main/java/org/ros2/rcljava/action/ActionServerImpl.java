@@ -254,37 +254,34 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     // node.addWaitable(this);
   }
 
-  private static native int nativeGetNumberOfSubscriptions(long handle);
-  private static native int nativeGetNumberOfTimers(long handle);
-  private static native int nativeGetNumberOfClients(long handle);
-  private static native int nativeGetNumberOfServices(long handle);
+  private static native int[] nativeGetNumberOfEntities(long handle);
 
   /**
    * {@inheritDoc}
    */
   public int getNumberOfSubscriptions() {
-    return nativeGetNumberOfSubscriptions(this.handle);
+    return nativeGetNumberOfEntities(this.handle)[0];
   }
 
   /**
    * {@inheritDoc}
    */
   public int getNumberOfTimers() {
-    return nativeGetNumberOfTimers(this.handle);
+    return nativeGetNumberOfEntities(this.handle)[2];
   }
 
   /**
    * {@inheritDoc}
    */
   public int getNumberOfClients() {
-    return nativeGetNumberOfClients(this.handle);
+    return nativeGetNumberOfEntities(this.handle)[3];
   }
 
   /**
    * {@inheritDoc}
    */
   public int getNumberOfServices() {
-    return nativeGetNumberOfServices(this.handle);
+    return nativeGetNumberOfEntities(this.handle)[4];
   }
 
   private static native boolean[] nativeGetReadyEntities(

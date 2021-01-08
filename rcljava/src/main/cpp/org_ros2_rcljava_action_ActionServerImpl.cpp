@@ -35,59 +35,41 @@ using rcljava_common::signatures::convert_from_java_signature;
 using rcljava_common::signatures::convert_to_java_signature;
 using rcljava_common::signatures::destroy_ros_message_signature;
 
-#define RCLJAVA_ACTION_SERVER_GET_NUMBER_OF_ENTITY(Type) \
-  do { \
-    size_t num_subscriptions; \
-    size_t num_guard_conditions; \
-    size_t num_timers; \
-    size_t num_clients; \
-    size_t num_services; \
-    rcl_action_server_t * action_server = reinterpret_cast<rcl_action_server_t *>( \
-      action_server_handle); \
-    rcl_ret_t ret = rcl_action_server_wait_set_get_num_entities( \
-      action_server, \
-      &num_subscriptions, \
-      &num_guard_conditions, \
-      &num_timers, \
-      &num_clients, \
-      &num_services); \
-    if (ret != RCL_RET_OK) { \
-      std::string msg = \
-        "Failed to get number of entities for an action server: " + \
-        std::string(rcl_get_error_string().str); \
-      rcl_reset_error(); \
-      rcljava_throw_rclexception(env, ret, msg); \
-    } \
-    return static_cast<int>(num_ ## Type ## s); \
-  } \
-  while (0)
-
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfSubscriptions(
+JNIEXPORT jintArray
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfEntities(
   JNIEnv * env, jclass, jlong action_server_handle)
 {
-  RCLJAVA_ACTION_SERVER_GET_NUMBER_OF_ENTITY(subscription);
-}
-
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfTimers(
-  JNIEnv * env, jclass, jlong action_server_handle)
-{
-  RCLJAVA_ACTION_SERVER_GET_NUMBER_OF_ENTITY(timer);
-}
-
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfClients(
-  JNIEnv * env, jclass, jlong action_server_handle)
-{
-  RCLJAVA_ACTION_SERVER_GET_NUMBER_OF_ENTITY(client);
-}
-
-JNIEXPORT jint
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeGetNumberOfServices(
-  JNIEnv * env, jclass, jlong action_server_handle)
-{
-  RCLJAVA_ACTION_SERVER_GET_NUMBER_OF_ENTITY(service);
+  size_t num_subscriptions;
+  size_t num_guard_conditions;
+  size_t num_timers;
+  size_t num_clients;
+  size_t num_services;
+  rcl_action_server_t * action_server = reinterpret_cast<rcl_action_server_t *>(
+    action_server_handle);
+  rcl_ret_t ret = rcl_action_server_wait_set_get_num_entities(
+    action_server,
+    &num_subscriptions,
+    &num_guard_conditions,
+    &num_timers,
+    &num_clients,
+    &num_services);
+  if (ret != RCL_RET_OK) {
+    std::string msg =
+      "Failed to get number of entities for an action server: " +
+      std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+  }
+  jintArray result = env->NewIntArray(5);
+  jint temp_result[5] = {
+    static_cast<jint>(num_subscriptions),
+    static_cast<jint>(num_guard_conditions),
+    static_cast<jint>(num_timers),
+    static_cast<jint>(num_clients),
+    static_cast<jint>(num_services)
+  };
+  env->SetIntArrayRegion(result, 0, 5, temp_result);
+  return result;
 }
 
 JNIEXPORT jbooleanArray

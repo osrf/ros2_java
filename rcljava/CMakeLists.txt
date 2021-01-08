@@ -110,13 +110,13 @@ foreach(_jni_source ${${PROJECT_NAME}_jni_sources})
   endif()
 
   ament_target_dependencies(${_target_name}
+    "action_msgs"
+    "builtin_interfaces"
     "rcl"
     "rcl_action"
-    "rcljava_common"
-    "builtin_interfaces"
     "rcl_interfaces"
+    "rcljava_common"
     "rosgraph_msgs"
-    "action_msgs"
     "unique_identifier_msgs"
   )
 
@@ -219,11 +219,11 @@ add_jar("${PROJECT_NAME}_jar"
   OUTPUT_NAME
   ${PROJECT_NAME}
   INCLUDE_JARS
-  ${rcljava_common_JARS}
+  ${action_msgs_JARS}
   ${builtin_interfaces_JARS}
   ${rcl_interfaces_JARS}
+  ${rcljava_common_JARS}
   ${rosgraph_msgs_JARS}
-  ${action_msgs_JARS}
   ${unique_identifier_msgs_JARS}
 )
 
@@ -262,10 +262,10 @@ if(BUILD_TESTING)
     ${${PROJECT_NAME}_message_files}
     ${${PROJECT_NAME}_service_files}
     DEPENDENCIES
+    action_msgs
     builtin_interfaces
     rcl_interfaces
     rosgraph_msgs
-    action_msgs
     unique_identifier_msgs
     ${_java_type_supports}
     SKIP_INSTALL

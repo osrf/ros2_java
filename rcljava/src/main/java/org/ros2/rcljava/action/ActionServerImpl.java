@@ -86,14 +86,14 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     /**
      * {@inheritDoc}
      */
-    public synchronized action_msgs.msg.GoalInfo getGoalInfo() {
+    public action_msgs.msg.GoalInfo getGoalInfo() {
       return this.goalInfo;
     }
 
     /**
      * {@inheritDoc}
      */
-    public synchronized MessageDefinition getGoal() {
+    public MessageDefinition getGoal() {
       return this.goal;
     }
 
@@ -164,7 +164,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
      * {@inheritDoc}
      */
     public synchronized final long getHandle() {
-      return handle;
+      return this.handle;
     }
   }  // class GoalHandleImpl
 

@@ -184,7 +184,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   private final T actionTypeInstance;
   private final String actionName;
   private long handle;
-  private final GoalCallback<? extends GoalRequestDefinition<T>> goalCallback;
+  private final GoalCallback goalCallback;
   private final CancelCallback<T> cancelCallback;
   private final Consumer<ActionServerGoalHandle<T>> acceptedCallback;
 
@@ -329,8 +329,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     // Call user callback
-    GoalCallback callback = this.goalCallback;
-    GoalCallback.GoalResponse response = callback.handleGoal(requestMessage);
+    GoalCallback.GoalResponse response = this.goalCallback.handleGoal(requestMessage);
 
     boolean accepted = GoalCallback.GoalResponse.ACCEPT == response;
     responseMessage.accept(accepted);

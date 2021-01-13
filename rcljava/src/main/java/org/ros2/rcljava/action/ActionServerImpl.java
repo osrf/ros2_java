@@ -38,35 +38,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ActionServerImpl<T extends ActionDefinition> implements ActionServer<T> {
-  static class GoalHandleImpl<T extends ActionDefinition>  implements ActionServerGoalHandle {
-    private static final Logger logger = LoggerFactory.getLogger(GoalHandleImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(ActionServerImpl.class);
 
-    static {
-      try {
-        JNIUtils.loadImplementation(GoalHandleImpl.class);
-      } catch (UnsatisfiedLinkError ule) {
-        logger.error("Native code library failed to load.\n" + ule);
-        System.exit(1);
-      }
+  static {
+    try {
+      JNIUtils.loadImplementation(ActionServerImpl.class);
+      JNIUtils.loadImplementation(ActionServerImpl.GoalHandleImpl.class);
+    } catch (UnsatisfiedLinkError ule) {
+      logger.error("Native code library failed to load.\n" + ule);
+      System.exit(1);
     }
+      JNIUtils.loadImplementation(ActionServerImpl.class);
+  }
 
+  class GoalHandleImpl implements ActionServerGoalHandle<T> {
     private long handle;
     private ActionServer<T> actionServer;
     private action_msgs.msg.GoalInfo goalInfo;
     private MessageDefinition goal;
 
-    private static native long nativeAcceptNewGoal(
+    private native long nativeAcceptNewGoal(
       long actionServerHandle,
       long goalInfoFromJavaConverterHandle,
       long goalInfoDestructorHandle,
       MessageDefinition goalInfo);
-    private static native int nativeGetStatus(long goalHandle);
-    private static native void nativeGoalEventExecute(long goalHandle);
-    private static native void nativeGoalEventCancelGoal(long goalHandle);
-    private static native void nativeGoalEventSucceed(long goalHandle);
-    private static native void nativeGoalEventAbort(long goalHandle);
-    private static native void nativeGoalEventCanceled(long goalHandle);
-    private static native void nativeDispose(long handle);
+    private native int nativeGetStatus(long goalHandle);
+    private native void nativeGoalEventExecute(long goalHandle);
+    private native void nativeGoalEventCancelGoal(long goalHandle);
+    private native void nativeGoalEventSucceed(long goalHandle);
+    private native void nativeGoalEventAbort(long goalHandle);
+    private native void nativeGoalEventCanceled(long goalHandle);
+    private native void nativeDispose(long handle);
 
     public GoalHandleImpl(
       ActionServer<T> actionServer, action_msgs.msg.GoalInfo goalInfo, MessageDefinition goal)
@@ -168,17 +170,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
   }  // class GoalHandleImpl
 
-  private static final Logger logger = LoggerFactory.getLogger(ActionServerImpl.class);
-
-  static {
-    try {
-      JNIUtils.loadImplementation(ActionServerImpl.class);
-    } catch (UnsatisfiedLinkError ule) {
-      logger.error("Native code library failed to load.\n" + ule);
-      System.exit(1);
-    }
-  }
-
   private final WeakReference<Node> nodeReference;
   private final Clock clock;
   private final T actionTypeInstance;
@@ -190,7 +181,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
   private boolean[] readyEntities;
 
-  private Map<List<Byte>, GoalHandleImpl<T>> goalHandles;
+  private Map<List<Byte>, GoalHandleImpl> goalHandles;
 
   private boolean isGoalRequestReady() {
     return this.readyEntities[0];
@@ -239,7 +230,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     this.cancelCallback = cancelCallback;
     this.acceptedCallback = acceptedCallback;
 
-    this.goalHandles = new HashMap<List<Byte>, GoalHandleImpl<T>>();
+    this.goalHandles = new HashMap<List<Byte>, GoalHandleImpl>();
 
     Node node = nodeReference.get();
     if (node == null) {
@@ -340,7 +331,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     // Create a goal handle and add it to the list of goals
-    GoalHandleImpl<T> goalHandle = new GoalHandleImpl<T>(
+    GoalHandleImpl goalHandle = this.new GoalHandleImpl(
       this, goalInfo, requestMessage.getGoal());
     this.goalHandles.put(requestMessage.getGoalUuid(), goalHandle);
     return goalHandle;

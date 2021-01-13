@@ -80,13 +80,13 @@ import @(action_import);
 
 public class @(type_name) implements ActionDefinition {
 
-  public static class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition {
+  public static class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition<@(type_name)> {
     public List<Byte> getGoalUuid() {
       return super.getGoalId().getUuid();
     }
   }
 
-  public static class SendGoalResponse extends @(type_name)_SendGoal_Response implements GoalResponseDefinition {
+  public static class SendGoalResponse extends @(type_name)_SendGoal_Response implements GoalResponseDefinition<@(type_name)> {
     public void accept(boolean accepted) {
       super.setAccepted(accepted);
     }

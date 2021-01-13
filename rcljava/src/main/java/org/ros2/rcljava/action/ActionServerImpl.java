@@ -184,7 +184,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   private final T actionTypeInstance;
   private final String actionName;
   private long handle;
-  private final GoalCallback<? extends GoalRequestDefinition> goalCallback;
+  private final GoalCallback<? extends GoalRequestDefinition<T>> goalCallback;
   private final CancelCallback<T> cancelCallback;
   private final Consumer<ActionServerGoalHandle<T>> acceptedCallback;
 
@@ -225,7 +225,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       final WeakReference<Node> nodeReference,
       final Class<T> actionType,
       final String actionName,
-      final GoalCallback<? extends GoalRequestDefinition> goalCallback,
+      final GoalCallback<? extends GoalRequestDefinition<T>> goalCallback,
       final CancelCallback<T> cancelCallback,
       final Consumer<ActionServerGoalHandle<T>> acceptedCallback) throws IllegalArgumentException {
     this.nodeReference = nodeReference;
@@ -302,8 +302,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
   private ActionServerGoalHandle<T> executeGoalRequest(
     RMWRequestId rmwRequestId,
-    GoalRequestDefinition requestMessage,
-    GoalResponseDefinition responseMessage)
+    GoalRequestDefinition<T> requestMessage,
+    GoalResponseDefinition<T> responseMessage)
   {
     builtin_interfaces.msg.Time timeRequestHandled = this.clock.now().toMsg();
     responseMessage.setStamp(timeRequestHandled.getSec(), timeRequestHandled.getNanosec());
@@ -445,8 +445,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       Class<? extends GoalRequestDefinition> requestType = this.actionTypeInstance.getSendGoalRequestType();
       Class<? extends GoalResponseDefinition> responseType = this.actionTypeInstance.getSendGoalResponseType();
 
-      GoalRequestDefinition requestMessage = null;
-      GoalResponseDefinition responseMessage = null;
+      GoalRequestDefinition<T> requestMessage = null;
+      GoalResponseDefinition<T> responseMessage = null;
 
       try {
         requestMessage = requestType.newInstance();

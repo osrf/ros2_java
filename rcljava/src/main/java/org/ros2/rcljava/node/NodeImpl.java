@@ -403,7 +403,7 @@ public class NodeImpl implements Node {
 
   public <T extends ActionDefinition> ActionServer<T> createActionServer(final Class<T> actionType,
       final String actionName,
-      final GoalCallback<? extends GoalRequestDefinition> goalCallback,
+      final GoalCallback<? extends GoalRequestDefinition<T>> goalCallback,
       final CancelCallback<T> cancelCallback,
       final Consumer<ActionServerGoalHandle<T>> acceptedCallback) throws IllegalArgumentException {
     ActionServer<T> actionServer = new ActionServerImpl<T>(

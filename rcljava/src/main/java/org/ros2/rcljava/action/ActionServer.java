@@ -21,6 +21,7 @@ import org.ros2.rcljava.interfaces.Disposable;
 import org.ros2.rcljava.interfaces.ActionDefinition;
 
 public interface ActionServer<T extends ActionDefinition> extends Disposable {
+  // TODO(jacobperron): Move most of these methods to a new "Waitable" interface
   /**
    * Get the number of underlying subscriptions that the action server uses.
    *

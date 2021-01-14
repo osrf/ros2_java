@@ -165,7 +165,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     /**
      * {@inheritDoc}
      */
-    public synchronized final long getHandle() {
+    public final long getHandle() {
       return this.handle;
     }
   }  // class GoalHandleImpl

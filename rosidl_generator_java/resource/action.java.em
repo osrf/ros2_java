@@ -82,7 +82,8 @@ public class @(type_name) implements ActionDefinition {
 
   public static class SendGoalRequest extends @(type_name)_SendGoal_Request implements GoalRequestDefinition<@(type_name)> {
     public List<Byte> getGoalUuid() {
-      return super.getGoalId().getUuid();
+      // Return List since it's hash is based on the values (not the object pointer)
+      return super.getGoalId().getUuidAsList();
     }
   }
 

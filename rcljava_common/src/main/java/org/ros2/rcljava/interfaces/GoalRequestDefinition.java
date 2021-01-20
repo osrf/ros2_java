@@ -19,5 +19,5 @@ import java.util.List;
 
 public interface GoalRequestDefinition<T extends ActionDefinition> extends MessageDefinition {
   MessageDefinition getGoal();
-  byte[] getGoalUuid();
+  List<Byte> getGoalUuid();
 }

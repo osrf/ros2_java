@@ -223,8 +223,8 @@ public class ActionServerTest {
 
     assertEquals(true, cancelResponseFuture.isDone());
     action_msgs.srv.CancelGoal_Response cancelResponse = cancelResponseFuture.get();
-    List<action_msgs.msg.GoalInfo> goalsCanceling = cancelResponse.getGoalsCanceling();
-    assertEquals(1, goalsCanceling.size());
+    action_msgs.msg.GoalInfo[] goalsCanceling = cancelResponse.getGoalsCanceling();
+    assertEquals(1, goalsCanceling.length);
 
     // Assert cancel callback was triggered
     assertNotEquals(null, this.cancelCallback.goalHandle);

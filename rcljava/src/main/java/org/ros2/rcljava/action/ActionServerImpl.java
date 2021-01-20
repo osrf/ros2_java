@@ -346,7 +346,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
     // Process user callback for each goal in cancel request
     for (action_msgs.msg.GoalInfo goalInfo : inputMessage.getGoalsCanceling()) {
-      List<Byte> goalUuid = goalInfo.getGoalId().getUuid();
+      List<Byte> goalUuid = goalInfo.getGoalId().getUuidAsList();
       // It's possible a goal may not be tracked by the user
       if (!this.goalHandles.containsKey(goalUuid)) {
         logger.warn("Ignoring cancel request for untracked goal handle with ID '" + goalUuid + "'");

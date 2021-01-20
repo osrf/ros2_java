@@ -144,6 +144,18 @@ public interface Node extends Disposable {
   <T extends ServiceDefinition> Client<T> createClient(final Class<T> serviceType,
       final String serviceName) throws NoSuchFieldException, IllegalAccessException;
 
+  /**
+   * Create an ActionServer&lt;T&gt;.
+   *
+   * @param <T> The type of action that will be handled by the created @{link ActionServer}.
+   * @param actionName The name of action that the create @{link ActionServer} will offer.
+   * @param goalCallback The callback that will be called when the @{link ActionServer}
+   *     receives a new goal request.
+   * @param cancelCallback The callback that will be called when the @{link ActionServer}
+   *     receives a cancle request for an active goal.
+   * @param acceptedCallback The callback that will be called when the @{link ActionServer}
+   *     accepts a goal request.
+   */
   <T extends ActionDefinition> ActionServer<T> createActionServer(final Class<T> actionType,
       final String actionName,
       final GoalCallback<? extends GoalRequestDefinition<T>> goalCallback,

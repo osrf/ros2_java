@@ -1,11 +1,27 @@
+#
+# Creates a sources jar from list of source files
+#
+# :param VERSION: target Java version, default: "${CMAKE_JAVA_TARGET_VERSION}"
+# :type VERSION: string
+# :param OUTPUT_DIR: Output directory
+# :type OUTPUT_DIR: string
+# :param OUTPUT_NAME: Name of Jar
+# :type OUTPUT_NAME: string
+# :param MANIFEST: Add Manifest?
+# :type MANIFEST: boolean
+# :param SOURCES: Sources files
+# :type SOURCES: String list with file names
+#
+# @public
+#
 function(add_source_jar _TARGET_NAME)
 
-    cmake_parse_arguments(_add_source_jar
-      ""
-      "VERSION;OUTPUT_DIR;OUTPUT_NAME;MANIFEST"
-      "SOURCES"
-      ${ARGN}
-    )
+  cmake_parse_arguments(_add_source_jar
+    ""
+    "VERSION;OUTPUT_DIR;OUTPUT_NAME;MANIFEST"
+    "SOURCES"
+    ${ARGN}
+  )
 
     # In CMake < 2.8.12, add_jar used variables which were set prior to calling
     # add_jar for customizing the behavior of add_jar. In order to be backwards
@@ -26,10 +42,9 @@ function(add_source_jar _TARGET_NAME)
         set(CMAKE_JAVA_TARGET_OUTPUT_NAME)
     endif()
 
-#------------------------------------------------------
     set(_JAVA_SOURCE_FILES ${_add_source_jar_SOURCES} ${_add_source_jar_UNPARSED_ARGUMENTS})
 
-    if (NOT DEFINED _add_source_jar_OUTPUT_DIR)
+    if(NOT DEFINED _add_source_jar_OUTPUT_DIR)
         set(_add_source_jar_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
     else()
         get_filename_component(_add_source_jar_OUTPUT_DIR ${_add_source_jar_OUTPUT_DIR} ABSOLUTE)
@@ -37,23 +52,23 @@ function(add_source_jar _TARGET_NAME)
     # ensure output directory exists
     file (MAKE_DIRECTORY "${_add_source_jar_OUTPUT_DIR}")
 
-    if (_add_source_jar_MANIFEST)
+    if(_add_source_jar_MANIFEST)
         set(_MANIFEST_OPTION m)
         get_filename_component (_MANIFEST_VALUE "${_add_source_jar_MANIFEST}" ABSOLUTE)
-    endif ()
+    endif()
 
     set(CMAKE_JAVA_CLASS_OUTPUT_PATH "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_TARGET_NAME}.dir")
 
     set(_JAVA_TARGET_OUTPUT_NAME "${_TARGET_NAME}.jar")
-    if (_add_source_jar_OUTPUT_NAME AND _add_source_jar_VERSION)
+    if(_add_source_jar_OUTPUT_NAME AND _add_source_jar_VERSION)
         set(_JAVA_TARGET_OUTPUT_NAME "${_add_source_jar_OUTPUT_NAME}-${_add_source_jar_VERSION}.jar")
         set(_JAVA_TARGET_OUTPUT_LINK "${_add_source_jar_OUTPUT_NAME}.jar")
-    elseif (_add_source_jar_VERSION)
+    elseif(_add_source_jar_VERSION)
         set(_JAVA_TARGET_OUTPUT_NAME "${_TARGET_NAME}-${_add_source_jar_VERSION}.jar")
         set(_JAVA_TARGET_OUTPUT_LINK "${_TARGET_NAME}.jar")
-    elseif (_add_source_jar_OUTPUT_NAME)
+    elseif(_add_source_jar_OUTPUT_NAME)
         set(_JAVA_TARGET_OUTPUT_NAME "${_add_source_jar_OUTPUT_NAME}.jar")
-    endif ()
+    endif()
 
     set(_JAVA_COMPILE_FILES)
     set(_JAVA_COMPILE_FILELISTS)
@@ -67,31 +82,14 @@ function(add_source_jar _TARGET_NAME)
         get_filename_component(_JAVA_PATH ${_JAVA_SOURCE_FILE} PATH)
         get_filename_component(_JAVA_FULL ${_JAVA_SOURCE_FILE} ABSOLUTE)
 
-        if (_JAVA_SOURCE_FILE MATCHES "^@(.+)$")
+        if(_JAVA_SOURCE_FILE MATCHES "^@(.+)$")
             get_filename_component(_JAVA_FULL ${CMAKE_MATCH_1} ABSOLUTE)
             list(APPEND _JAVA_COMPILE_FILELISTS ${_JAVA_FULL})
 
-        elseif (_JAVA_EXT MATCHES ".java")
-            file(RELATIVE_PATH _JAVA_REL_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} ${_JAVA_FULL})
-            file(RELATIVE_PATH _JAVA_REL_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${_JAVA_FULL})
-            string(LENGTH ${_JAVA_REL_BINARY_PATH} _BIN_LEN)
-            string(LENGTH ${_JAVA_REL_SOURCE_PATH} _SRC_LEN)
-            if (_BIN_LEN LESS _SRC_LEN)
-                set(_JAVA_REL_PATH ${_JAVA_REL_BINARY_PATH})
-            else ()
-                set(_JAVA_REL_PATH ${_JAVA_REL_SOURCE_PATH})
-            endif ()
-            get_filename_component(_JAVA_REL_PATH ${_JAVA_REL_PATH} PATH)
-
+        elseif(_JAVA_EXT MATCHES ".java")
             list(APPEND _JAVA_COMPILE_FILES ${_JAVA_SOURCE_FILE})
 
-        elseif (_JAVA_EXT MATCHES ".jar"
-                OR _JAVA_EXT MATCHES ".war"
-                OR _JAVA_EXT MATCHES ".ear"
-                OR _JAVA_EXT MATCHES ".sar")
-            # Ignored for backward compatibility
-
-        elseif (_JAVA_EXT STREQUAL "")
+        elseif(_JAVA_EXT STREQUAL "")
             list(APPEND CMAKE_JAVA_INCLUDE_PATH ${JAVA_JAR_TARGET_${_JAVA_SOURCE_FILE}} ${JAVA_JAR_TARGET_${_JAVA_SOURCE_FILE}_CLASSPATH})
             list(APPEND _JAVA_DEPENDS ${JAVA_JAR_TARGET_${_JAVA_SOURCE_FILE}})
 
@@ -101,14 +99,14 @@ function(add_source_jar _TARGET_NAME)
                              "Copying ${_JAVA_SOURCE_FILE} to the build directory")
             list(APPEND _JAVA_RESOURCE_FILES ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/${_JAVA_SOURCE_FILE})
             list(APPEND _JAVA_RESOURCE_FILES_RELATIVE ${_JAVA_SOURCE_FILE})
-        endif ()
+        endif()
     endforeach()
 
-    if (_JAVA_COMPILE_FILES OR _JAVA_COMPILE_FILELISTS)
+    if(_JAVA_COMPILE_FILES OR _JAVA_COMPILE_FILELISTS)
 
         set (_JAVA_SOURCES_FILELISTS)
 
-        if (_JAVA_COMPILE_FILES)
+        if(_JAVA_COMPILE_FILES)
             # Create the list of files to compile.
             set(_JAVA_SOURCES_FILE ${CMAKE_JAVA_CLASS_OUTPUT_PATH}/java_sources)
             string(REPLACE ";" "\"\n\"" _JAVA_COMPILE_STRING "\"${_JAVA_COMPILE_FILES}\"")
@@ -118,12 +116,12 @@ function(add_source_jar _TARGET_NAME)
             unset(CMAKE_CONFIGURABLE_FILE_CONTENT)
             list (APPEND _JAVA_SOURCES_FILELISTS "@${_JAVA_SOURCES_FILE}")
         endif()
-        if (_JAVA_COMPILE_FILELISTS)
+        if(_JAVA_COMPILE_FILELISTS)
             foreach (_JAVA_FILELIST IN LISTS _JAVA_COMPILE_FILELISTS)
                 list (APPEND _JAVA_SOURCES_FILELISTS "@${_JAVA_FILELIST}")
             endforeach()
         endif()
-    endif ()
+    endif()
 
     # create the jar file
     set(_JAVA_JAR_OUTPUT_PATH
@@ -139,7 +137,6 @@ function(add_source_jar _TARGET_NAME)
             -D_JAVA_TARGET_OUTPUT_NAME=${_JAVA_TARGET_OUTPUT_NAME}
             -D_JAVA_TARGET_OUTPUT_LINK=${_JAVA_TARGET_OUTPUT_LINK}
             -P ${_JAVA_SYMLINK_SCRIPT}
-        #WORKING_DIRECTORY ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${_JAVA_RESOURCE_FILES} ${_JAVA_DEPENDS} ${_JAVA_COMPILE_FILES} ${_JAVA_COMPILE_FILELISTS} ${_JAVA_COMPILE_DEPENDS} ${_JAVA_SOURCES_FILE}
         COMMENT "Creating Java archive ${_JAVA_TARGET_OUTPUT_NAME}"
@@ -149,8 +146,6 @@ function(add_source_jar _TARGET_NAME)
     # Add the target and make sure we have the latest resource files.
     add_custom_target(${_TARGET_NAME} ALL DEPENDS ${_JAVA_JAR_OUTPUT_PATH})
 
-    message(WARNING "Blalba")
-
     set_property(
         TARGET
             ${_TARGET_NAME}
@@ -159,9 +154,7 @@ function(add_source_jar _TARGET_NAME)
                 ${_JAVA_JAR_OUTPUT_PATH}
     )
 
-
-    message(WARNING "Blalba1")
-    if (_JAVA_TARGET_OUTPUT_LINK)
+    if(_JAVA_TARGET_OUTPUT_LINK)
         set_property(
             TARGET
                 ${_TARGET_NAME}
@@ -170,10 +163,7 @@ function(add_source_jar _TARGET_NAME)
                     ${_JAVA_JAR_OUTPUT_PATH}
                     ${_add_source_jar_OUTPUT_DIR}/${_JAVA_TARGET_OUTPUT_LINK}
         )
-        message(WARNING "Blalba2")
-    endif ()
-
-message(WARNING "Blalba3")
+    endif()
 
     set_property(
         TARGET
@@ -182,7 +172,7 @@ message(WARNING "Blalba3")
             JAR_FILE
                 ${_JAVA_JAR_OUTPUT_PATH}
     )
-message(WARNING "Blalba4")
+
     set_property(
         TARGET
             ${_TARGET_NAME}
@@ -190,5 +180,4 @@ message(WARNING "Blalba4")
             CLASSDIR
                 ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
     )
-message(WARNING "Blalba5")
 endfunction()

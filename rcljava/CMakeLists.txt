@@ -28,7 +28,7 @@ if(NOT ANDROID)
 endif()
 include(UseJava)
 include(JavaExtra)
-include(cmake/add_source_jar.cmake)
+#include(cmake/add_source_jar.cmake)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)

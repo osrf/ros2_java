@@ -185,6 +185,10 @@ function(add_source_jar _TARGET_NAME)
     ${ARGN}
   )
 
+  if(NOT _add_source_jar_OUTPUT_NAME)
+    SET(_add_source_jar_OUTPUT_NAME "${_TARGET_NAME}.jar")
+  endif()
+
   set(_SOURCE_FILES ${_add_source_jar_SOURCES} ${_add_source_jar_UNPARSED_ARGUMENTS})
   set(_JAVA_JAR_SOURCES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_add_source_jar_OUTPUT_NAME}.jar)
 

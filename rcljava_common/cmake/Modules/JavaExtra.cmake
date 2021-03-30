@@ -186,7 +186,7 @@ function(add_source_jar _TARGET_NAME)
   )
 
   if(NOT _add_source_jar_OUTPUT_NAME)
-    SET(_add_source_jar_OUTPUT_NAME "${_TARGET_NAME}.jar")
+    set(_add_source_jar_OUTPUT_NAME "${_TARGET_NAME}.jar")
   endif()
 
   set(_SOURCE_FILES ${_add_source_jar_SOURCES} ${_add_source_jar_UNPARSED_ARGUMENTS})

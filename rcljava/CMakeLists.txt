@@ -234,6 +234,8 @@ add_source_jar("${PROJECT_NAME}-source_jar"
   ${${PROJECT_NAME}_sources}
   OUTPUT_NAME
   ${PROJECT_NAME}-source
+  JAR_ROOT_PATH
+  "src/main/java/"
 )
 
 install_jar("${PROJECT_NAME}-source_jar" "share/${PROJECT_NAME}/java")

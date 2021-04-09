@@ -41,14 +41,13 @@ public class ActionServerTest {
     public test_msgs.action.Fibonacci_Goal goal;
     public GoalResponse handleGoal(test_msgs.action.Fibonacci.SendGoalRequest goal) {
       this.goal = goal.getGoal();
-      return GoalResponse.ACCEPT;
+      return GoalResponse.ACCEPT_AND_EXECUTE;
     }
   }
 
   class MockCancelCallback implements CancelCallback<test_msgs.action.Fibonacci> {
     public ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle;
     public CancelResponse handleCancel(ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {
-      this.goalHandle = goalHandle;
       return CancelResponse.ACCEPT;
     }
   }

@@ -48,6 +48,7 @@ public class ActionServerTest {
   class MockCancelCallback implements CancelCallback<test_msgs.action.Fibonacci> {
     public ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle;
     public CancelResponse handleCancel(ActionServerGoalHandle<test_msgs.action.Fibonacci> goalHandle) {
+      this.goalHandle = goalHandle;
       return CancelResponse.ACCEPT;
     }
   }

@@ -82,6 +82,7 @@ foreach(_abs_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
       "${_output_path}/${_parent_folder}/${_idl_name}_Goal.java"
       "${_output_path}/${_parent_folder}/${_idl_name}_Result.java"
       "${_output_path}/${_parent_folder}/${_idl_name}_Feedback.java"
+      "${_output_path}/${_parent_folder}/${_idl_name}_FeedbackMessage.java"
       "${_output_path}/${_parent_folder}/${_idl_name}_SendGoal.java"
       "${_output_path}/${_parent_folder}/${_idl_name}_SendGoal_Request.java"
       "${_output_path}/${_parent_folder}/${_idl_name}_SendGoal_Response.java"
@@ -93,6 +94,7 @@ foreach(_abs_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_Goal.ep.${_typesupport_impl}.cpp")
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_Result.ep.${_typesupport_impl}.cpp")
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_Feedback.ep.${_typesupport_impl}.cpp")
+      list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_FeedbackMessage.ep.${_typesupport_impl}.cpp")
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_SendGoal.ep.${_typesupport_impl}.cpp")
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_SendGoal_Request.ep.${_typesupport_impl}.cpp")
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/${_parent_folder}/${_idl_name}_SendGoal_Response.ep.${_typesupport_impl}.cpp")

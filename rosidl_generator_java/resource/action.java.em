@@ -144,5 +144,5 @@ public class @(type_name) implements ActionDefinition {
 
   public static final Class<@(type_name)_Feedback> FeedbackType = @(type_name)_Feedback.class;
 
-  public static final Class<@(type_name)_Feedback> FeedbackMessageType = @(type_name)_FeedbackMessage.class;
+  public static final Class<@(type_name)_FeedbackMessage> FeedbackMessageType = @(type_name)_FeedbackMessage.class;
 }

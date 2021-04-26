@@ -29,6 +29,9 @@ import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ActionDefinition;
 import org.ros2.rcljava.interfaces.GoalRequestDefinition;
 import org.ros2.rcljava.interfaces.GoalResponseDefinition;
+import org.ros2.rcljava.interfaces.FeedbackDefinition;
+import org.ros2.rcljava.interfaces.ResultDefinition;
+import org.ros2.rcljava.interfaces.ResultResponseDefinition;
 import org.ros2.rcljava.node.Node;
 import org.ros2.rcljava.service.RMWRequestId;
 import org.ros2.rcljava.time.Clock;
@@ -88,6 +91,20 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     /**
      * {@inheritDoc}
      */
+    public Class<? extends MessageDefinition> getResultType() {
+      return ActionServerImpl.this.actionTypeInstance.getResultType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Class<? extends MessageDefinition> getFeedbackType() {
+      return ActionServerImpl.this.actionTypeInstance.getFeedbackType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public action_msgs.msg.GoalInfo getGoalInfo() {
       return this.goalInfo;
     }
@@ -136,22 +153,40 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     /**
      * {@inheritDoc}
      */
-    public synchronized void succeed() {
+    public synchronized void succeed(ResultDefinition<T> result) {
       nativeGoalEventSucceed(this.handle);
+      ResultResponseDefinition resultResponse;
+      try {
+        resultResponse = ActionServerImpl.this.actionTypeInstance.getGetResultResponseType().newInstance();
+      } catch (Exception ex) {
+        throw new IllegalArgumentException("Failed to instantiate provided action type", ex);
+      }
+      int status = nativeGetStatus(this.handle);
+      resultResponse.setGoalStatus((byte) status);
+      resultResponse.setResult(result);
+      // TODO: publish status, result, notify goal terminate state
+      ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
     }
 
     /**
      * {@inheritDoc}
      */
-    public synchronized void canceled() {
+    public synchronized void canceled(ResultDefinition<T> result) {
       nativeGoalEventCanceled(this.handle);
     }
 
     /**
      * {@inheritDoc}
      */
-    public synchronized void abort() {
+    public synchronized void abort(ResultDefinition<T> result) {
       nativeGoalEventAbort(this.handle);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void publishFeedback(FeedbackDefinition<T> feedback) {
+
     }
 
     /**

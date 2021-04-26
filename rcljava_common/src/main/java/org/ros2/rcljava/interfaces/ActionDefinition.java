@@ -19,5 +19,7 @@ public interface ActionDefinition {
   Class<? extends GoalRequestDefinition> getSendGoalRequestType();
   Class<? extends GoalResponseDefinition> getSendGoalResponseType();
   Class<? extends MessageDefinition> getGetResultRequestType();
-  Class<? extends MessageDefinition> getGetResultResponseType();
+  Class<? extends ResultResponseDefinition> getGetResultResponseType();
+  Class<? extends MessageDefinition> getResultType();
+  Class<? extends MessageDefinition> getFeedbackType();
 }

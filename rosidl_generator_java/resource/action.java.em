@@ -23,7 +23,10 @@ data = {
     'output_dir': output_dir,
     'template_basepath': template_basepath,
 }
-data.update({'message': action.goal})
+data.update({
+  'message': action.goal,
+  'marker_interfaces': [f'org.ros2.rcljava.interfaces.GoalDefinition<{type_name}>'],
+})
 output_file = os.path.join(output_dir, *namespaces[1:], goal_type_name + '.java')
 expand_template(
     'msg.java.em',
@@ -31,7 +34,10 @@ expand_template(
     output_file,
     template_basepath=template_basepath)
 
-data.update({'message': action.result})
+data.update({
+  'message': action.result,
+  'marker_interfaces': [f'org.ros2.rcljava.interfaces.ResultDefinition<{type_name}>'],
+})
 output_file = os.path.join(output_dir, *namespaces[1:], result_type_name + '.java')
 expand_template(
     'msg.java.em',
@@ -39,7 +45,10 @@ expand_template(
     output_file,
     template_basepath=template_basepath)
 
-data.update({'message': action.feedback})
+data.update({
+  'message': action.feedback,
+  'marker_interfaces': [f'org.ros2.rcljava.interfaces.FeedbackDefinition<{type_name}>'],
+})
 output_file = os.path.join(output_dir, *namespaces[1:], feedback_type_name + '.java')
 expand_template(
     'msg.java.em',
@@ -47,7 +56,10 @@ expand_template(
     output_file,
     template_basepath=template_basepath)
 
-data.update({'message': action.feedback_message})
+data.update({
+  'message': action.feedback_message,
+  'marker_interfaces': [],
+})
 output_file = os.path.join(output_dir, *namespaces[1:], feedback_message_type_name + '.java')
 expand_template(
     'msg.java.em',
@@ -55,6 +67,8 @@ expand_template(
     output_file,
     template_basepath=template_basepath)
 
+del data['marker_interfaces']
+del data['message']
 data.update({'service': action.send_goal_service})
 output_file = os.path.join(output_dir, *namespaces[1:], send_goal_type_name + '.java')
 expand_template(
@@ -75,9 +89,13 @@ action_imports = [
     'java.util.List',
     'org.ros2.rcljava.common.JNIUtils',
     'org.ros2.rcljava.interfaces.ActionDefinition',
+    'org.ros2.rcljava.interfaces.FeedbackDefinition',
+    'org.ros2.rcljava.interfaces.GoalDefinition',
     'org.ros2.rcljava.interfaces.GoalRequestDefinition',
     'org.ros2.rcljava.interfaces.GoalResponseDefinition',
     'org.ros2.rcljava.interfaces.MessageDefinition',
+    'org.ros2.rcljava.interfaces.ResultDefinition',
+    'org.ros2.rcljava.interfaces.ResultResponseDefinition',
     'org.slf4j.Logger',
     'org.slf4j.LoggerFactory',
 ]
@@ -109,6 +127,15 @@ public class @(type_name) implements ActionDefinition {
     }
   }
 
+  public static class GetResultResponse extends @(type_name)_GetResult_Response implements ResultResponseDefinition<@(type_name)> {
+    public void setResult(ResultDefinition<@(type_name)> result) {
+      super.setResult((@(type_name)_Result)result);
+    }
+    public void setGoalStatus(byte status) {
+      super.setStatus(status);
+    }
+  }
+
   public Class<? extends GoalRequestDefinition> getSendGoalRequestType() {
     return SendGoalRequest.class;
   }
@@ -121,8 +148,16 @@ public class @(type_name) implements ActionDefinition {
     return @(type_name)_GetResult_Request.class;
   }
 
-  public Class<? extends MessageDefinition> getGetResultResponseType() {
-    return @(type_name)_GetResult_Response.class;
+  public Class<? extends ResultResponseDefinition> getGetResultResponseType() {
+    return GetResultResponse.class;
+  }
+
+  public Class<? extends MessageDefinition> getResultType() {
+    return @(type_name)_Result.class;
+  }
+
+  public Class<? extends MessageDefinition> getFeedbackType() {
+    return @(type_name)_Feedback.class;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(@(type_name).class);

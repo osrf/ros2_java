@@ -1,4 +1,4 @@
-/* Copyright 2019 Open Source Robotics Foundation, Inc.
+/* Copyright 2021 Open Source Robotics Foundation, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 
 package org.ros2.rcljava.interfaces;
 
-public interface ActionDefinition {
-  Class<? extends GoalRequestDefinition> getSendGoalRequestType();
-  Class<? extends GoalResponseDefinition> getSendGoalResponseType();
-  Class<? extends ResultRequestDefinition> getGetResultRequestType();
-  Class<? extends ResultResponseDefinition> getGetResultResponseType();
-  Class<? extends MessageDefinition> getResultType();
-  Class<? extends MessageDefinition> getFeedbackType();
+import java.util.List;
+
+public interface ResultRequestDefinition<T extends ActionDefinition> extends MessageDefinition {
+  List<Byte> getGoalUuid();
 }

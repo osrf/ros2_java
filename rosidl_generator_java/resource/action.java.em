@@ -95,6 +95,7 @@ action_imports = [
     'org.ros2.rcljava.interfaces.GoalResponseDefinition',
     'org.ros2.rcljava.interfaces.MessageDefinition',
     'org.ros2.rcljava.interfaces.ResultDefinition',
+    'org.ros2.rcljava.interfaces.ResultRequestDefinition',
     'org.ros2.rcljava.interfaces.ResultResponseDefinition',
     'org.slf4j.Logger',
     'org.slf4j.LoggerFactory',
@@ -127,6 +128,12 @@ public class @(type_name) implements ActionDefinition {
     }
   }
 
+  public static class GetResultRequest extends @(type_name)_GetResult_Request implements ResultRequestDefinition<@(type_name)> {
+    public List<Byte> getGoalUuid() {
+      return super.getGoalId().getUuidAsList();
+    }
+  }
+
   public static class GetResultResponse extends @(type_name)_GetResult_Response implements ResultResponseDefinition<@(type_name)> {
     public void setResult(ResultDefinition<@(type_name)> result) {
       super.setResult((@(type_name)_Result)result);
@@ -144,8 +151,8 @@ public class @(type_name) implements ActionDefinition {
     return SendGoalResponse.class;
   }
 
-  public Class<? extends MessageDefinition> getGetResultRequestType() {
-    return @(type_name)_GetResult_Request.class;
+  public Class<? extends ResultRequestDefinition> getGetResultRequestType() {
+    return GetResultRequest.class;
   }
 
   public Class<? extends ResultResponseDefinition> getGetResultResponseType() {

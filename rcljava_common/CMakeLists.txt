@@ -44,6 +44,7 @@ set(${PROJECT_NAME}_java_sources
   "src/main/java/org/ros2/rcljava/interfaces/GoalRequestDefinition.java"
   "src/main/java/org/ros2/rcljava/interfaces/MessageDefinition.java"
   "src/main/java/org/ros2/rcljava/interfaces/ResultDefinition.java"
+  "src/main/java/org/ros2/rcljava/interfaces/ResultRequestDefinition.java"
   "src/main/java/org/ros2/rcljava/interfaces/ResultResponseDefinition.java"
   "src/main/java/org/ros2/rcljava/interfaces/ServiceDefinition.java"
 )

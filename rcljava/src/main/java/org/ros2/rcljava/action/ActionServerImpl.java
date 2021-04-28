@@ -31,6 +31,7 @@ import org.ros2.rcljava.interfaces.GoalRequestDefinition;
 import org.ros2.rcljava.interfaces.GoalResponseDefinition;
 import org.ros2.rcljava.interfaces.FeedbackDefinition;
 import org.ros2.rcljava.interfaces.ResultDefinition;
+import org.ros2.rcljava.interfaces.ResultRequestDefinition;
 import org.ros2.rcljava.interfaces.ResultResponseDefinition;
 import org.ros2.rcljava.node.Node;
 import org.ros2.rcljava.service.RMWRequestId;
@@ -155,16 +156,42 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
      */
     public synchronized void succeed(ResultDefinition<T> result) {
       nativeGoalEventSucceed(this.handle);
-      ResultResponseDefinition resultResponse;
-      try {
-        resultResponse = ActionServerImpl.this.actionTypeInstance.getGetResultResponseType().newInstance();
-      } catch (Exception ex) {
-        throw new IllegalArgumentException("Failed to instantiate provided action type", ex);
-      }
+      ResultResponseDefinition resultResponse = ActionServerImpl.this.createResultResponse();
       int status = nativeGetStatus(this.handle);
       resultResponse.setGoalStatus((byte) status);
       resultResponse.setResult(result);
       // TODO: publish status, result, notify goal terminate state
+
+      // BEGIN cpp code to port
+      // bool goalExists;
+      // {
+      //   std::lock_guard<std::recursive_mutex> lock(pimpl_->action_server_reentrant_mutex_);
+      //   goal_exists = rcl_action_server_goal_exists(pimpl_->action_server_.get(), &goal_info);
+      // }
+
+      // if (!goal_exists) {
+      //   throw std::runtime_error("Asked to publish result for goal that does not exist");
+      // }
+
+      // {
+      //   std::lock_guard<std::recursive_mutex> lock(pimpl_->unordered_map_mutex_);
+      //   pimpl_->goal_results_[uuid] = result_msg;
+      // }
+
+      // // if there are clients who already asked for the result, send it to them
+      // auto iter = pimpl_->result_requests_.find(uuid);
+      // if (iter != pimpl_->result_requests_.end()) {
+      //   for (auto & request_header : iter->second) {
+      //     std::lock_guard<std::recursive_mutex> lock(pimpl_->action_server_reentrant_mutex_);
+      //     rcl_ret_t ret = rcl_action_send_result_response(
+      //       pimpl_->action_server_.get(), &request_header, result_msg.get());
+      //     if (RCL_RET_OK != ret) {
+      //       rclcpp::exceptions::throw_from_rcl_error(ret);
+      //     }
+      //   }
+      // }
+      // END cpp code to port
+
       ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
     }
 
@@ -217,6 +244,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   private boolean[] readyEntities;
 
   private Map<List<Byte>, GoalHandleImpl> goalHandles;
+  private Map<List<Byte>, List<RMWRequestId>> goalRequests;
+  private Map<List<Byte>, ResultResponseDefinition<T>> goalResults;
 
   private boolean isGoalRequestReady() {
     return this.readyEntities[0];
@@ -266,6 +295,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     this.acceptedCallback = acceptedCallback;
 
     this.goalHandles = new HashMap<List<Byte>, GoalHandleImpl>();
+    this.goalRequests = new HashMap<List<Byte>, List<RMWRequestId>>();
+    this.goalResults = new HashMap<List<Byte>, ResultResponseDefinition<T>>();
 
     Node node = nodeReference.get();
     if (node == null) {
@@ -336,18 +367,10 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
     // Create and populate a GoalInfo message
     List<Byte> goalUuid = requestMessage.getGoalUuid();
-    action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
-    unique_identifier_msgs.msg.UUID uuidMessage= new unique_identifier_msgs.msg.UUID();
-    uuidMessage.setUuid(goalUuid);
-    goalInfo.setGoalId(uuidMessage);
-    goalInfo.setStamp(timeRequestHandled);
 
-    long goalInfoFromJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
-    long goalInfoDestructorHandle = goalInfo.getDestructorInstance();
-
+    action_msgs.msg.GoalInfo goalInfo = this.createGoalInfo(goalUuid);
     // Check that the goal ID isn't already being used
-    boolean goalExists = nativeCheckGoalExists(
-      this.handle, goalInfo, goalInfoFromJavaConverterHandle, goalInfoDestructorHandle);
+    boolean goalExists = this.goalExists(goalInfo);
     if (goalExists) {
       logger.warn("Received goal request for goal already being tracked by action server. Goal ID: " + goalUuid);
       responseMessage.accept(false);
@@ -408,6 +431,23 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     return outputMessage;
   }
 
+  private void sendResultResponse(
+    RMWRequestId rmwRequestId,
+    ResultResponseDefinition<T> resultResponse)
+  {
+    long resultFromJavaConverterHandle = resultResponse.getFromJavaConverterInstance();
+    long resultToJavaConverterHandle = resultResponse.getToJavaConverterInstance();
+    long resultDestructorHandle = resultResponse.getDestructorInstance();
+
+    nativeSendResultResponse(
+      this.handle,
+      rmwRequestId,
+      resultFromJavaConverterHandle,
+      resultToJavaConverterHandle,
+      resultDestructorHandle,
+      resultResponse);
+  }
+
   private static native RMWRequestId nativeTakeGoalRequest(
     long actionServerHandle,
     long requestFromJavaConverterHandle,
@@ -466,6 +506,36 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     MessageDefinition goalInfo,
     long goalInfoFromJavaConverterHandle,
     long goalInfoDestructorHandle);
+
+  private boolean goalExists(action_msgs.msg.GoalInfo goalInfo) {
+    long goalInfoFromJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
+    long goalInfoDestructorHandle = goalInfo.getDestructorInstance();
+
+    return nativeCheckGoalExists(
+      this.handle, goalInfo, goalInfoFromJavaConverterHandle, goalInfoDestructorHandle);
+  }
+
+  private action_msgs.msg.GoalInfo createGoalInfo(List<Byte> goalUuid) {
+    // TODO(ivanpauno): Do we always need to set the time here?
+    builtin_interfaces.msg.Time timeRequestHandled = this.clock.now().toMsg();
+    action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
+    unique_identifier_msgs.msg.UUID uuidMessage= new unique_identifier_msgs.msg.UUID();
+    uuidMessage.setUuid(goalUuid);
+    goalInfo.setGoalId(uuidMessage);
+    goalInfo.setStamp(timeRequestHandled);
+
+    return goalInfo;
+  }
+
+  private ResultResponseDefinition<T> createResultResponse() {
+    ResultResponseDefinition<T> resultResponse;
+    try {
+      resultResponse = this.actionTypeInstance.getGetResultResponseType().newInstance();
+    } catch (Exception ex) {
+      throw new IllegalArgumentException("Failed to instantiate provided action type", ex);
+    }
+    return resultResponse;
+  }
 
   /**
    * {@inheritDoc}
@@ -544,8 +614,53 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     if (this.isResultRequestReady()) {
-      // executeResultRequest(rmwRequestId, requestMessage, responseMessage);
-      // TODO
+      Class<? extends ResultRequestDefinition> requestType = this.actionTypeInstance.getGetResultRequestType();
+
+      ResultRequestDefinition<T> requestMessage = null;
+      try {
+        requestMessage = requestType.newInstance();
+      } catch (Exception ex) {
+        throw new IllegalArgumentException("Failed to instantiate action result request", ex);
+      }
+
+      if (requestMessage != null) {
+        long requestFromJavaConverterHandle = requestMessage.getFromJavaConverterInstance();
+        long requestToJavaConverterHandle = requestMessage.getToJavaConverterInstance();
+        long requestDestructorHandle = requestMessage.getDestructorInstance();
+
+        RMWRequestId rmwRequestId =
+          nativeTakeResultRequest(
+            this.handle,
+            requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
+            requestMessage);
+
+        List<Byte> goalUuid = requestMessage.getGoalUuid();
+        boolean goalExists = this.goalExists(this.createGoalInfo(goalUuid));
+
+        ResultResponseDefinition<T> resultResponse = null;
+        if (!goalExists) {
+          // Goal does not exists
+          resultResponse = this.createResultResponse();
+          resultResponse.setGoalStatus(action_msgs.msg.GoalStatus.STATUS_UNKNOWN);
+        } else {
+          // Goal exists, check if a result is already available
+          resultResponse = this.goalResults.get(goalUuid);
+        }
+
+        if (null == resultResponse) {
+          List<RMWRequestId> requestIds = null;
+          if (rmwRequestId != null) {
+            requestIds = this.goalRequests.get(goalUuid);
+            if (requestIds == null) {
+              requestIds = new ArrayList();
+              this.goalRequests.put(goalUuid, requestIds);
+            }
+          }
+          requestIds.add(rmwRequestId);
+        } else {
+          this.sendResultResponse(rmwRequestId, resultResponse);
+        }
+      }
     }
 
     if (this.isGoalExpiredReady()) {

@@ -126,7 +126,6 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeProcessCancelRequest
  * Method:    nativeCheckGoalExists
  * Signature: (JLorg/ros2/rcljava/interfaces/MessageDefinition;JJ)Z
  */
-
 JNIEXPORT jboolean
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeCheckGoalExists(
   JNIEnv * env, jclass,

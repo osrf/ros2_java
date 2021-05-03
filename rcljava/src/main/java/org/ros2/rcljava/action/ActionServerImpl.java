@@ -634,27 +634,27 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
             requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
             requestMessage);
 
+        if (rmwRequestId == null) {
+          return;
+        }
+
         List<Byte> goalUuid = requestMessage.getGoalUuid();
         boolean goalExists = this.goalExists(this.createGoalInfo(goalUuid));
 
         ResultResponseDefinition<T> resultResponse = null;
         if (!goalExists) {
-          // Goal does not exists
           resultResponse = this.createResultResponse();
           resultResponse.setGoalStatus(action_msgs.msg.GoalStatus.STATUS_UNKNOWN);
         } else {
-          // Goal exists, check if a result is already available
           resultResponse = this.goalResults.get(goalUuid);
         }
 
         if (null == resultResponse) {
           List<RMWRequestId> requestIds = null;
-          if (rmwRequestId != null) {
-            requestIds = this.goalRequests.get(goalUuid);
-            if (requestIds == null) {
-              requestIds = new ArrayList();
-              this.goalRequests.put(goalUuid, requestIds);
-            }
+          requestIds = this.goalRequests.get(goalUuid);
+          if (requestIds == null) {
+            requestIds = new ArrayList();
+            this.goalRequests.put(goalUuid, requestIds);
           }
           requestIds.add(rmwRequestId);
         } else {

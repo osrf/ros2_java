@@ -516,14 +516,10 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   }
 
   private action_msgs.msg.GoalInfo createGoalInfo(List<Byte> goalUuid) {
-    // TODO(ivanpauno): Do we always need to set the time here?
-    builtin_interfaces.msg.Time timeRequestHandled = this.clock.now().toMsg();
     action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
     unique_identifier_msgs.msg.UUID uuidMessage= new unique_identifier_msgs.msg.UUID();
     uuidMessage.setUuid(goalUuid);
     goalInfo.setGoalId(uuidMessage);
-    goalInfo.setStamp(timeRequestHandled);
-
     return goalInfo;
   }
 

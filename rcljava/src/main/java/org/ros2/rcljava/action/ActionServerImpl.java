@@ -193,39 +193,10 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       ResultResponseDefinition resultResponse = ActionServerImpl.this.createResultResponse();
       resultResponse.setGoalStatus(status);
       resultResponse.setResult(result);
+      ActionServerImpl.this.publishResult(goalInfo.getGoalId().getUuidAsList(), resultResponse);
       // TODO: publish status, result, notify goal terminate state
 
-      // BEGIN cpp code to port
-      // bool goalExists;
-      // {
-      //   std::lock_guard<std::recursive_mutex> lock(pimpl_->action_server_reentrant_mutex_);
-      //   goal_exists = rcl_action_server_goal_exists(pimpl_->action_server_.get(), &goal_info);
-      // }
-
-      // if (!goal_exists) {
-      //   throw std::runtime_error("Asked to publish result for goal that does not exist");
-      // }
-
-      // {
-      //   std::lock_guard<std::recursive_mutex> lock(pimpl_->unordered_map_mutex_);
-      //   pimpl_->goal_results_[uuid] = result_msg;
-      // }
-
-      // // if there are clients who already asked for the result, send it to them
-      // auto iter = pimpl_->result_requests_.find(uuid);
-      // if (iter != pimpl_->result_requests_.end()) {
-      //   for (auto & request_header : iter->second) {
-      //     std::lock_guard<std::recursive_mutex> lock(pimpl_->action_server_reentrant_mutex_);
-      //     rcl_ret_t ret = rcl_action_send_result_response(
-      //       pimpl_->action_server_.get(), &request_header, result_msg.get());
-      //     if (RCL_RET_OK != ret) {
-      //       rclcpp::exceptions::throw_from_rcl_error(ret);
-      //     }
-      //   }
-      // }
-      // END cpp code to port
-
-      ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
+      // ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
     }
   }  // class GoalHandleImpl
 
@@ -528,6 +499,22 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       throw new IllegalArgumentException("Failed to instantiate provided action type", ex);
     }
     return resultResponse;
+  }
+
+  private void publishResult(List<Byte> goalUuid, ResultResponseDefinition<T> resultResponse) {
+    boolean goalExists = this.goalExists(this.createGoalInfo(goalUuid));
+    if (!goalExists) {
+      throw new IllegalStateException("Asked to publish result for goal that does not exist");
+    }
+    this.goalResults.put(goalUuid, resultResponse);
+
+    // if there are clients who already asked for the result, send it to them
+    List<RMWRequestId> requests = this.goalRequests.get(goalUuid);
+    if (requests != null) {
+      for (RMWRequestId request : requests) {
+        this.sendResultResponse(request, resultResponse);
+      }
+    }
   }
 
   /**

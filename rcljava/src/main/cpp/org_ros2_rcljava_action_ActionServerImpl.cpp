@@ -391,3 +391,19 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishStatus(
     return;
   }
 }
+
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
+  JNIEnv * env, jclass, jlong jaction_server)
+{
+  assert(0 != jaction_server);
+  auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);
+  rcl_ret_t ret = rcl_action_notify_goal_done(action_server);
+  if (ret != RCL_RET_OK) {
+    std::string msg = \
+      "Failed to notify goal done: " + std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+    return;
+  }
+}

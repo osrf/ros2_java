@@ -195,9 +195,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       resultResponse.setResult(result);
       ActionServerImpl.this.publishResult(goalInfo.getGoalId().getUuidAsList(), resultResponse);
       ActionServerImpl.this.publishStatus();
-      // TODO: notify goal terminate state
-
-      // ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
+      ActionServerImpl.this.notifyGoalDone();
+      ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
     }
   }  // class GoalHandleImpl
 
@@ -484,10 +483,16 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       this.handle, goalInfo, goalInfoFromJavaConverterHandle, goalInfoDestructorHandle);
   }
 
-  private static native void nativePublishStatus();
+  private static native void nativePublishStatus(long handle);
 
   private void publishStatus() {
     this.nativePublishStatus(this.handle);
+  }
+
+  private static native void nativeNofityGoalDone(long handle);
+
+  private void notifyGoalDone() {
+    this.nativeNofityGoalDone(this.handle);
   }
 
   private action_msgs.msg.GoalInfo createGoalInfo(List<Byte> goalUuid) {

@@ -140,6 +140,15 @@ JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishStatus(
   JNIEnv * env, jclass, jlong);
 
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeNotifyGoalDone
+ * Signature: (J)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
+  JNIEnv * env, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif

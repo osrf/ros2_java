@@ -194,7 +194,8 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       resultResponse.setGoalStatus(status);
       resultResponse.setResult(result);
       ActionServerImpl.this.publishResult(goalInfo.getGoalId().getUuidAsList(), resultResponse);
-      // TODO: publish status, result, notify goal terminate state
+      ActionServerImpl.this.publishStatus();
+      // TODO: notify goal terminate state
 
       // ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
     }
@@ -481,6 +482,12 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
     return nativeCheckGoalExists(
       this.handle, goalInfo, goalInfoFromJavaConverterHandle, goalInfoDestructorHandle);
+  }
+
+  private static native void nativePublishStatus();
+
+  private void publishStatus() {
+    this.nativePublishStatus(this.handle);
   }
 
   private action_msgs.msg.GoalInfo createGoalInfo(List<Byte> goalUuid) {

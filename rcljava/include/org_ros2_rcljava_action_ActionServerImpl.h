@@ -131,6 +131,15 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeCheckGoalExists(
   JNIEnv * env, jclass,
   jlong, jobject, jlong, jlong);
 
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativePublishStatus
+ * Signature: (J)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishStatus(
+  JNIEnv * env, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif

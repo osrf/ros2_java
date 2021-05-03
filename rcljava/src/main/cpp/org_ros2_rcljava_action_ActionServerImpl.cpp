@@ -363,3 +363,31 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeCheckGoalExists(
 
   return exists;
 }
+
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishStatus(
+  JNIEnv * env, jclass, jlong jaction_server)
+{
+  assert(0 != jaction_server);
+  auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);
+  rcl_action_goal_status_array_t status_message =
+    rcl_action_get_zero_initialized_goal_status_array();
+  rcl_ret_t ret = rcl_action_get_goal_status_array(action_server, &status_message);
+  if (ret != RCL_RET_OK) {
+    std::string msg = \
+      "Failed to get goal status array: " + std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+    return;
+  }
+
+  ret = rcl_action_publish_status(action_server, &status_message);
+
+  if (ret != RCL_RET_OK) {
+    std::string msg = \
+      "Failed to publish status array: " + std::string(rcl_get_error_string().str);
+    rcl_reset_error();
+    rcljava_throw_rclexception(env, ret, msg);
+    return;
+  }
+}

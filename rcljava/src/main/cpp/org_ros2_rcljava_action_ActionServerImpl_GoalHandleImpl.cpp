@@ -81,10 +81,13 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_native
   return static_cast<jint>(status);
 }
 
-static void update_goal_state(JNIEnv * env, jlong jgoal_handle, rcl_action_goal_event_t event)
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeUpdateGoalState(
+  JNIEnv * env, jclass, jlong jgoal_handle, jlong jevent)
 {
   rcl_action_goal_handle_t * goal_handle = reinterpret_cast<rcl_action_goal_handle_t *>(
     jgoal_handle);
+  auto event = static_cast<rcl_action_goal_event_t>(jevent);
   rcl_ret_t ret = rcl_action_update_goal_state(goal_handle, event);
   if (RCL_RET_OK != ret) {
     std::string msg = "Failed to update goal state with event: " +
@@ -92,41 +95,6 @@ static void update_goal_state(JNIEnv * env, jlong jgoal_handle, rcl_action_goal_
     rcl_reset_error();
     rcljava_throw_rclexception(env, ret, msg);
   }
-}
-
-JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeGoalEventExecute(
-  JNIEnv * env, jclass, jlong jgoal_handle)
-{
-  update_goal_state(env, jgoal_handle, GOAL_EVENT_EXECUTE);
-}
-
-JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeGoalEventCancelGoal(
-  JNIEnv * env, jclass, jlong jgoal_handle)
-{
-  update_goal_state(env, jgoal_handle, GOAL_EVENT_CANCEL_GOAL);
-}
-
-JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeGoalEventSucceed(
-  JNIEnv * env, jclass, jlong jgoal_handle)
-{
-  update_goal_state(env, jgoal_handle, GOAL_EVENT_SUCCEED);
-}
-
-JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeGoalEventAbort(
-  JNIEnv * env, jclass, jlong jgoal_handle)
-{
-  update_goal_state(env, jgoal_handle, GOAL_EVENT_ABORT);
-}
-
-JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeGoalEventCanceled(
-  JNIEnv * env, jclass, jlong jgoal_handle)
-{
-  update_goal_state(env, jgoal_handle, GOAL_EVENT_CANCELED);
 }
 
 JNIEXPORT void

@@ -67,11 +67,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       long goalInfoDestructorHandle,
       MessageDefinition goalInfo);
     private native int nativeGetStatus(long goalHandle);
-    private native void nativeGoalEventExecute(long goalHandle);
-    private native void nativeGoalEventCancelGoal(long goalHandle);
-    private native void nativeGoalEventSucceed(long goalHandle);
-    private native void nativeGoalEventAbort(long goalHandle);
-    private native void nativeGoalEventCanceled(long goalHandle);
+    private native void nativeUpdateGoalState(long goalHandle, long event);
     private native void nativeDispose(long handle);
 
     public GoalHandleImpl(
@@ -140,7 +136,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       // In this case we want to avoid the illegal state transition to EXECUTING
       // but still call the users execute callback to let them handle canceling the goal.
       if (!this.isCanceling()) {
-        nativeGoalEventExecute(this.handle);
+        nativeUpdateGoalState(this.handle, action_msgs.msg.GoalStatus.STATUS_EXECUTING);
       }
     }
 
@@ -148,17 +144,56 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
      * Transition the goal to the CANCELING state.
      */
     public synchronized void cancelGoal() {
-      nativeGoalEventCancelGoal(this.handle);
+      nativeUpdateGoalState(this.handle, action_msgs.msg.GoalStatus.STATUS_CANCELING);
     }
 
     /**
      * {@inheritDoc}
      */
     public synchronized void succeed(ResultDefinition<T> result) {
-      nativeGoalEventSucceed(this.handle);
+      this.toTerminalState(action_msgs.msg.GoalStatus.STATUS_SUCCEEDED, result);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void canceled(ResultDefinition<T> result) {
+      this.toTerminalState(action_msgs.msg.GoalStatus.STATUS_CANCELED, result);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void abort(ResultDefinition<T> result) {
+      this.toTerminalState(action_msgs.msg.GoalStatus.STATUS_ABORTED, result);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void publishFeedback(FeedbackDefinition<T> feedback) {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized final void dispose() {
+      nativeDispose(this.handle);
+      this.handle = 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final long getHandle() {
+      return this.handle;
+    }
+
+    private synchronized final void toTerminalState(byte status, ResultDefinition<T> result) {
+      nativeUpdateGoalState(this.handle, status);
       ResultResponseDefinition resultResponse = ActionServerImpl.this.createResultResponse();
-      int status = nativeGetStatus(this.handle);
-      resultResponse.setGoalStatus((byte) status);
+      resultResponse.setGoalStatus(status);
       resultResponse.setResult(result);
       // TODO: publish status, result, notify goal terminate state
 
@@ -193,42 +228,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       // END cpp code to port
 
       ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void canceled(ResultDefinition<T> result) {
-      nativeGoalEventCanceled(this.handle);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void abort(ResultDefinition<T> result) {
-      nativeGoalEventAbort(this.handle);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void publishFeedback(FeedbackDefinition<T> feedback) {
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized final void dispose() {
-      nativeDispose(this.handle);
-      this.handle = 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final long getHandle() {
-      return this.handle;
     }
   }  // class GoalHandleImpl
 

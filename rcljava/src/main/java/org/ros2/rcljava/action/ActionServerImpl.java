@@ -57,7 +57,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
   class GoalHandleImpl implements ActionServerGoalHandle<T> {
     private long handle;
-    private ActionServer<T> actionServer;
     private action_msgs.msg.GoalInfo goalInfo;
     private MessageDefinition goal;
 
@@ -71,15 +70,14 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     private native void nativeDispose(long handle);
 
     public GoalHandleImpl(
-      ActionServer<T> actionServer, action_msgs.msg.GoalInfo goalInfo, MessageDefinition goal)
+      action_msgs.msg.GoalInfo goalInfo, MessageDefinition goal)
     {
-      this.actionServer = actionServer;
       this.goalInfo = goalInfo;
       this.goal = goal;
       long goalInfoFromJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
       long goalInfoDestructorHandle = goalInfo.getDestructorInstance();
       this.handle = nativeAcceptNewGoal(
-        actionServer.getHandle(),
+        ActionServerImpl.this.getHandle(),
         goalInfoFromJavaConverterHandle,
         goalInfoDestructorHandle,
         goalInfo);
@@ -390,7 +388,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
     // Create a goal handle and add it to the list of goals
     GoalHandleImpl goalHandle = this.new GoalHandleImpl(
-      this, goalInfo, requestMessage.getGoal());
+      goalInfo, requestMessage.getGoal());
     this.goalHandles.put(requestMessage.getGoalUuid(), goalHandle);
     if (GoalCallback.GoalResponse.ACCEPT_AND_EXECUTE == response) {
       goalHandle.execute();

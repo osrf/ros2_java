@@ -26,6 +26,7 @@
 
 #include "org_ros2_rcljava_action_ActionServerImpl_GoalHandleImpl.h"
 
+using rcljava_common::exceptions::rcljava_throw_exception;
 using rcljava_common::exceptions::rcljava_throw_rclexception;
 using rcljava_common::signatures::convert_from_java_signature;
 using rcljava_common::signatures::destroy_ros_message_signature;
@@ -83,11 +84,37 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_native
 
 JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeUpdateGoalState(
-  JNIEnv * env, jclass, jlong jgoal_handle, jlong jevent)
+  JNIEnv * env, jclass, jlong jgoal_handle, jlong jto_status)
 {
-  rcl_action_goal_handle_t * goal_handle = reinterpret_cast<rcl_action_goal_handle_t *>(
-    jgoal_handle);
-  auto event = static_cast<rcl_action_goal_event_t>(jevent);
+  rcl_action_goal_event_t event = GOAL_EVENT_NUM_EVENTS;
+  switch (jto_status) {
+    case GOAL_STATE_EXECUTING:
+      event = GOAL_EVENT_EXECUTE;
+      break;
+    case GOAL_STATE_CANCELING:
+      event = GOAL_EVENT_CANCEL_GOAL;
+      break;
+    case GOAL_STATE_SUCCEEDED:
+      event = GOAL_EVENT_SUCCEED;
+      break;
+    case GOAL_STATE_CANCELED:
+      event = GOAL_EVENT_CANCELED;
+      break;
+    case GOAL_STATE_ABORTED:
+      event = GOAL_EVENT_ABORT;
+      break;
+    case GOAL_STATE_ACCEPTED:  // fallthrough
+    case GOAL_STATE_UNKNOWN:  // fallthrough
+    default:
+      break;
+  }
+  if (event >= GOAL_EVENT_ABORT) {
+    rcljava_throw_exception(
+      env, "java/lang/IllegalStateException", "nativeUpdateGoalState(): Unknown event");
+    return;
+  }
+
+  auto * goal_handle = reinterpret_cast<rcl_action_goal_handle_t *>(jgoal_handle);
   rcl_ret_t ret = rcl_action_update_goal_state(goal_handle, event);
   if (RCL_RET_OK != ret) {
     std::string msg = "Failed to update goal state with event: " +

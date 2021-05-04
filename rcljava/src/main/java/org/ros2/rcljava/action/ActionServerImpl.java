@@ -353,7 +353,6 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       || GoalCallback.GoalResponse.ACCEPT_AND_EXECUTE == response;
     responseMessage.accept(accepted);
 
-    System.out.println("Goal request handled " + accepted);
     if (!accepted) {
       return null;
     }

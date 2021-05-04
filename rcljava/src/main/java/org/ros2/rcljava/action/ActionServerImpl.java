@@ -27,6 +27,7 @@ import org.ros2.rcljava.common.JNIUtils;
 import org.ros2.rcljava.consumers.Consumer;
 import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ActionDefinition;
+import org.ros2.rcljava.interfaces.GoalDefinition;
 import org.ros2.rcljava.interfaces.GoalRequestDefinition;
 import org.ros2.rcljava.interfaces.GoalResponseDefinition;
 import org.ros2.rcljava.interfaces.FeedbackDefinition;
@@ -58,7 +59,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
   class GoalHandleImpl implements ActionServerGoalHandle<T> {
     private long handle;
     private action_msgs.msg.GoalInfo goalInfo;
-    private MessageDefinition goal;
+    private GoalDefinition<T> goal;
 
     private native long nativeAcceptNewGoal(
       long actionServerHandle,
@@ -70,7 +71,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     private native void nativeDispose(long handle);
 
     public GoalHandleImpl(
-      action_msgs.msg.GoalInfo goalInfo, MessageDefinition goal)
+      action_msgs.msg.GoalInfo goalInfo, GoalDefinition<T> goal)
     {
       this.goalInfo = goalInfo;
       this.goal = goal;
@@ -86,14 +87,14 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     /**
      * {@inheritDoc}
      */
-    public Class<? extends MessageDefinition> getResultType() {
+    public Class<? extends ResultDefinition> getResultType() {
       return ActionServerImpl.this.actionTypeInstance.getResultType();
     }
 
     /**
      * {@inheritDoc}
      */
-    public Class<? extends MessageDefinition> getFeedbackType() {
+    public Class<? extends FeedbackDefinition> getFeedbackType() {
       return ActionServerImpl.this.actionTypeInstance.getFeedbackType();
     }
 
@@ -107,7 +108,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     /**
      * {@inheritDoc}
      */
-    public MessageDefinition getGoal() {
+    public GoalDefinition<T> getGoal() {
       return this.goal;
     }
 

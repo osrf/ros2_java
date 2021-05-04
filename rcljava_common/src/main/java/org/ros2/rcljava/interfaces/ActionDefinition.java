@@ -20,6 +20,6 @@ public interface ActionDefinition {
   Class<? extends GoalResponseDefinition> getSendGoalResponseType();
   Class<? extends ResultRequestDefinition> getGetResultRequestType();
   Class<? extends ResultResponseDefinition> getGetResultResponseType();
-  Class<? extends MessageDefinition> getResultType();
-  Class<? extends MessageDefinition> getFeedbackType();
+  Class<? extends ResultDefinition> getResultType();
+  Class<? extends FeedbackDefinition> getFeedbackType();
 }

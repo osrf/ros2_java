@@ -142,27 +142,27 @@ public class @(type_name) implements ActionDefinition {
     }
   }
 
-  public Class<? extends GoalRequestDefinition> getSendGoalRequestType() {
+  public Class<? extends GoalRequestDefinition<@(type_name)>> getSendGoalRequestType() {
     return SendGoalRequest.class;
   }
 
-  public Class<? extends GoalResponseDefinition> getSendGoalResponseType() {
+  public Class<? extends GoalResponseDefinition<@(type_name)>> getSendGoalResponseType() {
     return SendGoalResponse.class;
   }
 
-  public Class<? extends ResultRequestDefinition> getGetResultRequestType() {
+  public Class<? extends ResultRequestDefinition<@(type_name)>> getGetResultRequestType() {
     return GetResultRequest.class;
   }
 
-  public Class<? extends ResultResponseDefinition> getGetResultResponseType() {
+  public Class<? extends ResultResponseDefinition<@(type_name)>> getGetResultResponseType() {
     return GetResultResponse.class;
   }
 
-  public Class<? extends MessageDefinition> getResultType() {
+  public Class<? extends ResultDefinition<@(type_name)>> getResultType() {
     return @(type_name)_Result.class;
   }
 
-  public Class<? extends MessageDefinition> getFeedbackType() {
+  public Class<? extends FeedbackDefinition<@(type_name)>> getFeedbackType() {
     return @(type_name)_Feedback.class;
   }
 

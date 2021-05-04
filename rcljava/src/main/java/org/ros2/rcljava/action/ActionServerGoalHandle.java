@@ -17,7 +17,7 @@ package org.ros2.rcljava.action;
 
 import org.ros2.rcljava.interfaces.ActionDefinition;
 import org.ros2.rcljava.interfaces.Disposable;
-import org.ros2.rcljava.interfaces.MessageDefinition;
+import org.ros2.rcljava.interfaces.GoalDefinition;
 import org.ros2.rcljava.interfaces.FeedbackDefinition;
 import org.ros2.rcljava.interfaces.ResultDefinition;
 
@@ -25,12 +25,12 @@ public interface ActionServerGoalHandle<T extends ActionDefinition> extends Disp
   /**
    * Get the action result type.
    */
-  public Class<? extends MessageDefinition> getResultType();
+  public Class<? extends ResultDefinition> getResultType();
 
   /**
    * Get the action feedback type.
    */
-  public Class<? extends MessageDefinition> getFeedbackType();
+  public Class<? extends FeedbackDefinition> getFeedbackType();
 
   /**
    * Get the message containing the timestamp and ID for the goal.
@@ -40,7 +40,7 @@ public interface ActionServerGoalHandle<T extends ActionDefinition> extends Disp
   /**
    * Get the goal message.
    */
-  public MessageDefinition getGoal();
+  public GoalDefinition<T> getGoal();
 
   /**
    * Get the goal status.

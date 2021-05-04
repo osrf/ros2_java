@@ -495,6 +495,25 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     this.nativeNofityGoalDone(this.handle);
   }
 
+  private static native void nativeExpiredGoals(
+    long handle, action_msgs.msg.GoalInfo goalInfo,
+    long goalInfoToJavaConverterHandle, Consumer<action_msgs.msg.GoalInfo> onExpiredGoal);
+
+  private void expiredGoals() {
+    action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
+    long goalInfoToJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
+    nativeExpiredGoals(
+      this.handle, goalInfo, goalInfoToJavaConverterHandle,
+      new Consumer<action_msgs.msg.GoalInfo>() {
+        public void accept(action_msgs.msg.GoalInfo goalInfo) {
+          List<Byte> goalUuid = goalInfo.getGoalId().getUuidAsList();
+          ActionServerImpl.this.goalResults.remove(goalUuid);
+          ActionServerImpl.this.goalRequests.remove(goalUuid);
+          ActionServerImpl.this.goalHandles.remove(goalUuid);
+        }
+      });
+  }
+
   private action_msgs.msg.GoalInfo createGoalInfo(List<Byte> goalUuid) {
     action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
     unique_identifier_msgs.msg.UUID uuidMessage= new unique_identifier_msgs.msg.UUID();
@@ -656,8 +675,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     if (this.isGoalExpiredReady()) {
-      // cleanupExpiredGoals();
-      // TODO
+      this.expiredGoals();
     }
   }
 

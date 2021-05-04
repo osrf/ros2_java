@@ -149,6 +149,15 @@ JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
   JNIEnv * env, jclass, jlong);
 
+/*
+ * Class:     org_ros2_rcljava_action_ActionServerImpl
+ * Method:    nativeExpiredGoals
+ * Signature: (JLaction_msgs/msg/GoalInfo;JLorg/ros2/rcljava/consumers/Consumer;)
+ */
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpiredGoals(
+  JNIEnv * env, jclass, jlong, jobject, jlong, jobject);
+
 #ifdef __cplusplus
 }
 #endif

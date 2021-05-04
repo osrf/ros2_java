@@ -30,6 +30,7 @@
 
 #include "./convert.hpp"
 
+using rcljava_common::exceptions::rcljava_throw_exception;
 using rcljava_common::exceptions::rcljava_throw_rclexception;
 using rcljava_common::signatures::convert_from_java_signature;
 using rcljava_common::signatures::convert_to_java_signature;
@@ -405,5 +406,48 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
     rcl_reset_error();
     rcljava_throw_rclexception(env, ret, msg);
     return;
+  }
+}
+
+JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpiredGoals(
+  JNIEnv * env, jclass, jlong jaction_server, jobject jgoal_info,  jlong jgoal_info_to_java, jobject jaccept)
+{
+  assert(0 != jaction_server);
+  auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);
+
+  rcl_action_goal_info_t expired_goal;
+  size_t num_expired = 1;
+
+  // Loop in case more than 1 goal expired
+  jclass jaccept_class = env->GetObjectClass(jaccept);
+  if (!jaccept_class) {
+    rcljava_throw_exception(
+      env, "java/lang/IllegalStateException",
+      "nativeExpiredGoals(): could not find jaccept class");
+    return;
+  }
+  jmethodID jaccept_mid = env->GetMethodID(jaccept_class, "accept", "(Laction_msgs/msg/GoalInfo;)V");
+  if (!jaccept_mid) {
+    rcljava_throw_exception(
+      env, "java/lang/IllegalStateException",
+      "nativeExpiredGoals(): could not find jaccept accept method");
+    return;
+  }
+  while (num_expired > 0u) {
+    rcl_ret_t ret;
+    ret = rcl_action_expire_goals(action_server, &expired_goal, 1, &num_expired);
+    if (RCL_RET_OK != ret) {
+      std::string msg = \
+      "Failed to expire goals: " + std::string(rcl_get_error_string().str);
+      rcl_reset_error();
+      rcljava_throw_rclexception(env, ret, msg);
+      return;
+    } else if (num_expired) {
+      auto goal_info_to_java = reinterpret_cast<convert_to_java_signature>(jgoal_info_to_java);
+      goal_info_to_java(&expired_goal, jgoal_info);
+      env->CallVoidMethod(jaccept, jaccept_mid, jgoal_info);
+      RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+    }
   }
 }

@@ -489,10 +489,10 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     this.nativePublishStatus(this.handle);
   }
 
-  private static native void nativeNofityGoalDone(long handle);
+  private static native void nativeNotifyGoalDone(long handle);
 
   private void notifyGoalDone() {
-    this.nativeNofityGoalDone(this.handle);
+    this.nativeNotifyGoalDone(this.handle);
   }
 
   private static native void nativeExpiredGoals(

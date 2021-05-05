@@ -394,6 +394,31 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishStatus(
 }
 
 JNIEXPORT void
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishFeedbackMessage(
+  JNIEnv * env, jclass, jlong jaction_server, jobject jfeedback_msg,
+  jlong jfeedback_from_java, jlong jfeedback_destroy)
+{
+  assert(0 != jaction_server);
+  assert(nullptr != jfeedback_msg);
+  assert(0 != jfeedback_from_java);
+  assert(0 != jfeedback_destroy);
+
+  auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);
+  auto destroy_feedback = reinterpret_cast<destroy_ros_message_signature>(jfeedback_destroy);
+  auto from_java_feedback = reinterpret_cast<convert_from_java_signature>(jfeedback_from_java);
+  void * feedback = from_java_feedback(jfeedback_msg, nullptr);
+  // can the from_java function fail?
+  // if (!feedback) {
+  // }
+  rcl_ret_t ret = rcl_action_publish_feedback(action_server, feedback);
+  destroy_feedback(feedback);
+  if (RCL_RET_OK != ret) {
+    RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "Failed to publish feedback");
+    return;
+  }
+}
+
+JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
   JNIEnv * env, jclass, jlong jaction_server)
 {

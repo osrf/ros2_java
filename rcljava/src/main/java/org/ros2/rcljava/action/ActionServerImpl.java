@@ -31,6 +31,7 @@ import org.ros2.rcljava.interfaces.GoalDefinition;
 import org.ros2.rcljava.interfaces.GoalRequestDefinition;
 import org.ros2.rcljava.interfaces.GoalResponseDefinition;
 import org.ros2.rcljava.interfaces.FeedbackDefinition;
+import org.ros2.rcljava.interfaces.FeedbackMessageDefinition;
 import org.ros2.rcljava.interfaces.ResultDefinition;
 import org.ros2.rcljava.interfaces.ResultRequestDefinition;
 import org.ros2.rcljava.interfaces.ResultResponseDefinition;
@@ -171,7 +172,17 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
      * {@inheritDoc}
      */
     public synchronized void publishFeedback(FeedbackDefinition<T> feedback) {
-
+      Class<? extends FeedbackMessageDefinition> feedbackMessageType =
+        ActionServerImpl.this.actionTypeInstance.getFeedbackMessageType();
+      FeedbackMessageDefinition<T> feedbackMessage = null;
+      try {
+        feedbackMessage = feedbackMessageType.newInstance();
+      } catch (Exception ex) {
+        throw new IllegalArgumentException("Failed to instantiate feedback message", ex);
+      }
+      feedbackMessage.setFeedback(feedback);
+      feedbackMessage.setGoalUuid(this.goalInfo.getGoalId().getUuidAsList());
+      ActionServerImpl.this.publishFeedbackMessage(feedbackMessage);
     }
 
     /**
@@ -487,6 +498,20 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
 
   private void publishStatus() {
     this.nativePublishStatus(this.handle);
+  }
+
+  private static native void nativePublishFeedbackMessage(
+    long handle,
+    FeedbackMessageDefinition feedbackMessage,
+    long feedbackMessageFromJavaConverterHandle,
+    long feedbackMessageDestructorHandle);
+
+  private void publishFeedbackMessage(FeedbackMessageDefinition<T> feedbackMessage) {
+    this.nativePublishFeedbackMessage(
+      this.handle,
+      feedbackMessage,
+      feedbackMessage.getFromJavaConverterInstance(),
+      feedbackMessage.getDestructorInstance());
   }
 
   private static native void nativeNotifyGoalDone(long handle);

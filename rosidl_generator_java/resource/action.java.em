@@ -90,6 +90,7 @@ action_imports = [
     'org.ros2.rcljava.common.JNIUtils',
     'org.ros2.rcljava.interfaces.ActionDefinition',
     'org.ros2.rcljava.interfaces.FeedbackDefinition',
+    'org.ros2.rcljava.interfaces.FeedbackMessageDefinition',
     'org.ros2.rcljava.interfaces.GoalDefinition',
     'org.ros2.rcljava.interfaces.GoalRequestDefinition',
     'org.ros2.rcljava.interfaces.GoalResponseDefinition',
@@ -142,6 +143,15 @@ public class @(type_name) implements ActionDefinition {
     }
   }
 
+  public static class FeedbackMessage extends @(type_name)_FeedbackMessage implements FeedbackMessageDefinition<@(type_name)> {
+    public void setFeedback(FeedbackDefinition<@(type_name)> feedback) {
+      super.setFeedback((@(type_name)_Feedback) feedback);
+    }
+    public void setGoalUuid(List<Byte> goalUuid) {
+      super.getGoalId().setUuid(goalUuid);
+    }
+  }
+
   public Class<? extends GoalRequestDefinition<@(type_name)>> getSendGoalRequestType() {
     return SendGoalRequest.class;
   }
@@ -166,6 +176,10 @@ public class @(type_name) implements ActionDefinition {
     return @(type_name)_Feedback.class;
   }
 
+  public Class<? extends FeedbackMessageDefinition<@(type_name)>> getFeedbackMessageType() {
+    return FeedbackMessage.class;
+  }
+
   private static final Logger logger = LoggerFactory.getLogger(@(type_name).class);
 
   static {
@@ -184,6 +198,4 @@ public class @(type_name) implements ActionDefinition {
   public static final Class<@(type_name)_Result> ResultType = @(type_name)_Result.class;
 
   public static final Class<@(type_name)_Feedback> FeedbackType = @(type_name)_Feedback.class;
-
-  public static final Class<@(type_name)_FeedbackMessage> FeedbackMessageType = @(type_name)_FeedbackMessage.class;
 }

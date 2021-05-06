@@ -143,7 +143,7 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishStatus(
 /*
  * Class:     org_ros2_rcljava_action_ActionServerImpl
  * Method:    nativePublishFeedbackMessage
- * Signature: (JLorg/ros2/rcljava/interfaces/FeedbackMessageDefinition;JJJ)
+ * Signature: (JLorg/ros2/rcljava/interfaces/FeedbackMessageDefinition;JJ)
  */
 JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishFeedbackMessage(

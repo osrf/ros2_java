@@ -21,6 +21,7 @@
 #include "rcl/error_handling.h"
 #include "rcl/rcl.h"
 #include "rcl_action/rcl_action.h"
+#include "rcpputils/scope_exit.hpp"
 #include "rosidl_runtime_c/message_type_support_struct.h"
 
 #include "rcljava_common/exceptions.hpp"
@@ -407,15 +408,14 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishFeedbackMessa
   auto destroy_feedback = reinterpret_cast<destroy_ros_message_signature>(jfeedback_destroy);
   auto from_java_feedback = reinterpret_cast<convert_from_java_signature>(jfeedback_from_java);
   void * feedback = from_java_feedback(jfeedback_msg, nullptr);
-  // can the from_java function fail?
-  // if (!feedback) {
-  // }
-  rcl_ret_t ret = rcl_action_publish_feedback(action_server, feedback);
-  destroy_feedback(feedback);
-  if (RCL_RET_OK != ret) {
-    RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "Failed to publish feedback");
+  auto destroy_feedback_scope_exit = rcpputils::make_scope_exit(
+    [feedback, destroy_feedback] () {destroy_feedback(feedback);});
+  RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
+  if (!feedback) {
     return;
   }
+  rcl_ret_t ret = rcl_action_publish_feedback(action_server, feedback);
+  RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "Failed to publish feedback");
 }
 
 JNIEXPORT void
@@ -425,17 +425,11 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
   assert(0 != jaction_server);
   auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);
   rcl_ret_t ret = rcl_action_notify_goal_done(action_server);
-  if (ret != RCL_RET_OK) {
-    std::string msg = \
-      "Failed to notify goal done: " + std::string(rcl_get_error_string().str);
-    rcl_reset_error();
-    rcljava_throw_rclexception(env, ret, msg);
-    return;
-  }
+  RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "Failed to notify goal done");
 }
 
 JNIEXPORT void
-JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpiredGoals(
+JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpireGoals(
   JNIEnv * env, jclass, jlong jaction_server, jobject jgoal_info, jlong jgoal_info_to_java, jobject jaccept)
 {
   assert(0 != jaction_server);
@@ -449,14 +443,14 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpiredGoals(
   if (!jaccept_class) {
     rcljava_throw_exception(
       env, "java/lang/IllegalStateException",
-      "nativeExpiredGoals(): could not find jaccept class");
+      "nativeExpireGoals(): could not find jaccept class");
     return;
   }
   jmethodID jaccept_mid = env->GetMethodID(jaccept_class, "accept", "(Laction_msgs/msg/GoalInfo;)V");
   if (!jaccept_mid) {
     rcljava_throw_exception(
       env, "java/lang/IllegalStateException",
-      "nativeExpiredGoals(): could not find jaccept accept method");
+      "nativeExpireGoals(): could not find jaccept accept method");
     return;
   }
   while (num_expired > 0u) {

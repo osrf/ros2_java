@@ -205,7 +205,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       ResultResponseDefinition resultResponse = ActionServerImpl.this.createResultResponse();
       resultResponse.setGoalStatus(status);
       resultResponse.setResult(result);
-      ActionServerImpl.this.publishResult(goalInfo.getGoalId().getUuidAsList(), resultResponse);
+      ActionServerImpl.this.sendResult(goalInfo.getGoalId().getUuidAsList(), resultResponse);
       ActionServerImpl.this.publishStatus();
       ActionServerImpl.this.notifyGoalDone();
       ActionServerImpl.this.goalHandles.remove(this.goalInfo.getGoalId().getUuidAsList());
@@ -520,14 +520,14 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     this.nativeNotifyGoalDone(this.handle);
   }
 
-  private static native void nativeExpiredGoals(
+  private static native void nativeExpireGoals(
     long handle, action_msgs.msg.GoalInfo goalInfo,
     long goalInfoToJavaConverterHandle, Consumer<action_msgs.msg.GoalInfo> onExpiredGoal);
 
-  private void expiredGoals() {
+  private void expireGoals() {
     action_msgs.msg.GoalInfo goalInfo = new action_msgs.msg.GoalInfo();
     long goalInfoToJavaConverterHandle = goalInfo.getFromJavaConverterInstance();
-    nativeExpiredGoals(
+    nativeExpireGoals(
       this.handle, goalInfo, goalInfoToJavaConverterHandle,
       new Consumer<action_msgs.msg.GoalInfo>() {
         public void accept(action_msgs.msg.GoalInfo goalInfo) {
@@ -557,7 +557,9 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     return resultResponse;
   }
 
-  private void publishResult(List<Byte> goalUuid, ResultResponseDefinition<T> resultResponse) {
+  // This will store the result, so it can be sent to future result requests, and 
+  // will also send a result response to all requests that were already made.
+  private void sendResult(List<Byte> goalUuid, ResultResponseDefinition<T> resultResponse) {
     boolean goalExists = this.goalExists(this.createGoalInfo(goalUuid));
     if (!goalExists) {
       throw new IllegalStateException("Asked to publish result for goal that does not exist");
@@ -700,7 +702,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     if (this.isGoalExpiredReady()) {
-      this.expiredGoals();
+      this.expireGoals();
     }
   }
 

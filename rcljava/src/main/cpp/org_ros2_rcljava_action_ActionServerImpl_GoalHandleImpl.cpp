@@ -86,6 +86,7 @@ JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_nativeUpdateGoalState(
   JNIEnv * env, jclass, jlong jgoal_handle, jlong jto_status)
 {
+  assert(0 != jgoal_handle);
   rcl_action_goal_event_t event = GOAL_EVENT_NUM_EVENTS;
   switch (jto_status) {
     case GOAL_STATE_EXECUTING:

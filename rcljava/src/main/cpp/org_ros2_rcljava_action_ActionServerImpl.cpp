@@ -436,7 +436,7 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
 
 JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpiredGoals(
-  JNIEnv * env, jclass, jlong jaction_server, jobject jgoal_info,  jlong jgoal_info_to_java, jobject jaccept)
+  JNIEnv * env, jclass, jlong jaction_server, jobject jgoal_info, jlong jgoal_info_to_java, jobject jaccept)
 {
   assert(0 != jaction_server);
   auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);

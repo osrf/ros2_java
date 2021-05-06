@@ -108,7 +108,7 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_00024GoalHandleImpl_native
     default:
       break;
   }
-  if (event >= GOAL_EVENT_ABORT) {
+  if (event >= GOAL_EVENT_NUM_EVENTS) {
     rcljava_throw_exception(
       env, "java/lang/IllegalStateException", "nativeUpdateGoalState(): Unknown event");
     return;

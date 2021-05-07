@@ -409,7 +409,7 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativePublishFeedbackMessa
   auto from_java_feedback = reinterpret_cast<convert_from_java_signature>(jfeedback_from_java);
   void * feedback = from_java_feedback(jfeedback_msg, nullptr);
   auto destroy_feedback_scope_exit = rcpputils::make_scope_exit(
-    [feedback, destroy_feedback] () {destroy_feedback(feedback);});
+    [feedback, destroy_feedback]() {destroy_feedback(feedback);});
   RCLJAVA_COMMON_CHECK_FOR_EXCEPTION(env);
   if (!feedback) {
     return;
@@ -430,7 +430,8 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeNotifyGoalDone(
 
 JNIEXPORT void
 JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpireGoals(
-  JNIEnv * env, jclass, jlong jaction_server, jobject jgoal_info, jlong jgoal_info_to_java, jobject jaccept)
+  JNIEnv * env, jclass, jlong jaction_server, jobject jgoal_info,
+  jlong jgoal_info_to_java, jobject jaccept)
 {
   assert(0 != jaction_server);
   auto * action_server = reinterpret_cast<rcl_action_server_t *>(jaction_server);
@@ -446,7 +447,8 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpireGoals(
       "nativeExpireGoals(): could not find jaccept class");
     return;
   }
-  jmethodID jaccept_mid = env->GetMethodID(jaccept_class, "accept", "(Laction_msgs/msg/GoalInfo;)V");
+  jmethodID jaccept_mid = env->GetMethodID(
+    jaccept_class, "accept", "(Laction_msgs/msg/GoalInfo;)V");
   if (!jaccept_mid) {
     rcljava_throw_exception(
       env, "java/lang/IllegalStateException",
@@ -456,13 +458,8 @@ JNICALL Java_org_ros2_rcljava_action_ActionServerImpl_nativeExpireGoals(
   while (num_expired > 0u) {
     rcl_ret_t ret;
     ret = rcl_action_expire_goals(action_server, &expired_goal, 1, &num_expired);
-    if (RCL_RET_OK != ret) {
-      std::string msg = \
-      "Failed to expire goals: " + std::string(rcl_get_error_string().str);
-      rcl_reset_error();
-      rcljava_throw_rclexception(env, ret, msg);
-      return;
-    } else if (num_expired) {
+    RCLJAVA_COMMON_THROW_FROM_RCL(env, ret, "Failed to expire goals");
+    if (num_expired) {
       auto goal_info_to_java = reinterpret_cast<convert_to_java_signature>(jgoal_info_to_java);
       goal_info_to_java(&expired_goal, jgoal_info);
       env->CallVoidMethod(jaccept, jaccept_mid, jgoal_info);

@@ -15,7 +15,7 @@ jobs:
               {
                 "build": {
                   "cmake-args": [
-                      "-DCMAKE_JAVA_COMPILE_FLAGS=--release;6;-Xlint:-options",
+                      "-DCMAKE_JAVA_COMPILE_FLAGS=-source;1.6;-target;1.6;-Xlint:-options",
                       "--no-warn-unused-cli"
                   ]
                 }

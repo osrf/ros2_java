@@ -4,7 +4,27 @@ on: [push]
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        rosdistro: [rolling]
+        os: [ubuntu-20.04]
+        java_version: [6, default]
+        include:
+          - java_version: 6
+            colcon_defaults: |
+              {
+                "build": {
+                  "cmake-args": [
+                      "-DCMAKE_JAVA_COMPILE_FLAGS=--release;6;-Xlint:-options",
+                      "--no-warn-unused-cli"
+                  ]
+                }
+              }
+          - java_version: default
+            colcon_defaults: |
+              {
+              }
+    runs-on: ${{matrix.os}}
     steps:
     - name: Install Java
       run: |
@@ -13,21 +33,13 @@ jobs:
     - uses: actions/checkout@v2
     - uses: ros-tooling/setup-ros@v0.2
       with:
-        required-ros-distributions: rolling
+        required-ros-distributions: ${{matrix.rosdistro}}
     - uses: ros-tooling/action-ros-ci@master
       with:
         package-name: rosidl_generator_java rcljava_common rcljava
-        target-ros2-distro: rolling
+        target-ros2-distro: ${{matrix.rosdistro}}
         vcs-repo-file-url: ${{ github.workspace }}/ros2_java_desktop.repos
-        colcon-defaults: |
-          {
-            "build": {
-              "cmake-args": [
-                  "-DCMAKE_JAVA_COMPILE_FLAGS=--release;6;-Xlint:-options",
-                  "--no-warn-unused-cli"
-              ]
-            }
-          }
+        colcon-defaults: ${{matrix.colcon_defaults}}
 #   build_android:
 #     runs-on: ubuntu-18.04
 #     steps:

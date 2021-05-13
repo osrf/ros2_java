@@ -38,10 +38,6 @@ if(NOT WIN32)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-if (NOT CMAKE_JAVA_COMPILE_FLAGS)
-  set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-Xlint:-options")
-endif()
-
 include_directories(include)
 
 function(set_properties _target_name _build_type)

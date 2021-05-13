@@ -19,7 +19,15 @@ jobs:
         package-name: rosidl_generator_java rcljava_common rcljava
         target-ros2-distro: rolling
         vcs-repo-file-url: ${{ github.workspace }}/ros2_java_desktop.repos
-
+        colcon-defaults: |
+          {
+            "build": {
+              "cmake-args": [
+                  "-DCMAKE_JAVA_COMPILE_FLAGS=--release;6;-Xlint:-options",
+                  "--no-warn-unused-cli"
+              ]
+            }
+          }
 #   build_android:
 #     runs-on: ubuntu-18.04
 #     steps:

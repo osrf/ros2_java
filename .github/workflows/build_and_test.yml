@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build_and_test:
     strategy:
+      fail-fast: false
       matrix:
         rosdistro: [rolling]
         os: [ubuntu-20.04]

@@ -102,6 +102,7 @@ elif message_c_include_prefix.endswith('__get_result'):
 @
 #include <jni.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <string>
@@ -268,7 +269,7 @@ jni_signature = get_jni_signature(base_type)
     auto _dest_@(member.name) = ros_message->@(member.name);
 @[    end if]@
 @[    if isinstance(member.type.value_type, BasicType)]@
-    j@(get_java_name) *_jarray_@(member.name)_ptr = env->Get@(get_method_name)ArrayElements(_jarray_@(member.name)_obj, nullptr);
+    j@(get_java_name) * _jarray_@(member.name)_ptr = env->Get@(get_method_name)ArrayElements(_jarray_@(member.name)_obj, nullptr);
     std::copy(_jarray_@(member.name)_ptr, _jarray_@(member.name)_ptr + _jarray_@(member.name)_size, _dest_@(member.name));
     env->Release@(get_method_name)ArrayElements(_jarray_@(member.name)_obj, _jarray_@(member.name)_ptr, 0);
 @[    else]@
@@ -381,12 +382,12 @@ jni_signature = get_jni_signature(base_type)
 @[    if isinstance(member.type.value_type, BasicType)]@
 @[      if isinstance(member.type, Array)]@
   j@(get_java_name)Array _jarray_@(member.name)_obj = env->New@(get_method_name)Array(@(member.type.size));
-  j@(get_java_name) *_j@(get_java_name)_@(member.name)_buf = (j@(get_java_name) *)malloc(sizeof(j@(get_java_name)) * @(member.type.size));
+  auto * _j@(get_java_name)_@(member.name)_buf = static_cast<j@(get_java_name) *>(malloc(sizeof(j@(get_java_name)) * @(member.type.size)));
   std::copy(_ros_message->@(member.name), _ros_message->@(member.name) + @(member.type.size), _j@(get_java_name)_@(member.name)_buf);
   env->Set@(get_method_name)ArrayRegion(_jarray_@(member.name)_obj, 0, @(member.type.size), (const j@(get_java_name) *)_j@(get_java_name)_@(member.name)_buf);
 @[      else]@
   j@(get_java_name)Array _jarray_@(member.name)_obj = env->New@(get_method_name)Array(_ros_message->@(member.name).size);
-  j@(get_java_name) *_j@(get_java_name)_@(member.name)_buf = (j@(get_java_name) *)malloc(sizeof(j@(get_java_name)) * _ros_message->@(member.name).size);
+  auto * _j@(get_java_name)_@(member.name)_buf = static_cast<j@(get_java_name) *>(malloc(sizeof(j@(get_java_name)) * _ros_message->@(member.name).size));
   std::copy(_ros_message->@(member.name).data, _ros_message->@(member.name).data + _ros_message->@(member.name).size, _j@(get_java_name)_@(member.name)_buf);
   env->Set@(get_method_name)ArrayRegion(_jarray_@(member.name)_obj, 0, _ros_message->@(member.name).size, (const j@(get_java_name) *)_j@(get_java_name)_@(member.name)_buf);
 @[      end if]@

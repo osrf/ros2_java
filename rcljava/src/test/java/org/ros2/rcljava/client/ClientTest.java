@@ -123,8 +123,8 @@ public class ClientTest {
     // Check the contents of the response
     assertEquals(5, response.getSum());
 
-    assertEquals(1, node.getClients().size());
-    assertEquals(1, node.getServices().size());
+    assertEquals(7, node.getClients().size());
+    assertEquals(7, node.getServices().size());
 
     // We expect that calling dispose should result in a zero handle
     // and the reference is dropped from the Node

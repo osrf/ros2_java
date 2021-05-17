@@ -123,7 +123,7 @@ public class ClientTest {
     // Check the contents of the response
     assertEquals(5, response.getSum());
 
-    assertEquals(7, node.getClients().size());
+    assertEquals(1, node.getClients().size());
     assertEquals(7, node.getServices().size());
 
     // We expect that calling dispose should result in a zero handle
@@ -133,6 +133,6 @@ public class ClientTest {
     assertEquals(0, node.getClients().size());
     service.dispose();
     assertEquals(0, service.getHandle());
-    assertEquals(0, node.getServices().size());
+    assertEquals(6, node.getServices().size());
   }
 }

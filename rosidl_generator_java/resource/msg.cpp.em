@@ -1,4 +1,7 @@
 @# Included from rosidl_generator_java/resource/idl.cpp.em
+// generated from rosidl_generator_java/resource/msg.cpp.em
+// with input from @(package_name):@(interface_path)
+// generated code does not contain a copyright notice
 @{
 from collections import defaultdict
 
@@ -96,7 +99,7 @@ elif message_c_include_prefix.endswith('__send_goal'):
 elif message_c_include_prefix.endswith('__get_result'):
     message_c_include_prefix = message_c_include_prefix[:-12]
 }@
-
+@
 #include <jni.h>
 
 #include <cassert>
@@ -563,7 +566,7 @@ JNIEXPORT jlong JNICALL Java_@(underscore_separated_jni_type_name)_getToJavaConv
 
 JNIEXPORT jlong JNICALL Java_@(underscore_separated_jni_type_name)_getTypeSupport(JNIEnv *, jclass)
 {
-  jlong ptr = reinterpret_cast<jlong>(ROSIDL_GET_MSG_TYPE_SUPPORT(@(','.join(message.structure.namespaced_type.namespaced_name()))));
+  jlong ptr = reinterpret_cast<jlong>(ROSIDL_GET_MSG_TYPE_SUPPORT(@(', '.join(message.structure.namespaced_type.namespaced_name()))));
   return ptr;
 }
 

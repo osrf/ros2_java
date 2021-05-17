@@ -25,10 +25,12 @@ import org.ros2.rcljava.interfaces.MessageDefinition;
 import org.ros2.rcljava.interfaces.ServiceDefinition;
 import org.ros2.rcljava.service.RMWRequestId;
 
+// TODO(ivanpauno): We really need to improve type safety to be able to fix some of the
+// warnings we're seeing.
 public interface Client<T extends ServiceDefinition> extends Disposable {
-  <U extends MessageDefinition> Class<U> getRequestType();
+  Class<MessageDefinition> getRequestType();
 
-  <U extends MessageDefinition> Class<U> getResponseType();
+  Class<MessageDefinition> getResponseType();
 
   <U extends MessageDefinition> void handleResponse(RMWRequestId header, U response);
 

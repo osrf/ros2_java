@@ -16,6 +16,7 @@
 package org.ros2.rcljava.action;
 
 import java.lang.ref.WeakReference;
+import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -168,18 +169,23 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
       this.toTerminalState(action_msgs.msg.GoalStatus.STATUS_ABORTED, result);
     }
 
+    @SuppressWarnings("unchecked")
+    private FeedbackMessageDefinition<T> newFeedbackMessageInstance() {
+      Class<? extends FeedbackMessageDefinition> feedbackMessageType =
+        ActionServerImpl.this.actionTypeInstance.getFeedbackMessageType();
+      try {
+        // Safety: The generated code ensures this cast is always correct.
+        return feedbackMessageType.getDeclaredConstructor().newInstance();
+      } catch (ReflectiveOperationException ex) {
+        throw new IllegalArgumentException("Failed to instantiate feedback message: ", ex);
+      }
+    }
+
     /**
      * {@inheritDoc}
      */
     public synchronized void publishFeedback(FeedbackDefinition<T> feedback) {
-      Class<? extends FeedbackMessageDefinition> feedbackMessageType =
-        ActionServerImpl.this.actionTypeInstance.getFeedbackMessageType();
-      FeedbackMessageDefinition<T> feedbackMessage = null;
-      try {
-        feedbackMessage = feedbackMessageType.getDeclaredConstructor().newInstance();
-      } catch (ReflectiveOperationException ex) {
-        throw new IllegalArgumentException("Failed to instantiate feedback message: ", ex);
-      }
+      FeedbackMessageDefinition<T> feedbackMessage = newFeedbackMessageInstance();
       feedbackMessage.setFeedback(feedback);
       feedbackMessage.setGoalUuid(this.goalInfo.getGoalId().getUuidAsList());
       ActionServerImpl.this.publishFeedbackMessage(feedbackMessage);
@@ -337,6 +343,12 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     return false;
   }
 
+  @SuppressWarnings("unchecked")
+  private GoalCallback.GoalResponse handleGoalRequestUnchecked(GoalRequestDefinition<T> request) {
+    // Safety: The generated interface code guarantees the cast is safe.
+    return this.goalCallback.handleGoal(request);
+  }
+
   private ActionServerGoalHandle<T> executeGoalRequest(
     RMWRequestId rmwRequestId,
     GoalRequestDefinition<T> requestMessage,
@@ -358,7 +370,7 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     // Call user callback
-    GoalCallback.GoalResponse response = this.goalCallback.handleGoal(requestMessage);
+    GoalCallback.GoalResponse response = handleGoalRequestUnchecked(requestMessage);
 
     boolean accepted = GoalCallback.GoalResponse.ACCEPT_AND_DEFER == response
       || GoalCallback.GoalResponse.ACCEPT_AND_EXECUTE == response;
@@ -542,15 +554,15 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     return goalInfo;
   }
 
+  @SuppressWarnings("unchecked")
   private ResultResponseDefinition<T> createResultResponse() {
-    ResultResponseDefinition<T> resultResponse;
     try {
-      resultResponse =
+      // TODO(ivanpauno): The generated code guarantees the cast is safe.
+      return
         this.actionTypeInstance.getGetResultResponseType().getDeclaredConstructor().newInstance();
     } catch (ReflectiveOperationException ex) {
-      throw new IllegalStateException("Failed to instantiate provided action type: ", ex);
+      throw new IllegalStateException("Failed to instantiate GetResult response type: ", ex);
     }
-    return resultResponse;
   }
 
   // This will store the result, so it can be sent to future result requests, and 
@@ -571,23 +583,48 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private GoalRequestDefinition<T> createSendGoalRequest() {
+    try {
+      // TODO(ivanpauno): The generated code guarantees the cast is safe.
+      return
+        this.actionTypeInstance.getSendGoalRequestType().getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException ex) {
+      throw new IllegalStateException("Failed to instantiate create SendGoal request: ", ex);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private GoalResponseDefinition<T> createSendGoalResponse() {
+    try {
+      // TODO(ivanpauno): The generated code guarantees the cast is safe.
+      return
+        this.actionTypeInstance.getSendGoalResponseType().getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException ex) {
+      throw new IllegalStateException("Failed to instantiate create SendGoal response: ", ex);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private ResultRequestDefinition<T> createGetResultRequest() {
+    try {
+      // TODO(ivanpauno): The generated code guarantees the cast is safe.
+      return
+        this.actionTypeInstance.getGetResultRequestType().getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException ex) {
+      throw new IllegalStateException("Failed to instantiate create GetResult request: ", ex);
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
   public void execute() {
     if (this.isGoalRequestReady()) {
-      Class<? extends GoalRequestDefinition> requestType = this.actionTypeInstance.getSendGoalRequestType();
       Class<? extends GoalResponseDefinition> responseType = this.actionTypeInstance.getSendGoalResponseType();
 
-      GoalRequestDefinition<T> requestMessage = null;
-      GoalResponseDefinition<T> responseMessage = null;
-
-      try {
-        requestMessage = requestType.getDeclaredConstructor().newInstance();
-        responseMessage = responseType.getDeclaredConstructor().newInstance();
-      } catch (ReflectiveOperationException ex) {
-        throw new IllegalStateException("Failed to instantiate request or responce: ", ex);
-      }
+      GoalRequestDefinition<T> requestMessage = this.createSendGoalRequest();
+      GoalResponseDefinition<T> responseMessage = this.createSendGoalResponse();
 
       if (requestMessage != null && responseMessage != null) {
         long requestFromJavaConverterHandle = requestMessage.getFromJavaConverterInstance();
@@ -643,52 +680,43 @@ public class ActionServerImpl<T extends ActionDefinition> implements ActionServe
     }
 
     if (this.isResultRequestReady()) {
-      Class<? extends ResultRequestDefinition> requestType = this.actionTypeInstance.getGetResultRequestType();
+      ResultRequestDefinition<T> requestMessage = createGetResultRequest();
 
-      ResultRequestDefinition<T> requestMessage = null;
-      try {
-        requestMessage = requestType.getDeclaredConstructor().newInstance();
-      } catch (ReflectiveOperationException ex) {
-        throw new IllegalArgumentException("Failed to instantiate action result request: ", ex);
+      long requestFromJavaConverterHandle = requestMessage.getFromJavaConverterInstance();
+      long requestToJavaConverterHandle = requestMessage.getToJavaConverterInstance();
+      long requestDestructorHandle = requestMessage.getDestructorInstance();
+
+      RMWRequestId rmwRequestId =
+        nativeTakeResultRequest(
+          this.handle,
+          requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
+          requestMessage);
+
+      if (rmwRequestId == null) {
+        return;
       }
 
-      if (requestMessage != null) {
-        long requestFromJavaConverterHandle = requestMessage.getFromJavaConverterInstance();
-        long requestToJavaConverterHandle = requestMessage.getToJavaConverterInstance();
-        long requestDestructorHandle = requestMessage.getDestructorInstance();
+      List<Byte> goalUuid = requestMessage.getGoalUuid();
+      boolean goalExists = this.goalExists(this.createGoalInfo(goalUuid));
 
-        RMWRequestId rmwRequestId =
-          nativeTakeResultRequest(
-            this.handle,
-            requestFromJavaConverterHandle, requestToJavaConverterHandle, requestDestructorHandle,
-            requestMessage);
+      ResultResponseDefinition<T> resultResponse = null;
+      if (!goalExists) {
+        resultResponse = this.createResultResponse();
+        resultResponse.setGoalStatus(action_msgs.msg.GoalStatus.STATUS_UNKNOWN);
+      } else {
+        resultResponse = this.goalResults.get(goalUuid);
+      }
 
-        if (rmwRequestId == null) {
-          return;
+      if (null == resultResponse) {
+        List<RMWRequestId> requestIds = null;
+        requestIds = this.goalRequests.get(goalUuid);
+        if (requestIds == null) {
+          requestIds = new ArrayList<RMWRequestId>();
+          this.goalRequests.put(goalUuid, requestIds);
         }
-
-        List<Byte> goalUuid = requestMessage.getGoalUuid();
-        boolean goalExists = this.goalExists(this.createGoalInfo(goalUuid));
-
-        ResultResponseDefinition<T> resultResponse = null;
-        if (!goalExists) {
-          resultResponse = this.createResultResponse();
-          resultResponse.setGoalStatus(action_msgs.msg.GoalStatus.STATUS_UNKNOWN);
-        } else {
-          resultResponse = this.goalResults.get(goalUuid);
-        }
-
-        if (null == resultResponse) {
-          List<RMWRequestId> requestIds = null;
-          requestIds = this.goalRequests.get(goalUuid);
-          if (requestIds == null) {
-            requestIds = new ArrayList();
-            this.goalRequests.put(goalUuid, requestIds);
-          }
-          requestIds.add(rmwRequestId);
-        } else {
-          this.sendResultResponse(rmwRequestId, resultResponse);
-        }
+        requestIds.add(rmwRequestId);
+      } else {
+        this.sendResultResponse(rmwRequestId, resultResponse);
       }
     }
 

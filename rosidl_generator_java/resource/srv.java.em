@@ -38,6 +38,7 @@ expand_template(
 
 service_imports = [
     'org.ros2.rcljava.common.JNIUtils',
+    'org.ros2.rcljava.interfaces.MessageDefinition',
     'org.ros2.rcljava.interfaces.ServiceDefinition',
     'org.slf4j.Logger',
     'org.slf4j.LoggerFactory',
@@ -62,6 +63,14 @@ public class @(type_name) implements ServiceDefinition {
   }
 
   public static native long getServiceTypeSupport();
+
+  public Class<? extends MessageDefinition> getRequestType() {
+    return this.RequestType;
+  }
+
+  public Class<? extends MessageDefinition> getResponseType() {
+    return this.ResponseType;
+  }
 
   public static final Class<@(type_name)_Request> RequestType = @(type_name)_Request.class;
 

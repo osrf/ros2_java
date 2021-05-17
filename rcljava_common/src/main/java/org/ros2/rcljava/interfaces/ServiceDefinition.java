@@ -15,4 +15,7 @@
 
 package org.ros2.rcljava.interfaces;
 
-public interface ServiceDefinition {}
+public interface ServiceDefinition {
+  Class<? extends MessageDefinition> getRequestType();
+  Class<? extends MessageDefinition> getResponseType();
+}

@@ -98,6 +98,7 @@ elif message_c_include_prefix.endswith('__send_goal'):
     message_c_include_prefix = message_c_include_prefix[:-11]
 elif message_c_include_prefix.endswith('__get_result'):
     message_c_include_prefix = message_c_include_prefix[:-12]
+member_includes.add(f'{message_c_include_prefix}.h')
 }@
 @
 #include <jni.h>
@@ -115,8 +116,6 @@ elif message_c_include_prefix.endswith('__get_result'):
 @[for include in member_includes]@
 #include "@(include)"
 @[end for]@
-
-#include "@(message_c_include_prefix).h"
 
 // Ensure that a jlong is big enough to store raw pointers
 static_assert(sizeof(jlong) >= sizeof(std::intptr_t), "jlong must be able to store pointers");

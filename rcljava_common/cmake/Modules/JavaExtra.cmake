@@ -180,7 +180,7 @@ function(add_source_jar _TARGET_NAME)
 
   cmake_parse_arguments(_add_source_jar
     ""
-    "OUTPUT_NAME"
+    "OUTPUT_NAME;JAR_ROOT_PATH"
     "SOURCES"
     ${ARGN}
   )
@@ -192,10 +192,16 @@ function(add_source_jar _TARGET_NAME)
   set(_SOURCE_FILES ${_add_source_jar_SOURCES} ${_add_source_jar_UNPARSED_ARGUMENTS})
   set(_JAVA_JAR_SOURCES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_add_source_jar_OUTPUT_NAME}.jar)
 
+  set(_FIXED_PATH_FILES)
+  foreach(_SOURCE_FILE IN LISTS _SOURCE_FILES)
+    string(REPLACE ${_add_source_jar_JAR_ROOT_PATH} "" _FIXED_PATH_FILE ${_SOURCE_FILE})
+    list(APPEND _FIXED_PATH_FILES ${_FIXED_PATH_FILE})
+  endforeach()
+
   add_custom_command(
     OUTPUT ${_add_source_jar_OUTPUT_NAME}
-    COMMAND ${Java_JAR_EXECUTABLE} -cf ${_JAVA_JAR_SOURCES_OUTPUT} ${_SOURCE_FILES}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${Java_JAR_EXECUTABLE} -cf ${_JAVA_JAR_SOURCES_OUTPUT} ${_FIXED_PATH_FILES}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${_add_source_jar_JAR_ROOT_PATH}
   )
   add_custom_target(${_TARGET_NAME} ALL DEPENDS ${_add_source_jar_OUTPUT_NAME})
 

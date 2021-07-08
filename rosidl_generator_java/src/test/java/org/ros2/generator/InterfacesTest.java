@@ -40,9 +40,9 @@ public class InterfacesTest {
     public byte[] byteArrShort = new byte[]{1};
     public List<Byte> byteListShort = Arrays.asList((byte) 1);
     public byte[] charArr = new byte[]{(byte) ' ', (byte) 'a', (byte) 'Z'};
-    public List<Byte> charList = Arrays.asList(new Byte((byte) ' '), new Byte((byte) 'a'), new Byte((byte) 'Z'));
+    public List<Byte> charList = Arrays.asList(Byte.valueOf((byte) ' '), Byte.valueOf((byte) 'a'), Byte.valueOf((byte) 'Z'));
     public byte[] charArrShort = new byte[]{(byte) 'z', (byte) 'A'};
-    public List<Byte> charListShort = Arrays.asList(new Byte((byte) 'z'), new Byte((byte) 'A'));
+    public List<Byte> charListShort = Arrays.asList(Byte.valueOf((byte) 'z'), Byte.valueOf((byte) 'A'));
     public float[] float32Arr = new float[]{0.0f, -1.125f, 1.125f};
     public List<Float> float32List = Arrays.asList(0.0f, -1.125f, 1.125f);
     public float[] float32ArrShort = new float[]{1.125f, -1.125f};
@@ -58,7 +58,7 @@ public class InterfacesTest {
     public byte[] uint8Arr = new byte[]{(byte) 0, (byte) 1, (byte) 255};
     public List<Byte> uint8List = Arrays.asList((byte) 0, (byte) 1, (byte) 255);
     public byte[] uint8ArrShort = new byte[]{(byte) 255, (byte) 1};
-    public List uint8ListShort = Arrays.asList((byte) 255, (byte) 1);
+    public List<Byte> uint8ListShort = Arrays.asList((byte) 255, (byte) 1);
     public short[] int16Arr = new short[]{0, -32768, 32767};
     public List<Short> int16List = Arrays.asList((short) 0, (short) -32768, (short) 32767);
     public short[] int16ArrShort = new short[]{32767, -32768};
@@ -84,9 +84,9 @@ public class InterfacesTest {
     public long[] uint64ArrShort = new long[]{0L, 1L, -1L};
     public List<Long> uint64ListShort = Arrays.asList(0L, 1L, -1L);
     public String[] stringArr = new String[]{"", "min value", "max_value"};
-    public List stringList = Arrays.asList(stringArr);
+    public List<String> stringList = Arrays.asList(stringArr);
     public String[] stringArrShort = new String[]{"max_value", ""};
-    public List stringListShort = Arrays.asList(stringArrShort);
+    public List<String> stringListShort = Arrays.asList(stringArrShort);
     private rosidl_generator_java.msg.BasicTypes basicTypes = new rosidl_generator_java.msg.BasicTypes();
     public rosidl_generator_java.msg.BasicTypes[] basicTypesArr =
         new rosidl_generator_java.msg.BasicTypes[] {basicTypes, basicTypes, basicTypes};
@@ -125,8 +125,8 @@ public class InterfacesTest {
     {
       // Configure log4j. Doing this dynamically so that Android does not complain about missing
       // the log4j JARs, SLF4J uses Android's native logging mechanism instead.
-      Class c = Class.forName("org.apache.log4j.BasicConfigurator");
-      Method m = c.getDeclaredMethod("configure", (Class<?>[]) null);
+      Class<?> c = Class.forName("org.apache.log4j.BasicConfigurator");
+      Method m = c.getDeclaredMethod("configure", (Class[]) null);
       Object o = m.invoke(null, (Object[]) null);
     }
     catch (Exception e)

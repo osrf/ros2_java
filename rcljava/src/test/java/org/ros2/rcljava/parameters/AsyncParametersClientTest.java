@@ -76,7 +76,7 @@ public class AsyncParametersClientTest {
     {
       // Configure log4j. Doing this dynamically so that Android does not complain about missing
       // the log4j JARs, SLF4J uses Android's native logging mechanism instead.
-      Class c = Class.forName("org.apache.log4j.BasicConfigurator");
+      Class<?> c = Class.forName("org.apache.log4j.BasicConfigurator");
       Method m = c.getDeclaredMethod("configure", (Class<?>[]) null);
       Object o = m.invoke(null, (Object[]) null);
     }
@@ -115,7 +115,9 @@ public class AsyncParametersClientTest {
     RCLFuture<List<rcl_interfaces.msg.SetParametersResult>> future =
         new RCLFuture<List<rcl_interfaces.msg.SetParametersResult>>(
             new WeakReference<Node>(this.node));
-    parametersClient.setParameters(parameters, new TestConsumer(future));
+    parametersClient.setParameters(
+      parameters,
+      new TestConsumer<List<rcl_interfaces.msg.SetParametersResult>>(future));
 
     List<String> parameterNames =
         Arrays.asList(new String[] {"foo", "bar", "baz", "foo.first", "foo.second", "foobar"});
@@ -144,7 +146,9 @@ public class AsyncParametersClientTest {
 
     RCLFuture<List<ParameterVariant>> future =
         new RCLFuture<List<ParameterVariant>>(new WeakReference<Node>(this.node));
-    parametersClient.getParameters(parameterNames, new TestConsumer(future));
+    parametersClient.getParameters(
+      parameterNames,
+      new TestConsumer<List<ParameterVariant>>(future));
 
     assertEquals(parameters, future.get());
   }
@@ -161,7 +165,10 @@ public class AsyncParametersClientTest {
     RCLFuture<rcl_interfaces.msg.ListParametersResult> future =
         new RCLFuture<rcl_interfaces.msg.ListParametersResult>(new WeakReference<Node>(this.node));
     parametersClient.listParameters(
-        Arrays.asList(new String[] {"foo", "bar"}), 10, new TestConsumer(future));
+        Arrays.asList(
+          new String[] {"foo", "bar"}),
+          10,
+          new TestConsumer<rcl_interfaces.msg.ListParametersResult>(future));
 
     assertArrayEquals(new String[] {"foo.first", "foo.second"}, future.get().getNames());
     assertArrayEquals(new String[] {"foo"}, future.get().getPrefixes());
@@ -180,7 +187,8 @@ public class AsyncParametersClientTest {
         new RCLFuture<List<rcl_interfaces.msg.ParameterDescriptor>>(
             new WeakReference<Node>(this.node));
     parametersClient.describeParameters(
-        Arrays.asList(new String[] {"foo", "bar"}), new TestConsumer(future));
+        Arrays.asList(new String[] {"foo", "bar"}),
+        new TestConsumer<List<rcl_interfaces.msg.ParameterDescriptor>>(future));
 
     List<rcl_interfaces.msg.ParameterDescriptor> expected =
         Arrays.asList(new rcl_interfaces.msg.ParameterDescriptor[] {

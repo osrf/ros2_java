@@ -112,7 +112,7 @@ public class NodeTest {
     {
       // Configure log4j. Doing this dynamically so that Android does not complain about missing
       // the log4j JARs, SLF4J uses Android's native logging mechanism instead.
-      Class c = Class.forName("org.apache.log4j.BasicConfigurator");
+      Class<?> c = Class.forName("org.apache.log4j.BasicConfigurator");
       Method m = c.getDeclaredMethod("configure", (Class<?>[]) null);
       Object o = m.invoke(null, (Object[]) null);
     }
@@ -975,19 +975,19 @@ public class NodeTest {
           namesAndTypes.contains(
             new NameAndTypes(
               "/test_get_topic_names_and_types_one",
-              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+              Arrays.asList("rcljava/msg/UInt32"))));
         assertTrue(
           "topic 'test_get_topic_names_and_types_two' was not discovered",
           namesAndTypes.contains(
             new NameAndTypes(
               "/test_get_topic_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+              Arrays.asList("rcljava/msg/UInt32"))));
         assertTrue(
           "topic 'test_get_topic_names_and_types_three' was not discovered",
           namesAndTypes.contains(
             new NameAndTypes(
               "/test_get_topic_names_and_types_three",
-              new ArrayList(Arrays.asList("rcljava/msg/Empty")))));
+              Arrays.asList("rcljava/msg/Empty"))));
       }
     };
 
@@ -1044,13 +1044,13 @@ public class NodeTest {
           namesAndTypes.contains(
             new NameAndTypes(
               "/test_service_names_and_types_one",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
         assertTrue(
           "service 'test_service_names_and_types_two' was not discovered",
           namesAndTypes.contains(
             new NameAndTypes(
               "/test_service_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
       }
     };
 
@@ -1218,13 +1218,13 @@ public class NodeTest {
           local.contains(
             new NameAndTypes(
               "/test_get_publisher_names_and_types_one",
-              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+              Arrays.asList("rcljava/msg/UInt32"))));
         assertTrue(
           "topic 'test_get_publisher_names_and_types_two' was not discovered for local node",
           local.contains(
             new NameAndTypes(
               "/test_get_publisher_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+              Arrays.asList("rcljava/msg/UInt32"))));
 
         assertEquals(remote.size(), 2);
         assertTrue(
@@ -1232,13 +1232,13 @@ public class NodeTest {
           remote.contains(
             new NameAndTypes(
               "/test_get_publisher_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+              Arrays.asList("rcljava/msg/UInt32"))));
         assertTrue(
           "topic 'test_get_publisher_names_and_types_three' was not discovered for remote node",
           remote.contains(
             new NameAndTypes(
               "/test_get_publisher_names_and_types_three",
-              new ArrayList(Arrays.asList("rcljava/msg/UInt32")))));
+              Arrays.asList("rcljava/msg/UInt32"))));
       }
     };
 
@@ -1312,13 +1312,13 @@ public class NodeTest {
           local.contains(
             new NameAndTypes(
               "/test_get_subscription_names_and_types_one",
-              new ArrayList(Arrays.asList("rcljava/msg/Empty")))));
+              Arrays.asList("rcljava/msg/Empty"))));
         assertTrue(
           "topic 'test_get_subscription_names_and_types_two' was not discovered for local node",
           local.contains(
             new NameAndTypes(
               "/test_get_subscription_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/msg/Empty")))));
+              Arrays.asList("rcljava/msg/Empty"))));
 
         assertEquals(remote.size(), 2);
         assertTrue(
@@ -1326,13 +1326,13 @@ public class NodeTest {
           remote.contains(
             new NameAndTypes(
               "/test_get_subscription_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/msg/Empty")))));
+              Arrays.asList("rcljava/msg/Empty"))));
         assertTrue(
           "topic 'test_get_subscription_names_and_types_three' was not discovered for remote node",
           remote.contains(
             new NameAndTypes(
               "/test_get_subscription_names_and_types_three",
-              new ArrayList(Arrays.asList("rcljava/msg/Empty")))));
+              Arrays.asList("rcljava/msg/Empty"))));
       }
     };
 
@@ -1432,13 +1432,13 @@ public class NodeTest {
           local.contains(
             new NameAndTypes(
               "/test_get_service_names_and_types_one",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
         assertTrue(
           "service 'test_get_service_names_and_types_two' was not discovered for local node",
           local.contains(
             new NameAndTypes(
               "/test_get_service_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
 
         assertEquals(remote.size(), 2);
         assertTrue(
@@ -1446,13 +1446,13 @@ public class NodeTest {
           remote.contains(
             new NameAndTypes(
               "/test_get_service_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
         assertTrue(
           "service 'test_get_service_names_and_types_three' was not discovered for remote node",
           remote.contains(
             new NameAndTypes(
               "/test_get_service_names_and_types_three",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
       }
     };
 
@@ -1525,13 +1525,13 @@ public class NodeTest {
           local.contains(
             new NameAndTypes(
               "/test_get_client_names_and_types_one",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
         assertTrue(
           "client 'test_get_client_names_and_types_two' was not discovered for local node",
           local.contains(
             new NameAndTypes(
               "/test_get_client_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
 
         assertEquals(remote.size(), 2);
         assertTrue(
@@ -1539,13 +1539,13 @@ public class NodeTest {
           remote.contains(
             new NameAndTypes(
               "/test_get_client_names_and_types_two",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
         assertTrue(
           "client 'test_get_client_names_and_types_three' was not discovered for remote node",
           remote.contains(
             new NameAndTypes(
               "/test_get_client_names_and_types_three",
-              new ArrayList(Arrays.asList("rcljava/srv/AddTwoInts")))));
+              Arrays.asList("rcljava/srv/AddTwoInts"))));
       }
     };
 

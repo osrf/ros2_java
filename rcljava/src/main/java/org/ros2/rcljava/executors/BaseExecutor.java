@@ -453,14 +453,15 @@ public class BaseExecutor {
       // Use an arbitrary timeout to relax cpu usage.
       waitTimeout = Math.min(maxDurationNs / 10, 10000000 /* 1ms*/);
     }
-    while (RCLJava.ok() && maxDurationNotElapsed(maxDurationNs, startNs)) {
+    while (RCLJava.ok() && (maxDurationNs  < 0 || maxDurationNotElapsed(maxDurationNs, startNs))) {
       waitForWork(waitTimeout);
       AnyExecutable anyExecutable = getNextExecutable();
-      if (anyExecutable != null) {
+      while (anyExecutable != null) {
         executeAnyExecutable(anyExecutable);
-      }
-      if (future.isDone()) {
-        break;
+        if (future.isDone()) {
+          return;
+        }
+        anyExecutable = getNextExecutable();
       }
     }
   }

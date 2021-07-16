@@ -188,7 +188,6 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
       requestParameters.add(parameterVariant.toParameter());
     }
     request.setParameters(requestParameters);
-
     setParametersClient.asyncSendRequest(
         request, new Consumer<Future<rcl_interfaces.srv.SetParameters_Response>>() {
           public void accept(final Future<rcl_interfaces.srv.SetParameters_Response> future) {

@@ -309,4 +309,8 @@ public class AsyncParametersClientImpl implements AsyncParametersClient {
         });
     return futureResult;
   }
+
+  public Node getNode() {
+    return this.node;
+  }
 }

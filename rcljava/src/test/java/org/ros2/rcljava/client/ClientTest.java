@@ -74,7 +74,6 @@ public class ClientTest {
     public final void accept(final RMWRequestId header,
         final rcljava.srv.AddTwoInts_Request request,
         final rcljava.srv.AddTwoInts_Response response) {
-      System.err.println("accept() called");
       if (!this.future.isDone()) {
         response.setSum(request.getA() + request.getB());
         this.future.set(response);
@@ -116,14 +115,10 @@ public class ClientTest {
 
     assertTrue(client.waitForService(Duration.ofSeconds(10)));
 
-    System.err.println("sending async request");
     Future<rcljava.srv.AddTwoInts_Response> responseFuture = client.asyncSendRequest(request);
 
-    System.err.println("spinning until complete");
     RCLJava.spinUntilComplete(node, responseFuture, TimeUnit.SECONDS.toNanos(10));
-    System.err.println("spinning until complete finished -- getting future");
     rcljava.srv.AddTwoInts_Response response = responseFuture.get();
-    System.err.println("got future");
 
     // Check that the message was received by the service
     assertTrue(consumerFuture.isDone());

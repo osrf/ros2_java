@@ -17,7 +17,6 @@ package org.ros2.rcljava.executors;
 
 import java.lang.Math;
 import java.lang.SuppressWarnings;
-import java.util.concurrent.Future;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;

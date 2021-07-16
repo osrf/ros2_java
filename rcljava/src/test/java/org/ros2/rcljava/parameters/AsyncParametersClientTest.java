@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.lang.System;
 
 import java.util.ArrayList;
 import java.util.Arrays;
